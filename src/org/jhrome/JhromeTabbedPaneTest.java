@@ -12,7 +12,7 @@ public class JhromeTabbedPaneTest
 	public static void main( String[ ] args )
 	{
 		JhromeTabbedPane tabbedPane = new JhromeTabbedPane( );
-		tabbedPane.setBorder( new EmptyBorder( 10 , 10 , 10 , 10 ) );
+		tabbedPane.setBorder( new EmptyBorder( 3 , 3 , 3 , 3 ) );
 		
 		for( int i = 0 ; i < 8 ; i++ )
 		{

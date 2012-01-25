@@ -1,23 +1,51 @@
 
 package org.jhrome;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.LayoutManager;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Window;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragGestureEvent;
+import java.awt.dnd.DragGestureListener;
+import java.awt.dnd.DragSource;
+import java.awt.dnd.DragSourceDragEvent;
+import java.awt.dnd.DragSourceDropEvent;
+import java.awt.dnd.DragSourceEvent;
+import java.awt.dnd.DragSourceListener;
+import java.awt.dnd.DragSourceMotionListener;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DropTargetListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+
+import com.sun.awt.AWTUtilities;
 
 public class JhromeTabbedPane extends JLayeredPane
 {
@@ -34,39 +62,68 @@ public class JhromeTabbedPane extends JLayeredPane
 		JhromeTab		tab;
 		Dimension		prefSize;
 		boolean			removing;
+		
+		int				targetX;
+		int				targetWidth;
+		Rectangle		targetBounds	= new Rectangle( );
+		
 		int				animX;
 		int				animWidth;
+		
+		boolean			dragging;
+		int				dragX;
+		double			grabX;
 	}
 	
-	private int					overlap			= 13;
+	private int					overlap				= 13;
 	
-	private double				animFactor		= 0.7;
+	private double				animFactor			= 0.7;
 	
 	private javax.swing.Timer	animTimer;
 	
 	private TabLayoutManager	layout;
 	
-	private boolean				useUniformWidth	= true;
-	private int					uniformWidth	= 300;
+	private boolean				useUniformWidth		= false;
+	private int					uniformWidth		= 300;
 	
-	private boolean				mouseOver		= true;
+	private boolean				holdTabScale		= true;
 	
 	private MouseManager		mouseOverManager;
 	
-	private TabInfo				selectedTab		= null;
+	private TabInfo				selectedTab			= null;
+	
+	private int					contentPanelOverlap	= 1;
+	
+	private JPanel				contentPanel;
+	
+	private int					tabMargin			= 2;
+	
+	private JButton				newTabButton;
+	
+	private ActionListener		newTabButtonListener;
+	
+	private static Window		dragImageWindow		= null;
+	
+	private static Image		dragImage			= null;
+	
+	private static double		grabX				= 0;
+	private static JhromeTab	draggedTab			= null;
+	
+	private DragHandler			dragHandler;
+	private DropHandler			dropHandler;
 	
 	private class MouseManager extends RecursiveListener
 	{
 		MouseAdapter	adapter	= new MouseAdapter( )
 								{
-									private void handleEvent( MouseEvent e )
+									private void updateHoldTabScale( MouseEvent e )
 									{
 										Point p = e.getPoint( );
 										p = SwingUtilities.convertPoint( ( Component ) e.getSource( ) , p , JhromeTabbedPane.this );
-										boolean newMouseOver = contains( p );
-										if( newMouseOver != mouseOver )
+										boolean newMouseOver = layout.tabZone.contains( p );
+										if( newMouseOver != holdTabScale )
 										{
-											mouseOver = newMouseOver;
+											holdTabScale = newMouseOver;
 											invalidate( );
 											validate( );
 										}
@@ -75,18 +132,20 @@ public class JhromeTabbedPane extends JLayeredPane
 									@Override
 									public void mouseEntered( MouseEvent e )
 									{
-										handleEvent( e );
+										updateHoldTabScale( e );
 									}
 									
 									@Override
 									public void mouseExited( MouseEvent e )
 									{
-										handleEvent( e );
+										updateHoldTabScale( e );
 									}
 									
 									@Override
 									public void mouseMoved( MouseEvent e )
 									{
+										updateHoldTabScale( e );
+										
 										Point p = SwingUtilities.convertPoint( e.getComponent( ) , e.getPoint( ) , JhromeTabbedPane.this );
 										JhromeTab tab = getHoverableTabAt( p );
 										for( TabInfo info : tabs )
@@ -141,6 +200,31 @@ public class JhromeTabbedPane extends JLayeredPane
 		
 		mouseOverManager = new MouseManager( );
 		mouseOverManager.install( this );
+		
+		contentPanel = new JPanel( );
+		add( contentPanel );
+		
+		contentPanel.setOpaque( false );
+		contentPanel.setLayout( new BorderLayout( ) );
+		contentPanel.setBorder( new JhromeContentPanelBorder( ) );
+		contentPanel.setBackground( JhromeTabBorder.SELECTED_BORDER.bottomColor );
+		
+		newTabButton = new JButton( "+" );
+		add( newTabButton );
+		
+		newTabButtonListener = new ActionListener( )
+		{
+			@Override
+			public void actionPerformed( ActionEvent e )
+			{
+				addTab( getTabCount( ) , new JhromeTab( "New Tab" ) );
+			}
+		};
+		
+		newTabButton.addActionListener( newTabButtonListener );
+		
+		dragHandler = new DragHandler( this , DnDConstants.ACTION_MOVE );
+		dropHandler = new DropHandler( this );
 	}
 	
 	private void setSelectedTab( TabInfo info )
@@ -150,6 +234,7 @@ public class JhromeTabbedPane extends JLayeredPane
 			if( selectedTab != null )
 			{
 				selectedTab.tab.setSelected( false );
+				contentPanel.removeAll( );
 			}
 			
 			selectedTab = info;
@@ -157,11 +242,28 @@ public class JhromeTabbedPane extends JLayeredPane
 			if( selectedTab != null )
 			{
 				selectedTab.tab.setSelected( true );
+				if( selectedTab.tab.getContent( ) != null )
+				{
+					contentPanel.add( selectedTab.tab.getContent( ) , BorderLayout.CENTER );
+				}
 			}
 			
 			invalidate( );
 			validate( );
 		}
+	}
+	
+	public int getTabCount( )
+	{
+		int count = 0;
+		for( int i = 0 ; i < tabs.size( ) ; i++ )
+		{
+			if( !tabs.get( i ).removing )
+			{
+				count++ ;
+			}
+		}
+		return count;
 	}
 	
 	public void setSelectedTab( JhromeTab tab )
@@ -186,7 +288,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		for( int i = -1 ; i < tabs.size( ) ; i++ )
 		{
 			TabInfo info = i < 0 ? selectedTab : tabs.get( i );
-			if( info == null )
+			if( info == null || info.removing )
 			{
 				continue;
 			}
@@ -213,7 +315,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		for( int i = -1 ; i < tabs.size( ) ; i++ )
 		{
 			TabInfo info = i < 0 ? selectedTab : tabs.get( i );
-			if( info == null )
+			if( info == null || info.removing )
 			{
 				continue;
 			}
@@ -240,7 +342,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		for( int i = -1 ; i < tabs.size( ) ; i++ )
 		{
 			TabInfo info = i < 0 ? selectedTab : tabs.get( i );
-			if( info == null )
+			if( info == null || info.removing )
 			{
 				continue;
 			}
@@ -293,7 +395,17 @@ public class JhromeTabbedPane extends JLayeredPane
 		return devirtualized;
 	}
 	
+	public void addTab( final JhromeTab tab )
+	{
+		addTab( getTabCount( ) , tab );
+	}
+	
 	public void addTab( int index , final JhromeTab tab )
+	{
+		addTab( index , tab , true );
+	}
+	
+	private void addTab( int index , final JhromeTab tab , boolean expand )
 	{
 		TabInfo info = new TabInfo( );
 		info.tab = tab;
@@ -365,6 +477,58 @@ public class JhromeTabbedPane extends JLayeredPane
 		}
 	}
 	
+	private int getInsertIndex( int x )
+	{
+		int virtualIndex = 0;
+		for( int i = 0 ; i < tabs.size( ) ; i++ )
+		{
+			TabInfo info = tabs.get( i );
+			if( !info.removing )
+			{
+				if( x >= info.targetBounds.x && x <= info.targetBounds.x + info.targetBounds.width )
+				{
+					return virtualIndex;
+				}
+				virtualIndex++ ;
+			}
+		}
+		return getTabCount( );
+	}
+	
+	private void setDragState( JhromeTab draggedTab , double grabX , int dragX )
+	{
+		boolean validate = false;
+		
+		for( TabInfo info : tabs )
+		{
+			if( info.tab == draggedTab )
+			{
+				if( !info.dragging || info.grabX != grabX || info.dragX != dragX )
+				{
+					info.dragging = true;
+					info.grabX = grabX;
+					info.dragX = dragX;
+					
+					validate = true;
+				}
+			}
+			else
+			{
+				if( info.dragging )
+				{
+					info.dragging = false;
+					validate = true;
+				}
+			}
+		}
+		
+		if( validate )
+		{
+			invalidate( );
+			validate( );
+		}
+	}
+	
 	public JButton getNewTabButton( )
 	{
 		return null;
@@ -377,11 +541,60 @@ public class JhromeTabbedPane extends JLayeredPane
 		return d == 0 ? target : target + d;
 	}
 	
+	@SuppressWarnings( { "serial" } )
+	private void showDragImageWindow( )
+	{
+		if( dragImageWindow == null )
+		{
+			dragImageWindow = new Window( null )
+			{
+				@Override
+				public void paint( Graphics g )
+				{
+					Graphics2D g2 = ( Graphics2D ) g;
+					
+					if( dragImage != null )
+					{
+						g2.drawImage( dragImage , 0 , 0 , null );
+					}
+				}
+			};
+			
+			AWTUtilities.setWindowOpaque( dragImageWindow , false );
+		}
+		
+		if( dragImage != null )
+		{
+			dragImageWindow.setSize( dragImage.getWidth( null ) , dragImage.getHeight( null ) );
+		}
+		dragImageWindow.setVisible( true );
+	}
+	
+	private void moveDragImageWindow( Point p )
+	{
+		if( dragImageWindow != null )
+		{
+			dragImageWindow.setLocation( p );
+		}
+	}
+	
+	private void disposeDragImageWindow( )
+	{
+		if( dragImageWindow != null )
+		{
+			dragImageWindow.dispose( );
+			dragImageWindow = null;
+			dragImage = null;
+		}
+	}
+	
 	private class TabLayoutManager implements LayoutManager
 	{
 		Dimension	lastSize		= null;
 		
 		int			animTotalWidth	= 0;
+		
+		Rectangle	tabZone			= new Rectangle( );
 		
 		@Override
 		public void addLayoutComponent( String name , Component comp )
@@ -417,7 +630,10 @@ public class JhromeTabbedPane extends JLayeredPane
 			
 			Insets insets = getInsets( );
 			
+			Dimension newTabButtonPrefSize = newTabButton.getPreferredSize( );
+			
 			int availWidth = width - insets.left - insets.right;
+			int availTabWidth = width - insets.left - insets.right - tabMargin - tabMargin - overlap - newTabButtonPrefSize.width;
 			int availHeight = height - insets.top - insets.bottom;
 			
 			boolean animNeeded = false;
@@ -426,11 +642,19 @@ public class JhromeTabbedPane extends JLayeredPane
 			
 			int newTotalWidth = 0;
 			
+			int tabHeight = newTabButtonPrefSize.height;
+			
+			boolean anyDragging = false;
+			
 			for( int i = 0 ; i < tabs.size( ) ; i++ )
 			{
 				TabInfo info = tabs.get( i );
+				info.targetX = x;
 				
 				int targetWidth = info.removing ? 0 : useUniformWidth ? uniformWidth : info.prefSize.width;
+				info.targetWidth = targetWidth;
+				
+				tabHeight = Math.max( tabHeight , info.prefSize.height );
 				
 				if( info.animWidth != targetWidth )
 				{
@@ -458,7 +682,15 @@ public class JhromeTabbedPane extends JLayeredPane
 					}
 				}
 				
-				newTotalWidth = Math.max( newTotalWidth , info.animX + info.animWidth );
+				newTotalWidth = Math.max( newTotalWidth , info.targetX + info.animWidth );
+				if( !info.dragging )
+				{
+					newTotalWidth = Math.max( newTotalWidth , info.animX + info.animWidth );
+				}
+				else
+				{
+					anyDragging = true;
+				}
 				
 				if( !info.removing )
 				{
@@ -470,7 +702,7 @@ public class JhromeTabbedPane extends JLayeredPane
 			{
 				animTotalWidth = newTotalWidth;
 			}
-			else if( !mouseOver && animTotalWidth != newTotalWidth )
+			else if( !holdTabScale && !anyDragging && animTotalWidth != newTotalWidth )
 			{
 				if( reset )
 				{
@@ -483,14 +715,47 @@ public class JhromeTabbedPane extends JLayeredPane
 				}
 			}
 			
-			double widthRatio = animTotalWidth > availWidth ? availWidth / ( double ) animTotalWidth : 1.0;
+			double widthRatio = animTotalWidth > availTabWidth ? availTabWidth / ( double ) animTotalWidth : 1.0;
+			
+			double adjWidthRatio = widthRatio;
+			for( int i = 0 ; i < tabs.size( ) ; i++ )
+			{
+				TabInfo info = tabs.get( i );
+				if( info.removing )
+				{
+					continue;
+				}
+				Dimension minSize = info.tab.getRenderer( ).getMinimumSize( );
+				if( minSize != null && info.animWidth >= minSize.width )
+				{
+					int targetWidth = useUniformWidth ? uniformWidth : info.prefSize.width;
+					adjWidthRatio = Math.max( adjWidthRatio , minSize.width / ( double ) targetWidth );
+				}
+			}
 			
 			for( int i = 0 ; i < tabs.size( ) ; i++ )
 			{
 				TabInfo info = tabs.get( i );
-				info.tab.getRenderer( ).setBounds( insets.left + ( int ) ( info.animX * widthRatio ) , height - insets.bottom - Math.min( availHeight , info.prefSize.height ) , ( int ) ( info.animWidth * widthRatio ) + ( i < tabs.size( ) - 1 ? overlap : 0 ) ,
-						Math.min( availHeight , info.prefSize.height ) );
+				int tabX = insets.left + tabMargin + ( int ) ( info.animX * adjWidthRatio );
+				int tabTargetX = insets.left + tabMargin + ( int ) ( info.targetX * adjWidthRatio );
+				int tabW = ( int ) ( info.animWidth * adjWidthRatio ) + overlap;
+				int tabTargetW = ( int ) ( info.targetWidth * adjWidthRatio ) + overlap;
+				if( info.dragging )
+				{
+					tabX = info.dragX - ( int ) ( info.grabX * tabW );
+					tabX = Math.max( tabX , insets.left + tabMargin );
+					info.animX = ( int ) ( ( tabX - insets.left - tabMargin ) / adjWidthRatio );
+				}
+				info.tab.getRenderer( ).setBounds( tabX , insets.top , tabW , tabHeight );
+				info.targetBounds.setFrame( tabTargetX , insets.top , tabTargetW , tabHeight );
 			}
+			
+			tabZone.setFrame( insets.left , insets.top , availWidth , tabHeight );
+			
+			contentPanel.setBounds( insets.left , insets.top + tabHeight - contentPanelOverlap , availWidth , availHeight - tabHeight + contentPanelOverlap );
+			
+			int newTabButtonX = Math.min( insets.left + availWidth - tabMargin - newTabButtonPrefSize.width , insets.left + tabMargin + ( int ) ( newTotalWidth * adjWidthRatio ) + overlap );
+			newTabButton.setBounds( newTabButtonX , insets.top , newTabButtonPrefSize.width , tabHeight );
 			
 			for( int i = tabs.size( ) - 1 ; i >= 0 ; i-- )
 			{
@@ -503,10 +768,15 @@ public class JhromeTabbedPane extends JLayeredPane
 			
 			int layer = JLayeredPane.DEFAULT_LAYER;
 			
+			setComponentZOrder( newTabButton , layer++ );
+			
 			if( selectedTab != null )
 			{
 				setComponentZOrder( selectedTab.tab.getRenderer( ) , layer++ );
 			}
+			
+			setComponentZOrder( contentPanel , layer++ );
+			
 			for( TabInfo info : tabs )
 			{
 				if( info == selectedTab )
@@ -518,15 +788,168 @@ public class JhromeTabbedPane extends JLayeredPane
 			
 			lastSize = size;
 			
-			if( animNeeded && !animTimer.isRunning( ) )
+			if( animNeeded )
 			{
 				animTimer.start( );
 			}
-			else if( !animNeeded && animTimer.isRunning( ) )
+			else if( !animNeeded )
 			{
 				animTimer.stop( );
 			}
 		}
 	}
 	
+	private class JhromeTransferable implements Transferable
+	{
+		@Override
+		public DataFlavor[ ] getTransferDataFlavors( )
+		{
+			return null;
+		}
+		
+		@Override
+		public boolean isDataFlavorSupported( DataFlavor flavor )
+		{
+			return false;
+		}
+		
+		@Override
+		public Object getTransferData( DataFlavor flavor ) throws UnsupportedFlavorException , IOException
+		{
+			return null;
+		}
+	}
+	
+	private class DragHandler implements DragSourceListener,DragSourceMotionListener,DragGestureListener
+	{
+		DragSource	source;
+		
+		Point		dragOrigin;
+		
+		public DragHandler( Component comp , int actions )
+		{
+			source = new DragSource( );
+			source.createDefaultDragGestureRecognizer( comp , actions , this );
+			source.addDragSourceMotionListener( this );
+		}
+		
+		@Override
+		public void dragGestureRecognized( DragGestureEvent dge )
+		{
+			dragOrigin = dge.getDragOrigin( );
+			
+			draggedTab = getDraggableTabAt( dragOrigin );
+			if( draggedTab != null )
+			{
+				Point p = SwingUtilities.convertPoint( JhromeTabbedPane.this , dragOrigin , draggedTab.getRenderer( ) );
+				grabX = p.x / ( double ) draggedTab.getRenderer( ).getWidth( );
+				Transferable t = new JhromeTransferable( );
+				source.startDrag( dge , Cursor.getPredefinedCursor( Cursor.DEFAULT_CURSOR ) , t , this );
+			}
+		}
+		
+		@Override
+		public void dragEnter( DragSourceDragEvent dsde )
+		{
+		}
+		
+		@Override
+		public void dragExit( DragSourceEvent dse )
+		{
+		}
+		
+		@Override
+		public void dragOver( DragSourceDragEvent dsde )
+		{
+		}
+		
+		@Override
+		public void dragMouseMoved( DragSourceDragEvent dsde )
+		{
+			final Point p = dsde.getLocation( );
+			final Point pImage = new Point( p.x + 10 , p.y + 10 );
+			
+			showDragImageWindow( );
+			moveDragImageWindow( pImage );
+		}
+		
+		@Override
+		public void dropActionChanged( DragSourceDragEvent dsde )
+		{
+		}
+		
+		@Override
+		public void dragDropEnd( final DragSourceDropEvent dsde )
+		{
+			disposeDragImageWindow( );
+		}
+	}
+	
+	private class DropHandler implements DropTargetListener
+	{
+		DropTarget	target;
+		
+		public DropHandler( Component comp )
+		{
+			target = new DropTarget( comp , this );
+		}
+		
+		private void handleDrag( DropTargetDragEvent dtde )
+		{
+		}
+		
+		@Override
+		public void dragEnter( DropTargetDragEvent dtde )
+		{
+			handleDrag( dtde );
+		}
+		
+		@Override
+		public void dragOver( DropTargetDragEvent dtde )
+		{
+			handleDrag( dtde );
+			
+			if( draggedTab != null )
+			{
+				TabInfo info = getInfo( draggedTab );
+				if( info != null )
+				{
+					int currentIndex = tabs.indexOf( info );
+					int dragX = dtde.getLocation( ).x;
+					setDragState( draggedTab , grabX , dragX );
+					
+					int insertX = dragX + ( int ) ( ( 0.5 - grabX ) * draggedTab.getRenderer( ).getWidth( ) );
+					
+					int newIndex = devirtualizeIndex( getInsertIndex( insertX ) );
+					if( newIndex != currentIndex )
+					{
+						tabs.remove( info );
+						newIndex = Math.min( newIndex , tabs.size( ) );
+						tabs.add( newIndex , info );
+						
+						invalidate( );
+						validate( );
+					}
+				}
+			}
+		}
+		
+		@Override
+		public void dragExit( DropTargetEvent dte )
+		{
+			setDragState( null , 0 , 0 );
+		}
+		
+		@Override
+		public void dropActionChanged( DropTargetDragEvent dtde )
+		{
+			handleDrag( dtde );
+		}
+		
+		@Override
+		public void drop( DropTargetDropEvent dtde )
+		{
+			setDragState( null , 0 , 0 );
+		}
+	}
 }
