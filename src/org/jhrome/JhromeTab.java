@@ -23,7 +23,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
 
 @SuppressWarnings( "serial" )
-public class JhromeTab extends JComponent
+public class JhromeTab extends JComponent implements IJhromeTab
 {
 	JLabel						label;
 	JButton						closeButton;
@@ -161,41 +161,73 @@ public class JhromeTab extends JComponent
 		super.paint( g );
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.jhrome.IJhromeTab#getRenderer()
+	 */
+	@Override
 	public Component getRenderer( )
 	{
 		return this;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.jhrome.IJhromeTab#getContent()
+	 */
+	@Override
 	public Component getContent( )
 	{
 		return content;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.jhrome.IJhromeTab#getCloseButton()
+	 */
+	@Override
 	public JButton getCloseButton( )
 	{
 		return closeButton;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.jhrome.IJhromeTab#isDraggableAt(java.awt.Point)
+	 */
+	@Override
 	public boolean isDraggableAt( Point p )
 	{
 		return isHoverableAt( p ) && !closeButton.contains( SwingUtilities.convertPoint( this , p , closeButton ) );
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.jhrome.IJhromeTab#isSelectableAt(java.awt.Point)
+	 */
+	@Override
 	public boolean isSelectableAt( Point p )
 	{
 		return isDraggableAt( p );
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.jhrome.IJhromeTab#isHoverableAt(java.awt.Point)
+	 */
+	@Override
 	public boolean isHoverableAt( Point p )
 	{
 		return outerBorder.contains( p );
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.jhrome.IJhromeTab#isSelected()
+	 */
+	@Override
 	public boolean isSelected( )
 	{
 		return selected;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.jhrome.IJhromeTab#setSelected(boolean)
+	 */
+	@Override
 	public void setSelected( boolean selected )
 	{
 		if( this.selected != selected )
@@ -206,11 +238,19 @@ public class JhromeTab extends JComponent
 		}
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.jhrome.IJhromeTab#isRollover()
+	 */
+	@Override
 	public boolean isRollover( )
 	{
 		return rollover;
 	}
 	
+	/* (non-Javadoc)
+	 * @see org.jhrome.IJhromeTab#setRollover(boolean)
+	 */
+	@Override
 	public void setRollover( boolean rollover )
 	{
 		if( this.rollover != rollover )

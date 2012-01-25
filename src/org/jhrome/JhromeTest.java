@@ -3,15 +3,16 @@ package org.jhrome;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Window;
 
 public class JhromeTest
 {
 	public static void main( String[ ] args )
 	{
-		JhromeWindowFactory windowFactory = new JhromeWindowFactory( );
-		JhromeWindow window = windowFactory.createWindow( );
-		
-		JhromeTabbedPane tabbedPane = window.getTabbedPane( );
+		IJhromeWindowFactory windowFactory = new JhromeWindowFactory( );
+		IJhromeWindow jhromeWindow = windowFactory.createWindow( );
+		Window window = jhromeWindow.getWindow( );
+		JhromeTabbedPane tabbedPane = jhromeWindow.getTabbedPane( );
 		
 		for( int i = 0 ; i < 1 ; i++ )
 		{

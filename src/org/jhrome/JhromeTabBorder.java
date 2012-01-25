@@ -16,10 +16,10 @@ import javax.swing.border.Border;
 
 public class JhromeTabBorder implements Border
 {
-	public JhromeTabBorderAttributes	attrs	= new JhromeTabBorderAttributes( );
+	public final JhromeTabBorderAttributes	attrs	= new JhromeTabBorderAttributes( );
 	
-	private Path2D						openPath;
-	private Path2D						closedPath;
+	private Path2D							openPath;
+	private Path2D							closedPath;
 	
 	private void updatePaths( int x , int y , int width , int height )
 	{

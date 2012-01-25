@@ -4,11 +4,13 @@ package org.jhrome;
 import java.awt.BorderLayout;
 import java.awt.GraphicsConfiguration;
 import java.awt.HeadlessException;
+import java.awt.Window;
 
 import javax.swing.JFrame;
 import javax.swing.border.EmptyBorder;
 
-public class JhromeWindow extends JFrame
+@SuppressWarnings( "serial" )
+public class JhromeWindow extends JFrame implements IJhromeWindow
 {
 	
 	public JhromeWindow( ) throws HeadlessException
@@ -51,9 +53,20 @@ public class JhromeWindow extends JFrame
 		getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jhrome.IJhromeWindow#getTabbedPane()
+	 */
+	@Override
 	public JhromeTabbedPane getTabbedPane( )
 	{
 		return tabbedPane;
 	}
 	
+	@Override
+	public Window getWindow( )
+	{
+		return this;
+	}
 }
