@@ -864,8 +864,6 @@ public class JhromeTabbedPane extends JLayeredPane
 		@Override
 		public void dragMouseMoved( DragSourceDragEvent dsde )
 		{
-			moveDragImageWindow( new Point( dsde.getX( ) + 10 , dsde.getY( ) + 10 ) );
-			
 			if( draggedTab != null && draggedParent != null )
 			{
 				Point p = dsde.getLocation( );
@@ -875,6 +873,8 @@ public class JhromeTabbedPane extends JLayeredPane
 					dragOut( dsde );
 				}
 			}
+			
+			moveDragImageWindow( new Point( dsde.getX( ) + 10 , dsde.getY( ) + 10 ) );
 		}
 		
 		@Override
@@ -1029,6 +1029,7 @@ public class JhromeTabbedPane extends JLayeredPane
 			dragImageWindow.setSize( dragImage.getWidth( null ) , dragImage.getHeight( null ) );
 		}
 		dragImageWindow.setVisible( true );
+		dragImageWindow.setAlwaysOnTop( true );
 	}
 	
 	private static void moveDragImageWindow( Point p )
@@ -1065,12 +1066,12 @@ public class JhromeTabbedPane extends JLayeredPane
 	{
 		if( draggedTab != null )
 		{
+			showDragImageWindow( );
+			
 			if( draggedParent != null && dte.getDropTargetContext( ).getComponent( ) == draggedParent )
 			{
 				removeDraggedTabFromParent( );
 			}
-			
-			showDragImageWindow( );
 		}
 	}
 	
@@ -1078,12 +1079,12 @@ public class JhromeTabbedPane extends JLayeredPane
 	{
 		if( draggedTab != null )
 		{
+			showDragImageWindow( );
+			
 			if( draggedParent != null && dsde.getDragSourceContext( ).getComponent( ) == draggedParent )
 			{
 				removeDraggedTabFromParent( );
 			}
-			
-			showDragImageWindow( );
 		}
 	}
 	
