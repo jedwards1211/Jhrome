@@ -18,8 +18,8 @@ public class JhromeContentPanelBorder implements Border
 {
 	int		roundness		= 5;
 	int		thickness		= 2;
-	Color	outlineColor	= JhromeTabBorder.SELECTED_BORDER.outlineColor;
-	Color	backgroundColor	= JhromeTabBorder.SELECTED_BORDER.bottomColor;
+	Color	outlineColor	= JhromeTabBorderAttributes.SELECTED_BORDER.outlineColor;
+	Color	backgroundColor	= JhromeTabBorderAttributes.SELECTED_BORDER.bottomColor;
 	
 	/*
 	 * (non-Javadoc)

@@ -211,7 +211,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		contentPanel.setOpaque( false );
 		contentPanel.setLayout( new BorderLayout( ) );
 		contentPanel.setBorder( new JhromeContentPanelBorder( ) );
-		contentPanel.setBackground( JhromeTabBorder.SELECTED_BORDER.bottomColor );
+		contentPanel.setBackground( JhromeTabBorderAttributes.SELECTED_BORDER.bottomColor );
 		
 		newTabButton = new JButton( "+" );
 		
@@ -465,6 +465,13 @@ public class JhromeTabbedPane extends JLayeredPane
 		}
 	}
 	
+	public void removeAllTabs( )
+	{
+		setSelectedTab( ( TabInfo ) null );
+		removeAll( );
+		tabs.clear( );
+	}
+	
 	public void setSelectedTab( JhromeTab tab )
 	{
 		if( tab == null )
@@ -579,8 +586,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	public void dispose( )
 	{
-		removeAll( );
-		tabs.clear( );
+		removeAllTabs( );
 		mouseOverManager.uninstall( this );
 	}
 	

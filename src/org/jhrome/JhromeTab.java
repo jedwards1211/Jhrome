@@ -25,29 +25,34 @@ import javax.swing.plaf.basic.BasicButtonUI;
 @SuppressWarnings( "serial" )
 public class JhromeTab extends JComponent
 {
-	JLabel				label;
-	JButton				closeButton;
-	CompoundBorder		compoundBorder;
-	JhromeTabBorder		outerBorder;
-	EmptyBorder			innerBorder;
-	Component			content;
+	JLabel						label;
+	JButton						closeButton;
+	CompoundBorder				compoundBorder;
 	
-	boolean				selected;
-	boolean				rollover;
+	JhromeTabBorder				outerBorder;
+	JhromeTabBorderAttributes	selectedAttributes		= JhromeTabBorderAttributes.SELECTED_BORDER.clone( );
+	JhromeTabBorderAttributes	rolloverAttributes		= JhromeTabBorderAttributes.UNSELECTED_ROLLOVER_BORDER.clone( );
+	JhromeTabBorderAttributes	normalAttributes		= JhromeTabBorderAttributes.UNSELECTED_BORDER.clone( );
 	
-	float				highlight				= 0f;
+	EmptyBorder					innerBorder;
+	Component					content;
 	
-	float				highlightSpeed			= 0.1f;
+	boolean						selected;
+	boolean						rollover;
 	
-	javax.swing.Timer	highlightTimer;
-	Color				selectedLabelColor		= Color.BLACK;
-	Color				unselectedLabelColor	= new Color( 80 , 80 , 80 );
+	float						highlight				= 0f;
+	
+	float						highlightSpeed			= 0.1f;
+	
+	javax.swing.Timer			highlightTimer;
+	Color						selectedLabelColor		= Color.BLACK;
+	Color						unselectedLabelColor	= new Color( 80 , 80 , 80 );
 	
 	public JhromeTab( String title )
 	{
 		innerBorder = new EmptyBorder( 5 , 5 , 5 , 0 );
 		outerBorder = new JhromeTabBorder( );
-		outerBorder.copyAttributes( JhromeTabBorder.UNSELECTED_BORDER );
+		outerBorder.attrs.copyAttributes( normalAttributes );
 		compoundBorder = new CompoundBorder( outerBorder , innerBorder );
 		setBorder( compoundBorder );
 		setLayout( new BorderLayout( ) );
@@ -108,12 +113,12 @@ public class JhromeTab extends JComponent
 	{
 		if( selected )
 		{
-			outerBorder.copyAttributes( JhromeTabBorder.SELECTED_BORDER );
+			outerBorder.attrs.copyAttributes( selectedAttributes );
 		}
 		else
 		{
-			outerBorder.copyAttributes( JhromeTabBorder.UNSELECTED_ROLLOVER_BORDER );
-			outerBorder.interpolateColors( JhromeTabBorder.UNSELECTED_BORDER , JhromeTabBorder.UNSELECTED_ROLLOVER_BORDER , highlight );
+			outerBorder.attrs.copyAttributes( rolloverAttributes );
+			outerBorder.attrs.interpolateColors( normalAttributes , rolloverAttributes , highlight );
 		}
 	}
 	
