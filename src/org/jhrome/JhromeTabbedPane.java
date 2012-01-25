@@ -512,6 +512,9 @@ public class JhromeTabbedPane extends JLayeredPane
 	private int getInsertIndex( int x )
 	{
 		int virtualIndex = 0;
+		int closestIndex = -1;
+		int closestDistance = 0;
+		
 		for( int i = 0 ; i < tabs.size( ) ; i++ )
 		{
 			TabInfo info = tabs.get( i );
@@ -521,10 +524,19 @@ public class JhromeTabbedPane extends JLayeredPane
 				{
 					return virtualIndex;
 				}
+				else
+				{
+					int distance = Math.min( Math.abs( x - info.targetBounds.x ) , Math.abs( x - info.targetBounds.x + info.targetBounds.width ) );
+					if( closestIndex < 0 || distance < closestDistance )
+					{
+						closestIndex = virtualIndex;
+						closestDistance = distance;
+					}
+				}
 				virtualIndex++ ;
 			}
 		}
-		return getTabCount( );
+		return Math.max( closestIndex , 0 );
 	}
 	
 	private void setDragState( JhromeTab draggedTab , double grabX , int dragX )
@@ -910,6 +922,7 @@ public class JhromeTabbedPane extends JLayeredPane
 					newWindow.pack( );
 				}
 				
+				newWindow.setLocation( dsde.getLocation( ) );
 				newWindow.setVisible( true );
 				
 				Point loc = newWindow.getLocation( );
