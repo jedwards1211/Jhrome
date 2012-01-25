@@ -82,39 +82,39 @@ public class JhromeTabbedPane extends JLayeredPane
 		double			grabX;
 	}
 	
-	private int						overlap					= 13;
+	private int					overlap				= 13;
 	
-	private double					animFactor				= 0.7;
+	private double				animFactor			= 0.7;
 	
-	private javax.swing.Timer		animTimer;
+	private javax.swing.Timer	animTimer;
 	
-	private TabLayoutManager		layout;
+	private TabLayoutManager	layout;
 	
-	private boolean					useUniformWidth			= true;
-	private int						uniformWidth			= 300;
+	private boolean				useUniformWidth		= true;
+	private int					uniformWidth		= 300;
 	
-	private boolean					holdTabScale			= true;
+	private boolean				holdTabScale		= true;
 	
-	private MouseManager			mouseOverManager;
+	private MouseManager		mouseOverManager;
 	
-	private TabInfo					selectedTab				= null;
+	private TabInfo				selectedTab			= null;
 	
-	private int						contentPanelOverlap		= 1;
+	private int					contentPanelOverlap	= 1;
 	
-	private JPanel					contentPanel;
+	private JPanel				contentPanel;
 	
-	private int						tabMargin				= 2;
+	private int					tabMargin			= 2;
 	
-	private JPanel					rightButtonsPanel;
+	private JPanel				rightButtonsPanel;
 	
-	private JButton					newTabButton;
+	private JButton				newTabButton;
 	
-	private ActionListener			newTabButtonListener;
+	private ActionListener		newTabButtonListener;
 	
-	private DragHandler				dragHandler;
-	private DropHandler				dropHandler;
+	private DragHandler			dragHandler;
+	private DropHandler			dropHandler;
 	
-	private JhromeWindowFactory		windowFactory			= new JhromeWindowFactory( );
+	private JhromeWindowFactory	windowFactory		= new JhromeWindowFactory( );
 	
 	private class MouseManager extends RecursiveListener
 	{
@@ -363,7 +363,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		}
 		return count;
 	}
-
+	
 	public void addTab( final JhromeTab tab )
 	{
 		addTab( getTabCount( ) , tab );
@@ -481,7 +481,7 @@ public class JhromeTabbedPane extends JLayeredPane
 			setSelectedTab( info );
 		}
 	}
-
+	
 	private void setSelectedTab( TabInfo info )
 	{
 		if( selectedTab != info )
@@ -507,7 +507,7 @@ public class JhromeTabbedPane extends JLayeredPane
 			validate( );
 		}
 	}
-
+	
 	private void setDragState( JhromeTab draggedTab , double grabX , int dragX )
 	{
 		boolean validate = false;
@@ -571,7 +571,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		}
 		return Math.max( closestIndex , 0 );
 	}
-
+	
 	public JButton getNewTabButton( )
 	{
 		return null;
@@ -583,7 +583,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		tabs.clear( );
 		mouseOverManager.uninstall( this );
 	}
-
+	
 	private int animate( int value , int target )
 	{
 		int d = value - target;
@@ -931,6 +931,9 @@ public class JhromeTabbedPane extends JLayeredPane
 				newWindow.setLocation( dsde.getLocation( ) );
 				newWindow.setVisible( true );
 				
+				newWindow.toFront( );
+				newWindow.requestFocus( );
+				
 				Point loc = newWindow.getLocation( );
 				Component renderer = draggedTab.getRenderer( );
 				Point tabPos = new Point( renderer.getWidth( ) / 2 , renderer.getHeight( ) / 2 );
@@ -1017,24 +1020,24 @@ public class JhromeTabbedPane extends JLayeredPane
 	}
 	
 	private static Window			dragImageWindow			= null;
-
+	
 	private static Image			dragImage				= null;
-
+	
 	private static JhromeTabbedPane	draggedParent			= null;
-
+	
 	private static double			grabX					= 0;
-
+	
 	private static JhromeTab		draggedTab				= null;
-
+	
 	private static List<Window>		deadWindows				= new ArrayList<Window>( );
-
+	
 	private static Dimension		dragSourceWindowSize	= null;
-
+	
 	private static void dragOut( DropTargetEvent dte )
 	{
 		if( draggedTab != null )
 		{
-			showDragImageWindow( );
+			initDragImageWindow( );
 			
 			if( draggedParent != null && dte.getDropTargetContext( ).getComponent( ) == draggedParent )
 			{
@@ -1047,7 +1050,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	{
 		if( draggedTab != null )
 		{
-			showDragImageWindow( );
+			initDragImageWindow( );
 			
 			if( draggedParent != null && dsde.getDragSourceContext( ).getComponent( ) == draggedParent )
 			{
@@ -1068,7 +1071,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		}
 		draggedParent = null;
 	}
-
+	
 	private static void dragOver( DropTargetDragEvent dtde )
 	{
 		if( draggedTab != null )
@@ -1167,14 +1170,14 @@ public class JhromeTabbedPane extends JLayeredPane
 		
 		return rescaled;
 	}
-
+	
 	private static boolean isDragImageWindowVisible( )
 	{
 		return ( dragImageWindow != null && dragImageWindow.isShowing( ) );
 	}
-
+	
 	@SuppressWarnings( { "serial" } )
-	private static void showDragImageWindow( )
+	private static void initDragImageWindow( )
 	{
 		if( dragImageWindow == null )
 		{
@@ -1199,18 +1202,18 @@ public class JhromeTabbedPane extends JLayeredPane
 		{
 			dragImageWindow.setSize( dragImage.getWidth( null ) , dragImage.getHeight( null ) );
 		}
-		dragImageWindow.setVisible( true );
 		dragImageWindow.setAlwaysOnTop( true );
 	}
-
+	
 	private static void moveDragImageWindow( Point p )
 	{
 		if( dragImageWindow != null )
 		{
 			dragImageWindow.setLocation( p );
+			dragImageWindow.setVisible( true );
 		}
 	}
-
+	
 	private static void disposeDragImageWindow( )
 	{
 		if( dragImageWindow != null )
