@@ -387,7 +387,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		TabInfo info = new TabInfo( );
 		info.tab = tab;
 		info.prefSize = tab.getRenderer( ).getPreferredSize( );
-		info.animWidth = 0;
+		info.animWidth = expand ? 0 : info.prefSize.width;
 		info.removing = false;
 		if( tab.getCloseButton( ) != null )
 		{
@@ -419,7 +419,8 @@ public class JhromeTabbedPane extends JLayeredPane
 		tabs.add( index , info );
 		add( tab.getRenderer( ) );
 		
-		animTimer.start( );
+		invalidate( );
+		validate( );
 	}
 	
 	public void removeTab( IJhromeTab tab )
@@ -445,7 +446,8 @@ public class JhromeTabbedPane extends JLayeredPane
 				}
 			}
 			info.removing = true;
-			animTimer.start( );
+			invalidate( );
+			validate( );
 		}
 	}
 	
