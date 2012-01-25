@@ -1,0 +1,9 @@
+Bug ID: 1
+
+Created: 2012-01-25
+
+Description: If the user closes tabs by rapidly clicking, and the add tab button slides under the mouse
+and is clicked before the last closed tab has contracted, animation hangs and exceptions
+result.
+
+--------------------------------------------------------------------------------
