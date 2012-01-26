@@ -1,6 +1,5 @@
--Create chrome-like new tab button
--Get exact chrome colors
 -Fix memory leaks
+-Prevent RecursiveListener from listening to content pane
 -Make DnD logic customizable
 -Make animation customizable
 -Add listening capability

@@ -12,3 +12,12 @@ Technical: When removing the selected tab, JhromeTabbedPane has to select an adj
 was accidentally selecting another tab that was being removed (contracting)
 
 --------------------------------------------------------------------------------
+
+Bug ID: 2
+
+Created 2012-01-25
+
+Description: Whenever the user moves the mouse away from an unselected tab quickly, the
+tab remains rolled over.  (This is because mouse exit is not detected).
+
+--------------------------------------------------------------------------------

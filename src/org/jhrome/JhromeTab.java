@@ -8,7 +8,6 @@ import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -20,6 +19,7 @@ import javax.swing.SwingUtilities;
 public class JhromeTab extends JComponent implements IJhromeTab
 {
 	JLabel		label;
+	Component	overrideLabel;
 	JButton		closeButton;
 	
 	Component	content;
@@ -49,9 +49,30 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		setUI( new JhromeTabUI( ) );
 	}
 	
-	protected void onHighlightTimerEvent( ActionEvent e )
+	public void setOverrideLabel( Component component )
 	{
-		repaint( );
+		if( overrideLabel != component )
+		{
+			if( overrideLabel != null )
+			{
+				remove( overrideLabel );
+			}
+			else
+			{
+				remove( label );
+			}
+			
+			overrideLabel = component;
+			
+			if( component != null )
+			{
+				add( component , BorderLayout.CENTER );
+			}
+			else
+			{
+				add( label , BorderLayout.CENTER );
+			}
+		}
 	}
 	
 	@Override
