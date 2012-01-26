@@ -1,7 +1,6 @@
 
 package org.jhrome;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Window;
 
@@ -24,8 +23,6 @@ public class JhromeTest
 				for( int i = 0 ; i < 1 ; i++ )
 				{
 					JhromeTab tab = new JhromeTab( "Tab " + i );
-					tab.rolloverAttributes.topColor = Color.BLUE;
-					tab.selectedAttributes.topColor = Color.RED;
 					tabbedPane.addTab( i , tab );
 					tabbedPane.setSelectedTab( tab );
 				}

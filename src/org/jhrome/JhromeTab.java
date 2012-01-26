@@ -2,87 +2,40 @@
 package org.jhrome;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicButtonUI;
 
 @SuppressWarnings( "serial" )
 public class JhromeTab extends JComponent implements IJhromeTab
 {
-	JLabel						label;
-	JButton						closeButton;
+	JLabel		label;
+	JButton		closeButton;
 	
-	CompoundBorder				compoundBorder;
+	Component	content;
 	
-	JhromeTabBorder				outerBorder;
-	JhromeTabBorderAttributes	selectedAttributes		= JhromeTabBorderAttributes.SELECTED_BORDER.clone( );
-	JhromeTabBorderAttributes	rolloverAttributes		= JhromeTabBorderAttributes.UNSELECTED_ROLLOVER_BORDER.clone( );
-	JhromeTabBorderAttributes	normalAttributes		= JhromeTabBorderAttributes.UNSELECTED_BORDER.clone( );
-	
-	EmptyBorder					innerBorder;
-	Component					content;
-	
-	boolean						selected;
-	boolean						rollover;
-	
-	float						highlight				= 0f;
-	float						highlightSpeed			= 0.1f;
-	javax.swing.Timer			highlightTimer;
-	
-	Color						selectedLabelColor		= Color.BLACK;
-	Color						unselectedLabelColor	= new Color( 80 , 80 , 80 );
+	boolean		selected;
+	boolean		rollover;
 	
 	public JhromeTab( String title )
 	{
-		innerBorder = new EmptyBorder( 5 , 5 , 5 , 0 );
-		outerBorder = new JhromeTabBorder( );
-		outerBorder.attrs.copyAttributes( normalAttributes );
-		compoundBorder = new CompoundBorder( outerBorder , innerBorder );
-		setBorder( compoundBorder );
 		setLayout( new BorderLayout( ) );
 		
 		label = new JLabel( title );
-		label.setFont( label.getFont( ).deriveFont( Font.PLAIN ) );
-		label.setForeground( unselectedLabelColor );
 		add( label , BorderLayout.CENTER );
 		
 		closeButton = new JButton( );
-		closeButton.setUI( new BasicButtonUI( ) );
-		closeButton.setBorderPainted( false );
-		closeButton.setContentAreaFilled( false );
-		closeButton.setOpaque( false );
-		closeButton.setIcon( JhromeTabCloseButtonIcons.getJhromeNormalIcon( ) );
-		closeButton.setRolloverIcon( JhromeTabCloseButtonIcons.getJhromeRolloverIcon( ) );
-		closeButton.setPressedIcon( JhromeTabCloseButtonIcons.getJhromePressedIcon( ) );
-		closeButton.setPreferredSize( new Dimension( closeButton.getIcon( ).getIconWidth( ) + 1 , closeButton.getIcon( ).getIconHeight( ) + 1 ) );
 		add( closeButton , BorderLayout.EAST );
-		
-		setOpaque( false );
-		
-		highlightTimer = new javax.swing.Timer( 30 , new ActionListener( )
-		{
-			@Override
-			public void actionPerformed( ActionEvent e )
-			{
-				onHighlightTimerEvent( e );
-			}
-		} );
 		
 		JPanel content = new JPanel( );
 		content.setOpaque( false );
@@ -92,48 +45,13 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		content.add( contentLabel );
 		
 		this.content = content;
+		
+		setUI( new JhromeTabUI( ) );
 	}
 	
 	protected void onHighlightTimerEvent( ActionEvent e )
 	{
 		repaint( );
-	}
-	
-	protected void update( )
-	{
-		if( selected )
-		{
-			outerBorder.attrs.copyAttributes( selectedAttributes );
-			highlightTimer.stop( );
-		}
-		else
-		{
-			float targetHighlight = rollover ? 1f : 0f;
-			if( highlight != targetHighlight )
-			{
-				highlight = animate( highlight , targetHighlight );
-				highlightTimer.start( );
-			}
-			else
-			{
-				highlightTimer.stop( );
-			}
-			outerBorder.attrs.copyAttributes( rolloverAttributes );
-			outerBorder.attrs.interpolateColors( normalAttributes , rolloverAttributes , highlight );
-		}
-	}
-	
-	protected float animate( float current , float target )
-	{
-		if( current < target )
-		{
-			current = Math.min( target , current + highlightSpeed );
-		}
-		else if( current > target )
-		{
-			current = Math.max( target , current - highlightSpeed );
-		}
-		return current;
 	}
 	
 	@Override
@@ -159,7 +77,6 @@ public class JhromeTab extends JComponent implements IJhromeTab
 				return;
 			}
 		}
-		update( );
 		super.paint( g );
 	}
 	
@@ -204,6 +121,11 @@ public class JhromeTab extends JComponent implements IJhromeTab
 	@Override
 	public boolean isDraggableAt( Point p )
 	{
+		if( ui != null && ui instanceof JhromeTabUI )
+		{
+			JhromeTabUI jui = ( JhromeTabUI ) ui;
+			return jui.isDraggableAt( this , p );
+		}
 		return isHoverableAt( p ) && !closeButton.contains( SwingUtilities.convertPoint( this , p , closeButton ) );
 	}
 	
@@ -215,6 +137,11 @@ public class JhromeTab extends JComponent implements IJhromeTab
 	@Override
 	public boolean isSelectableAt( Point p )
 	{
+		if( ui != null && ui instanceof JhromeTabUI )
+		{
+			JhromeTabUI jui = ( JhromeTabUI ) ui;
+			return jui.isDraggableAt( this , p );
+		}
 		return isDraggableAt( p );
 	}
 	
@@ -226,7 +153,12 @@ public class JhromeTab extends JComponent implements IJhromeTab
 	@Override
 	public boolean isHoverableAt( Point p )
 	{
-		return outerBorder.contains( p );
+		if( ui != null && ui instanceof JhromeTabUI )
+		{
+			JhromeTabUI jui = ( JhromeTabUI ) ui;
+			return jui.isDraggableAt( this , p );
+		}
+		return false;
 	}
 	
 	/*
@@ -251,7 +183,6 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		if( this.selected != selected )
 		{
 			this.selected = selected;
-			label.setForeground( selected ? selectedLabelColor : unselectedLabelColor );
 			repaint( );
 		}
 	}
@@ -280,5 +211,10 @@ public class JhromeTab extends JComponent implements IJhromeTab
 			this.rollover = rollover;
 			repaint( );
 		}
+	}
+	
+	public void setUI( JhromeTabUI ui )
+	{
+		super.setUI( ui );
 	}
 }

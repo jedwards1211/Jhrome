@@ -5,10 +5,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.ComponentUI;
@@ -96,6 +98,17 @@ public class JhromeTabUI extends ComponentUI
 	}
 	
 	@Override
+	public void uninstallUI( JComponent c )
+	{
+		super.uninstallUI( c );
+		
+		tab = ( JhromeTab ) c;
+		tab.setBorder( null );
+		
+		tab = null;
+	}
+	
+	@Override
 	public void paint( Graphics g , JComponent c )
 	{
 		tab = ( JhromeTab ) c;
@@ -140,6 +153,36 @@ public class JhromeTabUI extends ComponentUI
 			current = Math.max( target , current - highlightSpeed );
 		}
 		return current;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jhrome.IJhromeTab#isDraggableAt(java.awt.Point)
+	 */
+	public boolean isDraggableAt( JhromeTab tab , Point p )
+	{
+		return isHoverableAt( tab , p ) && !tab.closeButton.contains( SwingUtilities.convertPoint( tab , p , tab.closeButton ) );
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jhrome.IJhromeTab#isSelectableAt(java.awt.Point)
+	 */
+	public boolean isSelectableAt( JhromeTab tab , Point p )
+	{
+		return isDraggableAt( tab , p );
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.jhrome.IJhromeTab#isHoverableAt(java.awt.Point)
+	 */
+	public boolean isHoverableAt( JhromeTab tab , Point p )
+	{
+		return outerBorder.contains( p );
 	}
 	
 }
