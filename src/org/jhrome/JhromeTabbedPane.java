@@ -384,6 +384,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	public void addTab( int index , final IJhromeTab tab , boolean expand )
 	{
+		Thread.dumpStack( );
 		TabInfo info = new TabInfo( );
 		info.tab = tab;
 		info.prefSize = tab.getRenderer( ).getPreferredSize( );
@@ -430,6 +431,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private void removeTab( IJhromeTab tab , boolean startTimer )
 	{
+		Thread.dumpStack( );
 		TabInfo info = getInfo( tab );
 		if( info != null )
 		{
@@ -442,7 +444,33 @@ public class JhromeTabbedPane extends JLayeredPane
 				else
 				{
 					int index = tabs.indexOf( info );
-					setSelectedTab( tabs.get( index < tabs.size( ) - 1 ? index + 1 : index - 1 ) );
+					
+					// select the closest tab that is not being removed
+					TabInfo newSelectedTab = null;
+					
+					for( int i = index + 1 ; i < tabs.size( ) ; i++ )
+					{
+						TabInfo adjTab = tabs.get( i );
+						if( !adjTab.removing )
+						{
+							newSelectedTab = adjTab;
+							break;
+						}
+					}
+					if( newSelectedTab == null )
+					{
+						for( int i = index - 1 ; i >= 0 ; i-- )
+						{
+							TabInfo adjTab = tabs.get( i );
+							if( !adjTab.removing )
+							{
+								newSelectedTab = adjTab;
+								break;
+							}
+						}
+					}
+					
+					setSelectedTab( newSelectedTab );
 				}
 			}
 			info.removing = true;
@@ -459,6 +487,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private void actuallyRemoveTab( IJhromeTab tab )
 	{
+		Thread.dumpStack( );
 		TabInfo info = getInfo( tab );
 		if( info != null )
 		{
@@ -484,6 +513,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	public void setSelectedTab( IJhromeTab tab )
 	{
+		Thread.dumpStack( );
+		
 		if( tab == null )
 		{
 			setSelectedTab( ( TabInfo ) null );
@@ -609,9 +640,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private class TabLayoutManager implements LayoutManager
 	{
-		Dimension	lastSize		= null;
-		
-		int			animTotalWidth	= 0;
+		int	animTotalWidth	= 0;
 		
 		@Override
 		public void addLayoutComponent( String name , Component comp )
@@ -794,7 +823,14 @@ public class JhromeTabbedPane extends JLayeredPane
 			
 			if( selectedTab != null )
 			{
-				setComponentZOrder( selectedTab.tab.getRenderer( ) , layer++ );
+				try
+				{
+					setComponentZOrder( selectedTab.tab.getRenderer( ) , layer++ );
+				}
+				catch( Exception ex )
+				{
+					ex.printStackTrace( );
+				}
 			}
 			
 			setComponentZOrder( contentPanel , layer++ );
@@ -807,8 +843,6 @@ public class JhromeTabbedPane extends JLayeredPane
 				}
 				setComponentZOrder( info.tab.getRenderer( ) , layer++ );
 			}
-			
-			lastSize = size;
 			
 			repaint( );
 			

@@ -6,4 +6,9 @@ Description: If the user closes tabs by rapidly clicking, and the add tab button
 and is clicked before the last closed tab has contracted, animation hangs and exceptions
 result.
 
+Fixed: 2012-01-25
+
+Technical: When removing the selected tab, JhromeTabbedPane has to select an adjacent tab...but it
+was accidentally selecting another tab that was being removed (contracting)
+
 --------------------------------------------------------------------------------
