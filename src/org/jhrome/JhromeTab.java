@@ -27,6 +27,7 @@ public class JhromeTab extends JComponent implements IJhromeTab
 {
 	JLabel						label;
 	JButton						closeButton;
+	
 	CompoundBorder				compoundBorder;
 	
 	JhromeTabBorder				outerBorder;
@@ -41,10 +42,9 @@ public class JhromeTab extends JComponent implements IJhromeTab
 	boolean						rollover;
 	
 	float						highlight				= 0f;
-	
 	float						highlightSpeed			= 0.1f;
-	
 	javax.swing.Timer			highlightTimer;
+	
 	Color						selectedLabelColor		= Color.BLACK;
 	Color						unselectedLabelColor	= new Color( 80 , 80 , 80 );
 	
@@ -96,27 +96,28 @@ public class JhromeTab extends JComponent implements IJhromeTab
 	
 	protected void onHighlightTimerEvent( ActionEvent e )
 	{
-		float targetHighlight = rollover ? 1f : 0f;
-		if( highlight != targetHighlight )
-		{
-			highlight = animate( highlight , targetHighlight );
-		}
-		else
-		{
-			highlightTimer.stop( );
-		}
-		updateBorder( );
 		repaint( );
 	}
 	
-	protected void updateBorder( )
+	protected void update( )
 	{
 		if( selected )
 		{
 			outerBorder.attrs.copyAttributes( selectedAttributes );
+			highlightTimer.stop( );
 		}
 		else
 		{
+			float targetHighlight = rollover ? 1f : 0f;
+			if( highlight != targetHighlight )
+			{
+				highlight = animate( highlight , targetHighlight );
+				highlightTimer.start( );
+			}
+			else
+			{
+				highlightTimer.stop( );
+			}
 			outerBorder.attrs.copyAttributes( rolloverAttributes );
 			outerBorder.attrs.interpolateColors( normalAttributes , rolloverAttributes , highlight );
 		}
@@ -158,10 +159,13 @@ public class JhromeTab extends JComponent implements IJhromeTab
 				return;
 			}
 		}
+		update( );
 		super.paint( g );
 	}
 	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jhrome.IJhromeTab#getRenderer()
 	 */
 	@Override
@@ -170,7 +174,9 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		return this;
 	}
 	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jhrome.IJhromeTab#getContent()
 	 */
 	@Override
@@ -179,7 +185,9 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		return content;
 	}
 	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jhrome.IJhromeTab#getCloseButton()
 	 */
 	@Override
@@ -188,7 +196,9 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		return closeButton;
 	}
 	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jhrome.IJhromeTab#isDraggableAt(java.awt.Point)
 	 */
 	@Override
@@ -197,7 +207,9 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		return isHoverableAt( p ) && !closeButton.contains( SwingUtilities.convertPoint( this , p , closeButton ) );
 	}
 	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jhrome.IJhromeTab#isSelectableAt(java.awt.Point)
 	 */
 	@Override
@@ -206,7 +218,9 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		return isDraggableAt( p );
 	}
 	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jhrome.IJhromeTab#isHoverableAt(java.awt.Point)
 	 */
 	@Override
@@ -215,7 +229,9 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		return outerBorder.contains( p );
 	}
 	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jhrome.IJhromeTab#isSelected()
 	 */
 	@Override
@@ -224,7 +240,9 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		return selected;
 	}
 	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jhrome.IJhromeTab#setSelected(boolean)
 	 */
 	@Override
@@ -234,11 +252,13 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		{
 			this.selected = selected;
 			label.setForeground( selected ? selectedLabelColor : unselectedLabelColor );
-			highlightTimer.start( );
+			repaint( );
 		}
 	}
 	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jhrome.IJhromeTab#isRollover()
 	 */
 	@Override
@@ -247,7 +267,9 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		return rollover;
 	}
 	
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.jhrome.IJhromeTab#setRollover(boolean)
 	 */
 	@Override
@@ -256,7 +278,7 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		if( this.rollover != rollover )
 		{
 			this.rollover = rollover;
-			highlightTimer.start( );
+			repaint( );
 		}
 	}
 }

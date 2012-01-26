@@ -1,0 +1,8 @@
+-Create chrome-like new tab button
+-Get exact chrome colors
+-Fix memory leaks
+-Make DnD logic customizable
+-Make animation customizable
+-Add listening capability
+-Add TabbedPaneUI wrapper
+-Add skins?

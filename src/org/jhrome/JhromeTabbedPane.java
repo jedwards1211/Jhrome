@@ -9,6 +9,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.LayoutManager;
@@ -48,7 +50,6 @@ import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
-import javax.swing.border.EmptyBorder;
 
 import com.sun.awt.AWTUtilities;
 
@@ -57,6 +58,7 @@ public class JhromeTabbedPane extends JLayeredPane
 {
 	public JhromeTabbedPane( )
 	{
+		checkEDT( );
 		init( );
 	}
 	
@@ -221,7 +223,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		contentPanel.setBorder( new JhromeContentPanelBorder( ) );
 		contentPanel.setBackground( JhromeTabBorderAttributes.SELECTED_BORDER.bottomColor );
 		
-		newTabButton = new JButton( "+" );
+		newTabButton = new JButton( JhromeNewTabButtonUI.createNewTabButtonIcon( ) );
 		
 		newTabButtonListener = new ActionListener( )
 		{
@@ -235,12 +237,16 @@ public class JhromeTabbedPane extends JLayeredPane
 		};
 		
 		newTabButton.addActionListener( newTabButtonListener );
+		newTabButton.setUI( new JhromeNewTabButtonUI( ) );
 		
-		rightButtonsPanel = new JPanel( new BorderLayout( ) );
-		rightButtonsPanel.setBorder( new EmptyBorder( 4 , 2 , 2 , 0 ) );
+		rightButtonsPanel = new JPanel( );
+		rightButtonsPanel.setLayout( new GridBagLayout( ) );
 		rightButtonsPanel.setOpaque( false );
 		
-		rightButtonsPanel.add( newTabButton , BorderLayout.CENTER );
+		GridBagConstraints gbc = new GridBagConstraints( );
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.insets = new Insets( 1 , 2 , 0 , 0 );
+		rightButtonsPanel.add( newTabButton , gbc );
 		add( rightButtonsPanel );
 		
 		dragHandler = new DragHandler( this , DnDConstants.ACTION_MOVE );
@@ -249,6 +255,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	public IJhromeTab getHoverableTabAt( Point p )
 	{
+		checkEDT( );
+		
 		for( int i = -1 ; i < tabs.size( ) ; i++ )
 		{
 			TabInfo info = i < 0 ? selectedTab : tabs.get( i );
@@ -276,6 +284,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	public IJhromeTab getDraggableTabAt( Point p )
 	{
+		checkEDT( );
+		
 		for( int i = -1 ; i < tabs.size( ) ; i++ )
 		{
 			TabInfo info = i < 0 ? selectedTab : tabs.get( i );
@@ -303,6 +313,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	public IJhromeTab getSelectableTabAt( Point p )
 	{
+		checkEDT( );
+		
 		for( int i = -1 ; i < tabs.size( ) ; i++ )
 		{
 			TabInfo info = i < 0 ? selectedTab : tabs.get( i );
@@ -361,6 +373,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	public int getTabCount( )
 	{
+		checkEDT( );
+		
 		int count = 0;
 		for( int i = 0 ; i < tabs.size( ) ; i++ )
 		{
@@ -370,6 +384,21 @@ public class JhromeTabbedPane extends JLayeredPane
 			}
 		}
 		return count;
+	}
+	
+	public List<IJhromeTab> getTabs( )
+	{
+		checkEDT( );
+		
+		List<IJhromeTab> result = new ArrayList<IJhromeTab>( );
+		for( TabInfo info : tabs )
+		{
+			if( !info.removing )
+			{
+				result.add( info.tab );
+			}
+		}
+		return result;
 	}
 	
 	public void addTab( final IJhromeTab tab )
@@ -384,7 +413,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	public void addTab( int index , final IJhromeTab tab , boolean expand )
 	{
-		Thread.dumpStack( );
+		checkEDT( );
+		
 		TabInfo info = new TabInfo( );
 		info.tab = tab;
 		info.prefSize = tab.getRenderer( ).getPreferredSize( );
@@ -431,7 +461,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private void removeTab( IJhromeTab tab , boolean startTimer )
 	{
-		Thread.dumpStack( );
+		checkEDT( );
+		
 		TabInfo info = getInfo( tab );
 		if( info != null )
 		{
@@ -487,7 +518,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private void actuallyRemoveTab( IJhromeTab tab )
 	{
-		Thread.dumpStack( );
+		checkEDT( );
+		
 		TabInfo info = getInfo( tab );
 		if( info != null )
 		{
@@ -506,6 +538,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	public void removeAllTabs( )
 	{
+		checkEDT( );
+		
 		setSelectedTab( ( TabInfo ) null );
 		removeAll( );
 		tabs.clear( );
@@ -513,7 +547,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	public void setSelectedTab( IJhromeTab tab )
 	{
-		Thread.dumpStack( );
+		checkEDT( );
 		
 		if( tab == null )
 		{
@@ -627,6 +661,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	public void dispose( )
 	{
+		checkEDT( );
+		
 		removeAllTabs( );
 		mouseOverManager.uninstall( this );
 	}
@@ -640,7 +676,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private class TabLayoutManager implements LayoutManager
 	{
-		int	animTotalWidth	= 0;
+		private int	animTotalWidth	= 0;
 		
 		@Override
 		public void addLayoutComponent( String name , Component comp )
@@ -667,8 +703,6 @@ public class JhromeTabbedPane extends JLayeredPane
 		@Override
 		public void layoutContainer( Container parent )
 		{
-			Dimension size = getSize( );
-			
 			boolean reset = false;
 			
 			int width = getWidth( );
@@ -805,7 +839,7 @@ public class JhromeTabbedPane extends JLayeredPane
 			
 			contentPanel.setBounds( insets.left , insets.top + tabHeight - contentPanelOverlap , availWidth , availHeight - tabHeight + contentPanelOverlap );
 			
-			int rightButtonPanelX = Math.min( insets.left + availWidth - tabMargin - rightButtonPanelPrefSize.width , insets.left + tabMargin + ( int ) ( newTotalWidth * adjWidthRatio ) + overlap );
+			int rightButtonPanelX = Math.min( insets.left + availWidth - tabMargin - rightButtonPanelPrefSize.width , insets.left + tabMargin + ( int ) ( newTotalWidth * adjWidthRatio ) + overlap / 2 );
 			rightButtonsPanel.setBounds( rightButtonPanelX , insets.top , rightButtonPanelPrefSize.width , tabHeight );
 			
 			for( int i = tabs.size( ) - 1 ; i >= 0 ; i-- )
@@ -1270,6 +1304,14 @@ public class JhromeTabbedPane extends JLayeredPane
 		{
 			dragImageWindow.dispose( );
 			dragImageWindow = null;
+		}
+	}
+	
+	private static void checkEDT( )
+	{
+		if( !SwingUtilities.isEventDispatchThread( ) )
+		{
+			throw new IllegalArgumentException( "Must be called on the AWT Event Dispatch Thread!" );
 		}
 	}
 }
