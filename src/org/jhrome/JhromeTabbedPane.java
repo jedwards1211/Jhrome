@@ -124,7 +124,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private Rectangle				tabZone				= new Rectangle( );
 	
-	private int						extraDropZoneSpace	= 15;
+	private int						extraDropZoneSpace	= 25;
 	private Rectangle				dropZone			= new Rectangle( );
 	
 	private IJhromeTabDnDPolicy		dndPolicy			= null;
@@ -137,7 +137,7 @@ public class JhromeTabbedPane extends JLayeredPane
 									{
 										Point p = e.getPoint( );
 										p = SwingUtilities.convertPoint( ( Component ) e.getSource( ) , p , JhromeTabbedPane.this );
-										boolean newMouseOver = tabZone.contains( p );
+										boolean newMouseOver = JhromeUtils.contains( tabZone , p );
 										if( newMouseOver != holdTabScale )
 										{
 											holdTabScale = newMouseOver;
@@ -983,7 +983,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		@Override
 		public DataFlavor[ ] getTransferDataFlavors( )
 		{
-			return null;
+			return new DataFlavor[ 0 ];
 		}
 		
 		@Override
@@ -995,7 +995,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		@Override
 		public Object getTransferData( DataFlavor flavor ) throws UnsupportedFlavorException , IOException
 		{
-			return null;
+			throw new UnsupportedFlavorException( flavor );
 		}
 	}
 	
@@ -1066,7 +1066,7 @@ public class JhromeTabbedPane extends JLayeredPane
 			{
 				Point p = dsde.getLocation( );
 				SwingUtilities.convertPointFromScreen( p , draggedParent );
-				if( !draggedParent.contains( p ) )
+				if( !JhromeUtils.contains( draggedParent.dropZone , p ) )
 				{
 					dragOut( dsde );
 				}
@@ -1199,15 +1199,15 @@ public class JhromeTabbedPane extends JLayeredPane
 		{
 			setDragState( null , 0 , 0 );
 			
-			if( draggedTab != null )
+			if( draggedTab != null && JhromeUtils.contains( dropZone , dtde.getLocation( ) ) )
 			{
 				dtde.acceptDrop( dtde.getDropAction( ) );
-				dtde.dropComplete( true );
 			}
 			else
 			{
 				dtde.rejectDrop( );
 			}
+			dtde.dropComplete( true );
 		}
 	}
 	
@@ -1277,6 +1277,13 @@ public class JhromeTabbedPane extends JLayeredPane
 		if( draggedTab != null )
 		{
 			JhromeTabbedPane tabbedPane = ( JhromeTabbedPane ) dtde.getDropTargetContext( ).getComponent( );
+			
+			Point p = dtde.getLocation( );
+			if( !JhromeUtils.contains( tabbedPane.dropZone , p ) )
+			{
+				dragOut( dtde );
+				return;
+			}
 			
 			if( draggedParent != tabbedPane && ( draggedParent == null || draggedParent.isTearAwayAllowed( draggedTab ) ) && tabbedPane.isSnapInAllowed( draggedTab ) )
 			{
@@ -1378,12 +1385,6 @@ public class JhromeTabbedPane extends JLayeredPane
 		return rescaled;
 	}
 	
-	private static boolean isDragImageWindowVisible( )
-	{
-		return ( dragImageWindow != null && dragImageWindow.isShowing( ) );
-	}
-	
-	@SuppressWarnings( { "serial" } )
 	private static void initDragImageWindow( )
 	{
 		if( dragImageWindow == null )

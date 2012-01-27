@@ -165,7 +165,7 @@ public class JhromeDemos implements IJhromeDemo
 		JTextArea sourceArea = new JTextArea( );
 		sourceArea.setFont( new Font( "Monospaced" , Font.PLAIN , 11 ) );
 		sourceArea.setEditable( false );
-		sourceArea.setTransferHandler( null );
+//		sourceArea.setTransferHandler( null );
 		sourceArea.setText( source );
 		JScrollPane sourceAreaScroller = new JScrollPane( sourceArea );
 		panel.add( sourceAreaScroller , BorderLayout.CENTER );

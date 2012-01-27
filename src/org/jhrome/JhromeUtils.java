@@ -1,10 +1,13 @@
+
 package org.jhrome;
 
 import java.awt.Color;
+import java.awt.Point;
+import java.awt.Rectangle;
 
 public class JhromeUtils
 {
-
+	
 	static Color interpolate( Color a , Color b , float f )
 	{
 		float rf = 1 - f;
@@ -14,6 +17,14 @@ public class JhromeUtils
 		int alpha = ( int ) ( a.getAlpha( ) * rf + b.getAlpha( ) * f );
 		
 		return new Color( red , green , blue , alpha );
+	}
+	
+	/**
+	 * There is a bug in {@link Rectangle#inside(int, int)}!
+	 */
+	static boolean contains( Rectangle r , Point p )
+	{
+		return p.x >= r.x && p.y >= r.y && p.x < r.x + r.width && p.y < r.y + r.height;
 	}
 	
 }
