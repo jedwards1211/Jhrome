@@ -69,4 +69,10 @@ public class JhromeWindow extends JFrame implements IJhromeWindow
 	{
 		return this;
 	}
+	
+	@Override
+	public void disposeWindow( )
+	{
+		dispose( );
+	}
 }

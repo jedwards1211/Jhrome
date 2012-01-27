@@ -24,6 +24,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.DragGestureListener;
+import java.awt.dnd.DragGestureRecognizer;
 import java.awt.dnd.DragSource;
 import java.awt.dnd.DragSourceDragEvent;
 import java.awt.dnd.DragSourceDropEvent;
@@ -611,9 +612,10 @@ public class JhromeTabbedPane extends JLayeredPane
 	{
 		checkEDT( );
 		
-		setSelectedTab( ( TabInfo ) null );
-		removeAll( );
-		tabs.clear( );
+		while( !tabs.isEmpty( ) )
+		{
+			removeTabImmediately( tabs.get( 0 ).tab );
+		}
 	}
 	
 	public void setSelectedTab( IJhromeTab tab )
@@ -746,7 +748,10 @@ public class JhromeTabbedPane extends JLayeredPane
 		checkEDT( );
 		
 		removeAllTabs( );
+		animTimer.stop( );
 		mouseOverManager.uninstall( this );
+		dragHandler.dispose( );
+		dropHandler.dispose( );
 	}
 	
 	private int animate( int value , int target )
@@ -996,15 +1001,25 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private class DragHandler implements DragSourceListener,DragSourceMotionListener,DragGestureListener
 	{
-		DragSource	source;
+		DragSource				source;
 		
-		Point		dragOrigin;
+		DragGestureRecognizer	dragGestureRecognizer;
+		
+		Point					dragOrigin;
 		
 		public DragHandler( Component comp , int actions )
 		{
 			source = new DragSource( );
-			source.createDefaultDragGestureRecognizer( comp , actions , this );
+			dragGestureRecognizer = source.createDefaultDragGestureRecognizer( comp , actions , this );
 			source.addDragSourceMotionListener( this );
+		}
+		
+		public void dispose( )
+		{
+			source.removeDragSourceListener( this );
+			source.removeDragSourceMotionListener( this );
+			dragGestureRecognizer.removeDragGestureListener( this );
+			dragGestureRecognizer.setComponent( null );
 		}
 		
 		@Override
@@ -1142,6 +1157,12 @@ public class JhromeTabbedPane extends JLayeredPane
 		public DropHandler( Component comp )
 		{
 			target = new DropTarget( comp , this );
+		}
+		
+		public void dispose( )
+		{
+			target.removeDropTargetListener( this );
+			target.setComponent( null );
 		}
 		
 		private void handleDrag( DropTargetDragEvent dtde )

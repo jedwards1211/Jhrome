@@ -8,4 +8,6 @@ public interface IJhromeWindow
 	JhromeTabbedPane getTabbedPane( );
 	
 	Window getWindow( );
+	
+	void disposeWindow( );
 }
