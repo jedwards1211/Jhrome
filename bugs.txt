@@ -71,3 +71,11 @@ Description: Jhrome appears to have memory leaks.  Make DnD handlers and everyth
 deregister properly.
 
 --------------------------------------------------------------------------------
+
+Bug ID: 8
+
+Created: 2012-01-26
+
+Description: JhromeTabbedPane does not check that added tabs already exist or are being removed.
+
+--------------------------------------------------------------------------------

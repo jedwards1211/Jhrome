@@ -6,3 +6,4 @@
 -Add listening capability
 -Add TabbedPaneUI wrapper
 -Add skins?
+-Make it possible to customize drag image

@@ -54,6 +54,47 @@ import javax.swing.Timer;
 
 import com.sun.awt.AWTUtilities;
 
+/**
+ * {@link JhromeTabbedPane} is a Google Chrome-like tabbed pane, providing animated tab layout,
+ * drag and drop capabilities, and a new tab button. All Google Chrome behavior is provided by default.
+ * Tabs can be dragged around within {@code JhromeTabbedPane} and rearranged, they can be "torn away" or
+ * dragged out and opened in new windows, and they can be dragged from one window to another. If all the tabs
+ * in a {@code JhromeTabbedPane} are closed or torn away, the window containing that {@code JhromeTabbedPane} is disposed.
+ * When a tab is torn away, a ghosted drag image window showing the tab and its contents will appear and follow the mouse cursor until
+ * the tab is dragged over another {@code JhromeTabbedPane} or dropped.<br />
+ * <br />
+ * 
+ * Animation includes tabs expanding when added, contracting when removed,
+ * jumping around when being reordered, contracting simultaneously when there is not enough room, and expanding simultaneously when there is room again and the
+ * mouse is no longer on top of the tab zone.<br />
+ * <br />
+ * 
+ * {@code JhromeTabbedPane} is designed to allow you to customize the look and behavior as much as possible. The following
+ * interfaces help with customization:
+ * <ul>
+ * <li>{@link IJhromeTab} provides an interface to tab renderers/content. You can use literally any {@link Component} (or combination of {@code Component}s) in
+ * a tab renderer by providing them through an {@code IJhromeTab} implementation.
+ * <li>{@link IJhromeTabFactory} creates new tabs when the new tab button is clicked. By providing your own tab factory you can use any kind of tabs you like
+ * with {@code JhromeTabbedPane}.</li>
+ * <li>{@link IJhromeWindowFactory} creates new windows for tabs that are torn away into their own windows. By providing your own window factory you can use any
+ * kind of windows you like with {@code JhromeTabbedPane}.</li>
+ * <li>{@link IJhromeWindow} allows one {@code JhromeTabbedPane} to add a tab to the {@code JhromeTabbedPane} of a new window created when the tab is torn away.
+ * You can lay out a {@code JhromeTabbedPane} in a Window any way you like, and {@code JhromeTabbedPane} will still be able to use it.
+ * <li>{@link IJhromeTabDnDPolicy} controls whether tabs may be torn away or snapped back in. By providing your own DnD policy you can create arbitrarily
+ * complex behavior, preventing only certain tabs from being torn away, certain tabs from being snapped in, only at certain times, etc.</li>
+ * </ul>
+ * 
+ * Also, {@code JhromeTabbedPane} allows you to get its new tab button and content pane so that you can modify them arbitrarily.<br />
+ * <br />
+ * 
+ * Since the layout is animated, when you remove a tab from {@code JhromeTabbedPane} (using {@link #removeTab(IJhromeTab)}), it makes it start contracting
+ * and doesn't actually remove the tab renderer component until it is done contracting. However, all public methods that involve the tab list behave as if
+ * tabs are removed immediately. For example, if you remove a tab, it will no longer show up in {@link #getTabs()}, even while the tab renderer component is
+ * still a child of this {@code JhromeTabbedPane} and contracting. If you add the tab back before it is done contracting, it will jump to the new position
+ * and expand back to full size.
+ * 
+ * @author andy.edwards
+ */
 @SuppressWarnings( "serial" )
 public class JhromeTabbedPane extends JLayeredPane
 {
@@ -63,9 +104,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		init( );
 	}
 	
-	private static int		tabCounter	= 1;
-	
-	private List<TabInfo>	tabs		= new ArrayList<TabInfo>( );
+	private List<TabInfo>	tabs	= new ArrayList<TabInfo>( );
 	
 	private static class TabInfo
 	{
@@ -103,6 +142,11 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private TabInfo					selectedTab			= null;
 	
+	/**
+	 * How many pixels the content panel overlaps the tabs. This is necessary with the
+	 * Google Chrome appearance to make the selected tab and the content panel look like
+	 * a contiguous object
+	 */
 	private int						contentPanelOverlap	= 1;
 	
 	private JPanel					contentPanel;
@@ -233,7 +277,11 @@ public class JhromeTabbedPane extends JLayeredPane
 			@Override
 			public void actionPerformed( ActionEvent e )
 			{
-				IJhromeTab newTab = tabFactory.createTab( "Tab " + ( tabCounter++ ) );
+				if( tabFactory == null )
+				{
+					return;
+				}
+				IJhromeTab newTab = tabFactory.createTab( );
 				addTab( getTabCount( ) , newTab );
 				setSelectedTab( newTab );
 			}
@@ -286,11 +334,18 @@ public class JhromeTabbedPane extends JLayeredPane
 		this.dndPolicy = dndPolicy;
 	}
 	
+	/**
+	 * @return whether to keep all tabs the same width.
+	 */
 	public boolean isUseUniformWidth( )
 	{
 		return useUniformWidth;
 	}
 	
+	/**
+	 * Sets whether to keep all tabs the same with, rather than taking their preferred size
+	 * into account.
+	 */
 	public void setUseUniformWidth( boolean useUniformWidth )
 	{
 		if( this.useUniformWidth != useUniformWidth )
@@ -743,6 +798,11 @@ public class JhromeTabbedPane extends JLayeredPane
 		return newTabButton;
 	}
 	
+	public JPanel getContentPanel( )
+	{
+		return contentPanel;
+	}
+	
 	public void dispose( )
 	{
 		checkEDT( );
@@ -1086,7 +1146,7 @@ public class JhromeTabbedPane extends JLayeredPane
 			disposeDragImageWindow( );
 			dragImage = null;
 			
-			if( draggedTab != null && windowFactory != null && !dsde.getDropSuccess( ) && ( draggedParent == null || draggedParent.isTearAwayAllowed( draggedTab ) ) )
+			if( draggedTab != null && windowFactory != null && draggedParent == null )
 			{
 				IJhromeWindow newJhromeWindow = windowFactory.createWindow( );
 				Window newWindow = newJhromeWindow.getWindow( );
@@ -1199,7 +1259,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		{
 			setDragState( null , 0 , 0 );
 			
-			if( draggedTab != null && JhromeUtils.contains( dropZone , dtde.getLocation( ) ) )
+			if( draggedTab != null && JhromeUtils.contains( dropZone , dtde.getLocation( ) ) && isSnapInAllowed( draggedTab ) )
 			{
 				dtde.acceptDrop( dtde.getDropAction( ) );
 			}
