@@ -973,7 +973,7 @@ public class JhromeTabbedPane extends JLayeredPane
 					tabX = Math.max( tabX , insets.left + tabMargin );
 					if( i == tabs.size( ) - 1 )
 					{
-						tabX = Math.min( tabX , tabTargetX );
+						tabX = Math.min( tabX , insets.left + availWidth - tabMargin - tabW );
 					}
 					info.animX = ( int ) ( ( tabX - insets.left - tabMargin ) / adjWidthRatio );
 				}
