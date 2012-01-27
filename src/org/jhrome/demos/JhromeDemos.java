@@ -54,7 +54,7 @@ public class JhromeDemos implements IJhromeDemo
 				try
 				{
 					demoListModel.addElement( new DemoItem( JhromeDemos.this , "JhromeDemos (This Program)" , readFile( new File( "src/org/jhrome/demos/JhromeDemos.java" ) ) ) );
-					demoListModel.addElement( new DemoItem( new Demo1( ) , "Demo 1" , readFile( new File( "src/org/jhrome/demos/Demo1.java" ) ) ) );
+					demoListModel.addElement( new DemoItem( new OutOfTheBoxDemo( ) , "Out of the Box Demo" , readFile( new File( "src/org/jhrome/demos/OutOfTheBoxDemo.java" ) ) ) );
 					demoListModel.addElement( new DemoItem( new LabelReplacementDemo( ) , "Label Replacement Demo" , readFile( new File( "src/org/jhrome/demos/LabelReplacementDemo.java" ) ) ) );
 					demoListModel.addElement( new DemoItem( new ColoredTabDemo( ) , "Colored Tab Demo" , readFile( new File( "src/org/jhrome/demos/ColoredTabDemo.java" ) ) ) );
 					demoListModel.addElement( new DemoItem( new JhromeWrapperTabDemo( ) , "JhromeWrapperTab Demo" , readFile( new File( "src/org/jhrome/demos/JhromeWrapperTabDemo.java" ) ) ) );
@@ -149,7 +149,7 @@ public class JhromeDemos implements IJhromeDemo
 		JPanel panel = new JPanel( new BorderLayout( ) );
 		panel.setOpaque( false );
 		
-		JButton startButton = new JButton( "Start" );
+		JButton startButton = new JButton( "Launch" );
 		startButton.addActionListener( new ActionListener( )
 		{
 			@Override

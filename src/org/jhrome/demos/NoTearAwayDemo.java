@@ -18,7 +18,7 @@ public class NoTearAwayDemo implements IJhromeDemo
 		IJhromeWindow jhromeWindow = windowFactory.createWindow( );
 		Window window = jhromeWindow.getWindow( );
 		
-		IJhromeTab tab1 = jhromeWindow.getTabbedPane( ).getTabFactory( ).createTab( "Tab 1" );
+		IJhromeTab tab1 = jhromeWindow.getTabbedPane( ).getTabFactory( ).createTab( "Try to tear tabs away!" );
 		jhromeWindow.getTabbedPane( ).addTab( tab1 );
 		jhromeWindow.getTabbedPane( ).setSelectedTab( tab1 );
 		

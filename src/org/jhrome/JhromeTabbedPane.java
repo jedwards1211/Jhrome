@@ -693,7 +693,7 @@ public class JhromeTabbedPane extends JLayeredPane
 				}
 				else
 				{
-					int distance = Math.min( Math.abs( x - info.targetBounds.x ) , Math.abs( x - info.targetBounds.x + info.targetBounds.width ) );
+					int distance = Math.min( Math.abs( x - info.targetBounds.x ) , Math.abs( x - info.targetBounds.x - info.targetBounds.width ) );
 					if( closestIndex < 0 || distance < closestDistance )
 					{
 						closestIndex = virtualIndex;

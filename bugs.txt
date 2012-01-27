@@ -30,3 +30,16 @@ Description: Sometimes when dragging a tab to the extreme left of the tabbed pan
 can shift into its place.
 
 --------------------------------------------------------------------------------
+
+Bug ID: 4
+
+Created: 2012-01-26
+
+Description: Dragging a tab over other DnD-enabled components causes exceptions due to the
+unconventional transferable created by JhromeTabbedPane.
+
+Fixed: 2012-01-26
+
+Technical: was a +/- sign issue in JhromeTabbedPane.getInsertIndex()
+
+--------------------------------------------------------------------------------
