@@ -15,7 +15,7 @@ was accidentally selecting another tab that was being removed (contracting)
 
 Bug ID: 2
 
-Created 2012-01-25
+Created: 2012-01-25
 
 Description: Whenever the user moves the mouse away from an unselected tab quickly, the
 tab remains rolled over.  (This is because mouse exit is not detected).
@@ -42,5 +42,32 @@ Created: 2012-01-26
 
 Description: Dragging a tab over other DnD-enabled components causes exceptions due to the
 unconventional transferable created by JhromeTabbedPane.
+
+--------------------------------------------------------------------------------
+
+Bug ID: 5
+
+Created: 2012-01-26
+
+Description: When using non-uniform tab widths, if you drag a narrow tab over a wide tab,
+the wide tab jiggles back and forth trying to decide where to move.
+
+--------------------------------------------------------------------------------
+
+Bug ID: 6
+
+Created: 2012-01-26
+
+Description: When using non-uniform tab widths, it is possible to drag a wide tab past
+the right end of the tab zone until it swaps positions with the rightmost tab.
+
+--------------------------------------------------------------------------------
+
+Bug ID: 7
+
+Created: 2012-01-26
+
+Description: Jhrome appears to have memory leaks.  Make DnD handlers and everything else
+deregister properly.
 
 --------------------------------------------------------------------------------

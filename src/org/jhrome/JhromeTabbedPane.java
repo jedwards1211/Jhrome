@@ -94,7 +94,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	private TabLayoutManager		layout;
 	
 	private boolean					useUniformWidth		= true;
-	private int						uniformWidth		= 300;
+	private int						maxUniformWidth		= 300;
 	
 	private boolean					holdTabScale		= true;
 	
@@ -283,6 +283,36 @@ public class JhromeTabbedPane extends JLayeredPane
 	public void setDnDPolicy( IJhromeTabDnDPolicy dndPolicy )
 	{
 		this.dndPolicy = dndPolicy;
+	}
+	
+	public boolean isUseUniformWidth( )
+	{
+		return useUniformWidth;
+	}
+	
+	public void setUseUniformWidth( boolean useUniformWidth )
+	{
+		if( this.useUniformWidth != useUniformWidth )
+		{
+			this.useUniformWidth = useUniformWidth;
+			invalidate( );
+			validate( );
+		}
+	}
+	
+	public int getMaxUniformWidth( )
+	{
+		return maxUniformWidth;
+	}
+	
+	public void setMaxUniformWidth( int maxUniformWidth )
+	{
+		if( this.maxUniformWidth != maxUniformWidth )
+		{
+			this.maxUniformWidth = maxUniformWidth;
+			invalidate( );
+			validate( );
+		}
 	}
 	
 	public IJhromeTab getHoverableTabAt( Point p )
@@ -783,7 +813,7 @@ public class JhromeTabbedPane extends JLayeredPane
 				TabInfo info = tabs.get( i );
 				info.targetX = x;
 				
-				int targetWidth = info.removing ? 0 : useUniformWidth ? uniformWidth : info.prefSize.width;
+				int targetWidth = info.removing ? 0 : useUniformWidth ? maxUniformWidth : info.prefSize.width;
 				info.targetWidth = targetWidth;
 				
 				tabHeight = Math.max( tabHeight , info.prefSize.height );
@@ -860,7 +890,7 @@ public class JhromeTabbedPane extends JLayeredPane
 				Dimension minSize = info.tab.getRenderer( ).getMinimumSize( );
 				if( minSize != null && info.animWidth >= minSize.width )
 				{
-					int targetWidth = useUniformWidth ? uniformWidth : info.prefSize.width;
+					int targetWidth = useUniformWidth ? maxUniformWidth : info.prefSize.width;
 					adjWidthRatio = Math.max( adjWidthRatio , minSize.width / ( double ) targetWidth );
 				}
 			}

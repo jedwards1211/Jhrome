@@ -1,6 +1,7 @@
 -Fix memory leaks
+-Javadoc!
+-Make build.xml & JAR
 -Prevent RecursiveListener from listening to content pane
--Make DnD logic customizable
 -Make animation customizable
 -Add listening capability
 -Add TabbedPaneUI wrapper

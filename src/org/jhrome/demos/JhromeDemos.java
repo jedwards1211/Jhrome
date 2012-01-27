@@ -6,10 +6,10 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -53,15 +53,16 @@ public class JhromeDemos implements IJhromeDemo
 				final DefaultListModel demoListModel = new DefaultListModel( );
 				try
 				{
-					demoListModel.addElement( new DemoItem( JhromeDemos.this , "JhromeDemos (This Program)" , readFile( new File( "src/org/jhrome/demos/JhromeDemos.java" ) ) ) );
-					demoListModel.addElement( new DemoItem( new OutOfTheBoxDemo( ) , "Out of the Box Demo" , readFile( new File( "src/org/jhrome/demos/OutOfTheBoxDemo.java" ) ) ) );
-					demoListModel.addElement( new DemoItem( new LabelReplacementDemo( ) , "Label Replacement Demo" , readFile( new File( "src/org/jhrome/demos/LabelReplacementDemo.java" ) ) ) );
-					demoListModel.addElement( new DemoItem( new ColoredTabDemo( ) , "Colored Tab Demo" , readFile( new File( "src/org/jhrome/demos/ColoredTabDemo.java" ) ) ) );
-					demoListModel.addElement( new DemoItem( new JhromeWrapperTabDemo( ) , "JhromeWrapperTab Demo" , readFile( new File( "src/org/jhrome/demos/JhromeWrapperTabDemo.java" ) ) ) );
-					demoListModel.addElement( new DemoItem( new NoTearAwayDemo( ) , "No Tear Away Demo" , readFile( new File( "src/org/jhrome/demos/NoTearAwayDemo.java" ) ) ) );
-					demoListModel.addElement( new DemoItem( new NoSnapInDemo( ) , "No Snap In Demo" , readFile( new File( "src/org/jhrome/demos/NoSnapInDemo.java" ) ) ) );
+					demoListModel.addElement( new DemoItem( JhromeDemos.this , "JhromeDemos (This Program)" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/JhromeDemos.java" ) ) ) );
+					demoListModel.addElement( new DemoItem( new OutOfTheBoxDemo( ) , "Out of the Box Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/OutOfTheBoxDemo.java" ) ) ) );
+					demoListModel.addElement( new DemoItem( new LabelReplacementDemo( ) , "Label Replacement Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/LabelReplacementDemo.java" ) ) ) );
+					demoListModel.addElement( new DemoItem( new ColoredTabDemo( ) , "Colored Tab Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/ColoredTabDemo.java" ) ) ) );
+					demoListModel.addElement( new DemoItem( new JhromeWrapperTabDemo( ) , "JhromeWrapperTab Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/JhromeWrapperTabDemo.java" ) ) ) );
+					demoListModel.addElement( new DemoItem( new NonUniformTabWidthDemo( ) , "Non-Uniform Tab Width Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/NonUniformTabWidthDemo.java" ) ) ) );
+					demoListModel.addElement( new DemoItem( new NoTearAwayDemo( ) , "No Tear Away Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/NoTearAwayDemo.java" ) ) ) );
+					demoListModel.addElement( new DemoItem( new NoSnapInDemo( ) , "No Snap In Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/NoSnapInDemo.java" ) ) ) );
 				}
-				catch( IOException e1 )
+				catch( Exception e1 )
 				{
 					e1.printStackTrace( );
 					JOptionPane.showMessageDialog( null , new Object[ ] { "Failed to load demo source code!" , e1.getLocalizedMessage( ) } , "I/O Error" , JOptionPane.ERROR_MESSAGE );
@@ -172,9 +173,14 @@ public class JhromeDemos implements IJhromeDemo
 		return panel;
 	}
 	
-	public static String readFile( File file ) throws IOException
+	public static String read( URL url ) throws IOException
 	{
-		BufferedReader reader = new BufferedReader( new InputStreamReader( new FileInputStream( file ) ) );
+		return read( url.openStream( ) );
+	}
+	
+	public static String read( InputStream in ) throws IOException
+	{
+		BufferedReader reader = new BufferedReader( new InputStreamReader( in ) );
 		
 		StringBuffer buffer = new StringBuffer( );
 		String line;
