@@ -105,6 +105,14 @@ public class JhromeTabUI extends ComponentUI
 		tab = ( JhromeTab ) c;
 		tab.setBorder( null );
 		
+		tab.closeButton.setBorderPainted( true );
+		tab.closeButton.setContentAreaFilled( true );
+		tab.closeButton.setOpaque( true );
+		tab.closeButton.setIcon( null );
+		tab.closeButton.setRolloverIcon( null );
+		tab.closeButton.setPressedIcon( null );
+		tab.setPreferredSize( null );
+		
 		tab = null;
 	}
 	
@@ -183,6 +191,66 @@ public class JhromeTabUI extends ComponentUI
 	public boolean isHoverableAt( JhromeTab tab , Point p )
 	{
 		return outerBorder.contains( p );
+	}
+	
+	public JhromeTabBorderAttributes getSelectedAttributes( )
+	{
+		return selectedAttributes;
+	}
+	
+	public void setSelectedAttributes( JhromeTabBorderAttributes selectedAttributes )
+	{
+		this.selectedAttributes = selectedAttributes;
+	}
+	
+	public JhromeTabBorderAttributes getRolloverAttributes( )
+	{
+		return rolloverAttributes;
+	}
+	
+	public void setRolloverAttributes( JhromeTabBorderAttributes rolloverAttributes )
+	{
+		this.rolloverAttributes = rolloverAttributes;
+	}
+	
+	public JhromeTabBorderAttributes getNormalAttributes( )
+	{
+		return normalAttributes;
+	}
+	
+	public void setNormalAttributes( JhromeTabBorderAttributes normalAttributes )
+	{
+		this.normalAttributes = normalAttributes;
+	}
+	
+	public float getHighlightSpeed( )
+	{
+		return highlightSpeed;
+	}
+	
+	public void setHighlightSpeed( float highlightSpeed )
+	{
+		this.highlightSpeed = highlightSpeed;
+	}
+	
+	public Color getSelectedLabelColor( )
+	{
+		return selectedLabelColor;
+	}
+	
+	public void setSelectedLabelColor( Color selectedLabelColor )
+	{
+		this.selectedLabelColor = selectedLabelColor;
+	}
+	
+	public Color getUnselectedLabelColor( )
+	{
+		return unselectedLabelColor;
+	}
+	
+	public void setUnselectedLabelColor( Color unselectedLabelColor )
+	{
+		this.unselectedLabelColor = unselectedLabelColor;
 	}
 	
 }

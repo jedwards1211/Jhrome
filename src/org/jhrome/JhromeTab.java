@@ -49,6 +49,26 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		setUI( new JhromeTabUI( ) );
 	}
 	
+	public JhromeTab( String title , Component content )
+	{
+		setLayout( new BorderLayout( ) );
+		
+		label = new JLabel( title );
+		add( label , BorderLayout.CENTER );
+		
+		closeButton = new JButton( );
+		add( closeButton , BorderLayout.EAST );
+		
+		setUI( new JhromeTabUI( ) );
+		
+		this.content = content;
+	}
+	
+	public void setTitle( String title )
+	{
+		label.setText( title );
+	}
+	
 	public void setOverrideLabel( Component component )
 	{
 		if( overrideLabel != component )
@@ -112,6 +132,11 @@ public class JhromeTab extends JComponent implements IJhromeTab
 		return this;
 	}
 	
+	public void setContent( Component content )
+	{
+		this.content = content;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -121,6 +146,11 @@ public class JhromeTab extends JComponent implements IJhromeTab
 	public Component getContent( )
 	{
 		return content;
+	}
+	
+	public JLabel getLabel( )
+	{
+		return label;
 	}
 	
 	/*

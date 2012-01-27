@@ -62,7 +62,7 @@ public class JhromeContentPanelBorder implements Border
 	@Override
 	public Insets getBorderInsets( Component c )
 	{
-		return new Insets( roundness + thickness , roundness + thickness , thickness , roundness + thickness );
+		return new Insets( roundness + thickness , roundness + thickness , roundness + thickness , roundness + thickness );
 	}
 	
 	@Override

@@ -126,6 +126,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	private int						extraDropZoneSpace	= 15;
 	private Rectangle				dropZone			= new Rectangle( );
 	
+	private IJhromeTabDnDPolicy		dndPolicy			= null;
+	
 	private class MouseManager extends RecursiveListener
 	{
 		MouseAdapter	adapter	= new MouseAdapter( )
@@ -251,6 +253,36 @@ public class JhromeTabbedPane extends JLayeredPane
 		
 		dragHandler = new DragHandler( this , DnDConstants.ACTION_MOVE );
 		dropHandler = new DropHandler( this );
+	}
+	
+	public IJhromeTabFactory getTabFactory( )
+	{
+		return tabFactory;
+	}
+	
+	public void setTabFactory( JhromeTabFactory tabFactory )
+	{
+		this.tabFactory = tabFactory;
+	}
+	
+	public IJhromeWindowFactory getWindowFactory( )
+	{
+		return windowFactory;
+	}
+	
+	public void setWindowFactory( JhromeWindowFactory windowFactory )
+	{
+		this.windowFactory = windowFactory;
+	}
+	
+	public IJhromeTabDnDPolicy getDnDPolicy( )
+	{
+		return dndPolicy;
+	}
+	
+	public void setDnDPolicy( IJhromeTabDnDPolicy dndPolicy )
+	{
+		this.dndPolicy = dndPolicy;
 	}
 	
 	public IJhromeTab getHoverableTabAt( Point p )
@@ -454,6 +486,15 @@ public class JhromeTabbedPane extends JLayeredPane
 		validate( );
 	}
 	
+	public void tabContentChanged( IJhromeTab tab )
+	{
+		TabInfo info = getInfo( tab );
+		if( info == selectedTab )
+		{
+			setContent( tab.getContent( ) );
+		}
+	}
+	
 	public void removeTab( IJhromeTab tab )
 	{
 		removeTab( tab , true );
@@ -571,7 +612,6 @@ public class JhromeTabbedPane extends JLayeredPane
 			if( selectedTab != null )
 			{
 				selectedTab.tab.setSelected( false );
-				contentPanel.removeAll( );
 			}
 			
 			selectedTab = info;
@@ -579,15 +619,27 @@ public class JhromeTabbedPane extends JLayeredPane
 			if( selectedTab != null )
 			{
 				selectedTab.tab.setSelected( true );
-				if( selectedTab.tab.getContent( ) != null )
-				{
-					contentPanel.add( selectedTab.tab.getContent( ) , BorderLayout.CENTER );
-				}
+				setContent( selectedTab.tab.getContent( ) );
+			}
+			else
+			{
+				setContent( null );
 			}
 			
 			invalidate( );
 			validate( );
 		}
+	}
+	
+	private void setContent( Component content )
+	{
+		contentPanel.removeAll( );
+		if( content != null )
+		{
+			contentPanel.add( content , BorderLayout.CENTER );
+		}
+		invalidate( );
+		validate( );
 	}
 	
 	private void setDragState( IJhromeTab draggedTab , double grabX , int dragX )
@@ -656,7 +708,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	public JButton getNewTabButton( )
 	{
-		return null;
+		return newTabButton;
 	}
 	
 	public void dispose( )
@@ -989,7 +1041,7 @@ public class JhromeTabbedPane extends JLayeredPane
 			disposeDragImageWindow( );
 			dragImage = null;
 			
-			if( draggedTab != null && !dsde.getDropSuccess( ) )
+			if( draggedTab != null && windowFactory != null && !dsde.getDropSuccess( ) && ( draggedParent == null || draggedParent.isTearAwayAllowed( draggedTab ) ) )
 			{
 				IJhromeWindow newJhromeWindow = windowFactory.createWindow( );
 				Window newWindow = newJhromeWindow.getWindow( );
@@ -1026,6 +1078,11 @@ public class JhromeTabbedPane extends JLayeredPane
 				loc.x += dsde.getX( ) - tabPos.x;
 				loc.y += dsde.getY( ) - tabPos.y;
 				newWindow.setLocation( loc );
+			}
+			
+			if( draggedParent != null )
+			{
+				draggedParent.setDragState( null , 0 , 0 );
 			}
 			
 			draggedTab = null;
@@ -1117,14 +1174,23 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private static Dimension		dragSourceWindowSize	= null;
 	
+	private boolean isTearAwayAllowed( IJhromeTab tab )
+	{
+		return dndPolicy == null || dndPolicy.isTearAwayAllowed( this , tab );
+	}
+	
+	private boolean isSnapInAllowed( IJhromeTab tab )
+	{
+		return dndPolicy == null || dndPolicy.isSnapInAllowed( this , tab );
+	}
+	
 	private static void dragOut( DropTargetEvent dte )
 	{
 		if( draggedTab != null )
 		{
-			initDragImageWindow( );
-			
-			if( draggedParent != null && dte.getDropTargetContext( ).getComponent( ) == draggedParent )
+			if( draggedParent != null && dte.getDropTargetContext( ).getComponent( ) == draggedParent && draggedParent.isTearAwayAllowed( draggedTab ) )
 			{
+				initDragImageWindow( );
 				removeDraggedTabFromParent( );
 			}
 		}
@@ -1134,10 +1200,9 @@ public class JhromeTabbedPane extends JLayeredPane
 	{
 		if( draggedTab != null )
 		{
-			initDragImageWindow( );
-			
-			if( draggedParent != null && dsde.getDragSourceContext( ).getComponent( ) == draggedParent )
+			if( draggedParent != null && dsde.getDragSourceContext( ).getComponent( ) == draggedParent && draggedParent.isTearAwayAllowed( draggedTab ) )
 			{
+				initDragImageWindow( );
 				removeDraggedTabFromParent( );
 			}
 		}
@@ -1160,18 +1225,25 @@ public class JhromeTabbedPane extends JLayeredPane
 	{
 		if( draggedTab != null )
 		{
-			disposeDragImageWindow( );
-			
 			JhromeTabbedPane tabbedPane = ( JhromeTabbedPane ) dtde.getDropTargetContext( ).getComponent( );
 			
-			if( draggedParent != tabbedPane )
+			if( draggedParent != tabbedPane && ( draggedParent == null || draggedParent.isTearAwayAllowed( draggedTab ) ) && tabbedPane.isSnapInAllowed( draggedTab ) )
 			{
+				disposeDragImageWindow( );
+				
 				if( draggedParent != null )
 				{
 					removeDraggedTabFromParent( );
 				}
 				
 				draggedParent = tabbedPane;
+				
+				Window ancestor = SwingUtilities.getWindowAncestor( tabbedPane );
+				if( ancestor != null )
+				{
+					ancestor.toFront( );
+					ancestor.requestFocus( );
+				}
 				
 				int dragX = dtde.getLocation( ).x;
 				
@@ -1313,5 +1385,18 @@ public class JhromeTabbedPane extends JLayeredPane
 		{
 			throw new IllegalArgumentException( "Must be called on the AWT Event Dispatch Thread!" );
 		}
+	}
+	
+	public static JhromeTabbedPane getJhromeTabbedPaneAncestor( Component c )
+	{
+		while( c != null )
+		{
+			if( c instanceof JhromeTabbedPane )
+			{
+				return ( JhromeTabbedPane ) c;
+			}
+			c = c.getParent( );
+		}
+		return null;
 	}
 }

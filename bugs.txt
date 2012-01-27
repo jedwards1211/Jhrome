@@ -21,3 +21,12 @@ Description: Whenever the user moves the mouse away from an unselected tab quick
 tab remains rolled over.  (This is because mouse exit is not detected).
 
 --------------------------------------------------------------------------------
+
+Bug ID: 3
+
+Created: 2012-01-26
+
+Description: Sometimes when dragging a tab to the extreme left of the tabbed pane, other tabs
+can shift into its place.
+
+--------------------------------------------------------------------------------
