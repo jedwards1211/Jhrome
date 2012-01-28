@@ -52,6 +52,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import org.omg.CORBA.BooleanHolder;
+
 import com.sun.awt.AWTUtilities;
 
 /**
@@ -819,11 +821,24 @@ public class JhromeTabbedPane extends JLayeredPane
 		dropHandler.dispose( );
 	}
 	
-	private int animate( int value , int target )
+	private int animate( int value , int target , double animFactor )
 	{
 		int d = value - target;
 		d *= animFactor;
 		return d == 0 ? target : target + d;
+	}
+	
+	private int animate( int value , int target , double animFactor , boolean reset , BooleanHolder animNeeded )
+	{
+		if( reset )
+		{
+			return target;
+		}
+		else
+		{
+			animNeeded.value = true;
+			return animate( value , target , animFactor );
+		}
 	}
 	
 	private class TabLayoutManager implements LayoutManager
@@ -912,7 +927,7 @@ public class JhromeTabbedPane extends JLayeredPane
 			/**
 			 * Whether another animation step is needed after this one.
 			 */
-			boolean animNeeded = false;
+			BooleanHolder animNeeded = new BooleanHolder( false );
 			
 			/**
 			 * The target x position of the next tab, in virtual coordinate space.
@@ -931,7 +946,7 @@ public class JhromeTabbedPane extends JLayeredPane
 			 */
 			int vCurrentTabZoneWidth = 0;
 			
-			int tabHeight = rightButtonPanelPrefSize.height;
+			int targetTabHeight = rightButtonPanelPrefSize.height;
 			
 			boolean anyDragging = false;
 			
@@ -942,29 +957,11 @@ public class JhromeTabbedPane extends JLayeredPane
 				
 				info.vTargetWidth = info.isBeingRemoved ? 0 : Math.max( 0 , useUniformWidth ? maxUniformWidth - overlap : info.prefSize.width - overlap );
 				
-				tabHeight = Math.max( tabHeight , info.prefSize.height );
-				
 				// animate the tab x position
-				if( reset )
-				{
-					info.vCurrentX = vTargetX;
-				}
-				else if( info.vCurrentX != vTargetX )
-				{
-					animNeeded = true;
-					info.vCurrentX = animate( info.vCurrentX , vTargetX );
-				}
+				info.vCurrentX = animate( info.vCurrentX , vTargetX , animFactor , reset , animNeeded );
 				
 				// animate the tab width
-				if( reset )
-				{
-					info.vCurrentWidth = info.vTargetWidth;
-				}
-				else if( info.vCurrentWidth != info.vTargetWidth )
-				{
-					animNeeded = true;
-					info.vCurrentWidth = animate( info.vCurrentWidth , info.vTargetWidth );
-				}
+				info.vCurrentWidth = animate( info.vCurrentWidth , info.vTargetWidth , animFactor , reset , animNeeded );
 				
 				if( info.isBeingDragged )
 				{
@@ -975,6 +972,7 @@ public class JhromeTabbedPane extends JLayeredPane
 				{
 					vTargetX += info.vTargetWidth;
 					vTargetTabZoneWidth += info.vTargetWidth;
+					targetTabHeight = Math.max( targetTabHeight , info.prefSize.height );
 				}
 				vCurrentTabZoneWidth += info.vCurrentWidth;
 			}
@@ -987,8 +985,8 @@ public class JhromeTabbedPane extends JLayeredPane
 			}
 			else if( !holdTabWidthScale && !anyDragging && vSustainedTabZoneWidth > vTargetTabZoneWidth )
 			{
-				animNeeded = true;
-				vSustainedTabZoneWidth = animate( vSustainedTabZoneWidth , vTargetTabZoneWidth );
+				animNeeded.value = true;
+				vSustainedTabZoneWidth = animate( vSustainedTabZoneWidth , vTargetTabZoneWidth , animFactor );
 			}
 			
 			// Compute necessary width scale to fit all tabs on screen
@@ -1012,9 +1010,14 @@ public class JhromeTabbedPane extends JLayeredPane
 			}
 			widthScale = adjWidthScale;
 			
-			topZone.setFrame( insets.left + tabMargin , insets.top , availTopZoneWidth , tabHeight );
-			tabZone.setFrame( insets.left + tabMargin , insets.top , availTabZoneWidth , tabHeight );
-			dropZone.setFrame( insets.left + tabMargin , insets.top , availTopZoneWidth , Math.min( availHeight , tabHeight + extraDropZoneSpace ) );
+			int currentTabHeight = targetTabHeight;
+			if( tabZone.height > 0 )
+			{
+				currentTabHeight = animate( tabZone.height , targetTabHeight , animFactor , reset , animNeeded );
+			}
+			topZone.setFrame( insets.left + tabMargin , insets.top , availTopZoneWidth , currentTabHeight );
+			tabZone.setFrame( insets.left + tabMargin , insets.top , availTabZoneWidth , topZone.height );
+			dropZone.setFrame( insets.left + tabMargin , insets.top , availTopZoneWidth , Math.min( availHeight , tabZone.height + extraDropZoneSpace ) );
 			
 			// now, lay out the tabs
 			for( int i = 0 ; i < tabs.size( ) ; i++ )
@@ -1032,8 +1035,8 @@ public class JhromeTabbedPane extends JLayeredPane
 					x = Math.max( topZone.x , Math.min( topZone.x + topZone.width - width , x ) );
 					info.vCurrentX = ( int ) ( ( x - topZone.x ) / widthScale );
 				}
-				info.tab.getRenderer( ).setBounds( x , topZone.y , width , tabHeight );
-				info.targetBounds.setFrame( targetX , topZone.y , targetWidth , tabHeight );
+				info.tab.getRenderer( ).setBounds( x , topZone.y , width , tabZone.height );
+				info.targetBounds.setFrame( targetX , topZone.y , targetWidth , tabZone.height );
 			}
 			
 			// lay out the content panel and right button panel
@@ -1080,11 +1083,11 @@ public class JhromeTabbedPane extends JLayeredPane
 			
 			repaint( );
 			
-			if( animNeeded )
+			if( animNeeded.value )
 			{
 				animTimer.start( );
 			}
-			else if( !animNeeded )
+			else
 			{
 				animTimer.stop( );
 			}
