@@ -1145,8 +1145,7 @@ public class JhromeTabbedPane extends JLayeredPane
 			if( draggedTab != null )
 			{
 				dragImage = createDragImage( draggedTab );
-				draggedParent = JhromeTabbedPane.this;
-				Window window = SwingUtilities.getWindowAncestor( draggedParent );
+				Window window = SwingUtilities.getWindowAncestor( JhromeTabbedPane.this );
 				if( window != null )
 				{
 					dragSourceWindowSize = window.getSize( );
@@ -1176,17 +1175,21 @@ public class JhromeTabbedPane extends JLayeredPane
 		@Override
 		public void dragMouseMoved( DragSourceDragEvent dsde )
 		{
-			if( draggedTab != null && draggedParent != null )
+			if( draggedTab != null )
 			{
-				Point p = dsde.getLocation( );
-				SwingUtilities.convertPointFromScreen( p , draggedParent );
-				if( !JhromeUtils.contains( draggedParent.dropZone , p ) )
+				JhromeTabbedPane draggedParent = getJhromeTabbedPaneAncestor( draggedTab.getRenderer( ) );
+				if( draggedParent != null )
 				{
-					dragOut( dsde );
+					Point p = dsde.getLocation( );
+					SwingUtilities.convertPointFromScreen( p , draggedParent );
+					if( !JhromeUtils.contains( draggedParent.dropZone , p ) )
+					{
+						dragOut( dsde );
+					}
 				}
+				
+				moveDragImageWindow( new Point( dsde.getX( ) - ( int ) ( grabX * draggedTab.getRenderer( ).getWidth( ) ) , dsde.getY( ) + 10 ) );
 			}
-			
-			moveDragImageWindow( new Point( dsde.getX( ) + 10 , dsde.getY( ) + 10 ) );
 		}
 		
 		@Override
@@ -1200,16 +1203,13 @@ public class JhromeTabbedPane extends JLayeredPane
 			disposeDragImageWindow( );
 			dragImage = null;
 			
+			JhromeTabbedPane draggedParent = getJhromeTabbedPaneAncestor( draggedTab.getRenderer( ) );
+			
 			if( draggedTab != null && windowFactory != null && draggedParent == null )
 			{
 				IJhromeWindow newJhromeWindow = windowFactory.createWindow( );
 				Window newWindow = newJhromeWindow.getWindow( );
 				JhromeTabbedPane tabbedPane = newJhromeWindow.getTabbedPane( );
-				
-				if( draggedParent != null )
-				{
-					removeDraggedTabFromParent( );
-				}
 				
 				tabbedPane.addTab( draggedTab );
 				tabbedPane.setSelectedTab( draggedTab );
@@ -1325,19 +1325,17 @@ public class JhromeTabbedPane extends JLayeredPane
 		}
 	}
 	
-	private static Window			dragImageWindow			= null;
+	private static Window		dragImageWindow			= null;
 	
-	private static Image			dragImage				= null;
+	private static Image		dragImage				= null;
 	
-	private static JhromeTabbedPane	draggedParent			= null;
+	private static double		grabX					= 0;
 	
-	private static double			grabX					= 0;
+	private static IJhromeTab	draggedTab				= null;
 	
-	private static IJhromeTab		draggedTab				= null;
+	private static List<Window>	deadWindows				= new ArrayList<Window>( );
 	
-	private static List<Window>		deadWindows				= new ArrayList<Window>( );
-	
-	private static Dimension		dragSourceWindowSize	= null;
+	private static Dimension	dragSourceWindowSize	= null;
 	
 	private boolean isTearAwayAllowed( IJhromeTab tab )
 	{
@@ -1353,6 +1351,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	{
 		if( draggedTab != null )
 		{
+			JhromeTabbedPane draggedParent = getJhromeTabbedPaneAncestor( draggedTab.getRenderer( ) );
 			if( draggedParent != null && dte.getDropTargetContext( ).getComponent( ) == draggedParent && draggedParent.isTearAwayAllowed( draggedTab ) )
 			{
 				initDragImageWindow( );
@@ -1365,6 +1364,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	{
 		if( draggedTab != null )
 		{
+			JhromeTabbedPane draggedParent = getJhromeTabbedPaneAncestor( draggedTab.getRenderer( ) );
 			if( draggedParent != null && dsde.getDragSourceContext( ).getComponent( ) == draggedParent && draggedParent.isTearAwayAllowed( draggedTab ) )
 			{
 				initDragImageWindow( );
@@ -1375,6 +1375,7 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private static void removeDraggedTabFromParent( )
 	{
+		JhromeTabbedPane draggedParent = getJhromeTabbedPaneAncestor( draggedTab.getRenderer( ) );
 		draggedParent.setDragState( null , 0 , 0 );
 		draggedParent.removeTabImmediately( draggedTab );
 		if( draggedParent.getTabCount( ) == 0 )
@@ -1398,6 +1399,8 @@ public class JhromeTabbedPane extends JLayeredPane
 				dragOut( dtde );
 				return;
 			}
+			
+			JhromeTabbedPane draggedParent = getJhromeTabbedPaneAncestor( draggedTab.getRenderer( ) );
 			
 			if( draggedParent != tabbedPane && ( draggedParent == null || draggedParent.isTearAwayAllowed( draggedTab ) ) && tabbedPane.isSnapInAllowed( draggedTab ) )
 			{
