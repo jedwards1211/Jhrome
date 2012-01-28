@@ -7,8 +7,6 @@ import org.jhrome.IJhromeTab;
 import org.jhrome.IJhromeWindow;
 import org.jhrome.JhromeWindowFactory;
 
-// NOTE: Non-Uniform tab width still has some cosmetic animation bugs.
-
 public class NonUniformTabWidthDemo implements IJhromeDemo
 {
 	@Override

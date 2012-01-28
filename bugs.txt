@@ -52,6 +52,8 @@ Created: 2012-01-26
 Description: When using non-uniform tab widths, if you drag a narrow tab over a wide tab,
 the wide tab jiggles back and forth trying to decide where to move.
 
+Fixed: 2012-01-26
+
 --------------------------------------------------------------------------------
 
 Bug ID: 6
