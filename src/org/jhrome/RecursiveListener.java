@@ -5,10 +5,23 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
+import java.util.HashSet;
 
 public abstract class RecursiveListener
 {
 	private ContainerListener	containerListener	= new HierarchyChangeListener( );
+	
+	private HashSet<Component>	excluded			= new HashSet<Component>( );
+	
+	public void addExcludedComponent( Component c )
+	{
+		excluded.add( c );
+	}
+	
+	public void removeExcludedComponent( Component c )
+	{
+		excluded.remove( c );
+	}
 	
 	private class HierarchyChangeListener implements ContainerListener
 	{
@@ -27,6 +40,10 @@ public abstract class RecursiveListener
 	
 	public void installRecursively( Component c )
 	{
+		if( excluded.contains( c ) )
+		{
+			return;
+		}
 		install( c );
 		if( c instanceof Container )
 		{

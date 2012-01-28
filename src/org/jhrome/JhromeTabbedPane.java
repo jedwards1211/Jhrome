@@ -293,11 +293,12 @@ public class JhromeTabbedPane extends JLayeredPane
 		invalidate( );
 		validate( );
 		
-		mouseOverManager = new MouseManager( );
-		mouseOverManager.install( this );
-		
 		contentPanel = new JPanel( );
 		add( contentPanel );
+		
+		mouseOverManager = new MouseManager( );
+		mouseOverManager.addExcludedComponent( contentPanel );
+		mouseOverManager.install( this );
 		
 		contentPanel.setOpaque( false );
 		contentPanel.setLayout( new BorderLayout( ) );
