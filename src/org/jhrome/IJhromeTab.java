@@ -13,6 +13,8 @@ public interface IJhromeTab
 	
 	public abstract Component getContent( );
 	
+	public abstract void setContent( Component content );
+	
 	public abstract JButton getCloseButton( );
 	
 	public abstract boolean isDraggableAt( Point p );

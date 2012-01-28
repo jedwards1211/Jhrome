@@ -61,6 +61,7 @@ public class JhromeDemos implements IJhromeDemo
 					demoListModel.addElement( new DemoItem( new NonUniformTabWidthDemo( ) , "Non-Uniform Tab Width Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/NonUniformTabWidthDemo.java" ) ) ) );
 					demoListModel.addElement( new DemoItem( new NoTearAwayDemo( ) , "No Tear Away Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/NoTearAwayDemo.java" ) ) ) );
 					demoListModel.addElement( new DemoItem( new NoSnapInDemo( ) , "No Snap In Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/NoSnapInDemo.java" ) ) ) );
+					demoListModel.addElement( new DemoItem( new NestedTabbedPanesDemo( ) , "Nested Tabbed Panes Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/NestedTabbedPanesDemo.java" ) ) ) );
 				}
 				catch( Exception e1 )
 				{
@@ -165,7 +166,7 @@ public class JhromeDemos implements IJhromeDemo
 		JTextArea sourceArea = new JTextArea( );
 		sourceArea.setFont( new Font( "Monospaced" , Font.PLAIN , 11 ) );
 		sourceArea.setEditable( false );
-//		sourceArea.setTransferHandler( null );
+		//		sourceArea.setTransferHandler( null );
 		sourceArea.setText( source );
 		JScrollPane sourceAreaScroller = new JScrollPane( sourceArea );
 		panel.add( sourceAreaScroller , BorderLayout.CENTER );

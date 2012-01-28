@@ -33,6 +33,12 @@ public class JhromeWrapperTab implements IJhromeTab
 	}
 	
 	@Override
+	public void setContent( Component content )
+	{
+		this.content = content;
+	}
+	
+	@Override
 	public JButton getCloseButton( )
 	{
 		return null;
