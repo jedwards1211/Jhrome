@@ -497,6 +497,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private TabInfo getInfo( IJhromeTab tab )
 	{
+		checkEDT( );
+		
 		for( TabInfo info : tabs )
 		{
 			if( info.tab == tab )
@@ -509,6 +511,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private int devirtualizeIndex( int index )
 	{
+		checkEDT( );
+		
 		int virtual = 0;
 		
 		int devirtualized;
@@ -611,6 +615,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	public void tabContentChanged( IJhromeTab tab )
 	{
+		checkEDT( );
+		
 		TabInfo info = getInfo( tab );
 		if( info == selectedTab )
 		{
@@ -732,6 +738,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private void setSelectedTab( TabInfo info )
 	{
+		checkEDT( );
+		
 		if( selectedTab != info )
 		{
 			if( selectedTab != null )
@@ -758,6 +766,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private void setContent( Component content )
 	{
+		checkEDT( );
+		
 		contentPanel.removeAll( );
 		if( content != null )
 		{
@@ -769,6 +779,8 @@ public class JhromeTabbedPane extends JLayeredPane
 	
 	private void setDragState( IJhromeTab draggedTab , double grabX , int dragX )
 	{
+		checkEDT( );
+		
 		boolean validate = false;
 		
 		for( TabInfo info : tabs )
@@ -863,6 +875,8 @@ public class JhromeTabbedPane extends JLayeredPane
 		
 		private int getInsertIndex( IJhromeTab tab , double grabX , int dragX )
 		{
+			checkEDT( );
+			
 			int targetWidth = useUniformWidth ? maxUniformWidth : tab.getRenderer( ).getPreferredSize( ).width;
 			targetWidth *= widthScale;
 			int vX = dragX - ( int ) ( grabX * targetWidth );
@@ -918,6 +932,8 @@ public class JhromeTabbedPane extends JLayeredPane
 		@Override
 		public void layoutContainer( Container parent )
 		{
+			checkEDT( );
+			
 			boolean reset = false;
 			
 			double animFactor = reset ? 0.0 : JhromeTabbedPane.this.animFactor;
@@ -987,11 +1003,11 @@ public class JhromeTabbedPane extends JLayeredPane
 				vCurrentTabZoneWidth += info.vCurrentWidth;
 			}
 			
-			TabInfo lastInfo = tabs.get( tabs.size( ) - 1 );
+			TabInfo lastInfo = tabs.isEmpty( ) ? null : tabs.get( tabs.size( ) - 1 );
 			/**
 			 * The target x position for the right buttons panel, in virtual coordinate space. The logic for this is tricky.
 			 */
-			int vTargetRightButtonsPanelX = lastInfo.vCurrentX == lastInfo.vTargetX ? lastInfo.vCurrentX + lastInfo.vCurrentWidth : lastInfo.vTargetX + lastInfo.vCurrentWidth;
+			int vTargetRightButtonsPanelX = lastInfo != null ? lastInfo.vCurrentX == lastInfo.vTargetX ? lastInfo.vCurrentX + lastInfo.vCurrentWidth : lastInfo.vTargetX + lastInfo.vCurrentWidth : 0;
 			
 			// Animate the tab zone (virtual) width.
 			// if the sustained tab zone width must increase to reach the current, do it immediately, without animation; if it must shrink to reach the target, do it with animation,
@@ -1115,7 +1131,7 @@ public class JhromeTabbedPane extends JLayeredPane
 		}
 	}
 	
-	private class JhromeTransferable implements Transferable
+	private static class JhromeTransferable implements Transferable
 	{
 		@Override
 		public DataFlavor[ ] getTransferDataFlavors( )

@@ -2,6 +2,7 @@
 package org.jhrome;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Point;
 import java.awt.Rectangle;
 
@@ -27,4 +28,8 @@ public class JhromeUtils
 		return p.x >= r.x && p.y >= r.y && p.x < r.x + r.width && p.y < r.y + r.height;
 	}
 	
+	static boolean contains( Component c , Point p )
+	{
+		return contains( c.getBounds( ) , p );
+	}
 }
