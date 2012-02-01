@@ -49,8 +49,8 @@ public class JhromeNewTabButtonBorder implements Border
 		
 		public void interpolateColors( Attributes a , Attributes b , float f )
 		{
-			borderColor = JhromeUtils.interpolate( a.borderColor , b.borderColor , f );
-			fillColor = JhromeUtils.interpolate( a.fillColor , b.fillColor , f );
+			borderColor = Utils.interpolate( a.borderColor , b.borderColor , f );
+			fillColor = Utils.interpolate( a.fillColor , b.fillColor , f );
 		}
 	}
 	

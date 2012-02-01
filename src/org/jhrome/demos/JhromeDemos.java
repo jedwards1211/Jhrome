@@ -22,12 +22,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.jhrome.IJhromeTab;
-import org.jhrome.IJhromeTabDnDPolicy;
-import org.jhrome.IJhromeWindow;
-import org.jhrome.JhromeTab;
-import org.jhrome.JhromeTabbedPane;
-import org.jhrome.JhromeWindowFactory;
+import org.jhrome.DefaultTab;
+import org.jhrome.DefaultTabbedPaneWindowFactory;
+import org.jhrome.ITab;
+import org.jhrome.ITabbedPaneDnDPolicy;
+import org.jhrome.ITabbedPaneWindow;
+import org.jhrome.TabbedPane;
 
 public class JhromeDemos implements IJhromeDemo
 {
@@ -57,11 +57,12 @@ public class JhromeDemos implements IJhromeDemo
 					demoListModel.addElement( new DemoItem( new OutOfTheBoxDemo( ) , "Out of the Box Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/OutOfTheBoxDemo.java" ) ) ) );
 					demoListModel.addElement( new DemoItem( new LabelReplacementDemo( ) , "Label Replacement Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/LabelReplacementDemo.java" ) ) ) );
 					demoListModel.addElement( new DemoItem( new ColoredTabDemo( ) , "Colored Tab Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/ColoredTabDemo.java" ) ) ) );
-					demoListModel.addElement( new DemoItem( new JhromeWrapperTabDemo( ) , "JhromeWrapperTab Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/JhromeWrapperTabDemo.java" ) ) ) );
+					demoListModel.addElement( new DemoItem( new ComponentWrapperTabDemo( ) , "ComponentWrapperTab Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/ComponentWrapperTabDemo.java" ) ) ) );
 					demoListModel.addElement( new DemoItem( new NonUniformTabWidthDemo( ) , "Non-Uniform Tab Width Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/NonUniformTabWidthDemo.java" ) ) ) );
 					demoListModel.addElement( new DemoItem( new NoTearAwayDemo( ) , "No Tear Away Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/NoTearAwayDemo.java" ) ) ) );
 					demoListModel.addElement( new DemoItem( new NoSnapInDemo( ) , "No Snap In Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/NoSnapInDemo.java" ) ) ) );
 					demoListModel.addElement( new DemoItem( new NestedTabbedPanesDemo( ) , "Nested Tabbed Panes Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/NestedTabbedPanesDemo.java" ) ) ) );
+					demoListModel.addElement( new DemoItem( new UndecoratedWindowDemo( ) , "Undecorated Window Demo" , read( getClass( ).getClassLoader( ).getResource( "org/jhrome/demos/UndecoratedWindowDemo.java" ) ) ) );
 				}
 				catch( Exception e1 )
 				{
@@ -72,26 +73,26 @@ public class JhromeDemos implements IJhromeDemo
 				
 				demoList.setModel( demoListModel );
 				
-				final JhromeWindowFactory windowFactory = new JhromeWindowFactory( );
+				final DefaultTabbedPaneWindowFactory windowFactory = new DefaultTabbedPaneWindowFactory( );
 				windowFactory.showNewTabButton = false;
-				final IJhromeWindow window = windowFactory.createWindow( );
+				final ITabbedPaneWindow window = windowFactory.createWindow( );
 				
-				final JhromeTab demoSelectorTab = new JhromeTab( "Jhrome Demos" , demoListPanel );
+				final DefaultTab demoSelectorTab = new DefaultTab( "Jhrome Demos" , demoListPanel );
 				demoSelectorTab.getLabel( ).setFont( demoSelectorTab.getLabel( ).getFont( ).deriveFont( Font.BOLD ) );
 				demoSelectorTab.getCloseButton( ).setVisible( false );
 				
 				window.getTabbedPane( ).addTab( demoSelectorTab );
 				window.getTabbedPane( ).setSelectedTab( demoSelectorTab );
-				window.getTabbedPane( ).setDnDPolicy( new IJhromeTabDnDPolicy( )
+				window.getTabbedPane( ).setDnDPolicy( new ITabbedPaneDnDPolicy( )
 				{
 					@Override
-					public boolean isTearAwayAllowed( JhromeTabbedPane tabbedPane , IJhromeTab tab )
+					public boolean isTearAwayAllowed( TabbedPane tabbedPane , ITab tab )
 					{
 						return tab != demoSelectorTab;
 					}
 					
 					@Override
-					public boolean isSnapInAllowed( JhromeTabbedPane tabbedPane , IJhromeTab tab )
+					public boolean isSnapInAllowed( TabbedPane tabbedPane , ITab tab )
 					{
 						return true;
 					}
@@ -110,10 +111,10 @@ public class JhromeDemos implements IJhromeDemo
 						{
 							DemoItem demoItem = ( DemoItem ) demoList.getSelectedValue( );
 							
-							JhromeTabbedPane tabbedPane = JhromeTabbedPane.getJhromeTabbedPaneAncestor( demoList );
+							TabbedPane tabbedPane = TabbedPane.getJhromeTabbedPaneAncestor( demoList );
 							if( tabbedPane != null )
 							{
-								JhromeTab demoTab = new JhromeTab( demoItem.name , createDemoPanel( demoItem.demo , demoItem.source ) );
+								DefaultTab demoTab = new DefaultTab( demoItem.name , createDemoPanel( demoItem.demo , demoItem.source ) );
 								tabbedPane.addTab( demoTab );
 								tabbedPane.setSelectedTab( demoTab );
 							}

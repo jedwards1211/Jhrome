@@ -1,8 +1,13 @@
--Fix memory leaks
+Things necessary for first release:
+-Remove auto window & tab numbers from factories; allow those to be pre-set
+-Add getters/setters for some more properties in JhromeTabbedPane
+-ensure there will be no backward-compatibility problems in the future
 -Javadoc!
+-Add listening capability
+
+Things that would be nice:
 -Make build.xml & JAR
 -Make animation customizable
--Add listening capability
 -Add TabbedPaneUI wrapper
 -Add skins?
 -Make it possible to customize drag image

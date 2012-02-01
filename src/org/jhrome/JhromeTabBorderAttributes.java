@@ -73,10 +73,10 @@ public class JhromeTabBorderAttributes
 	
 	public void interpolateColors( JhromeTabBorderAttributes a , JhromeTabBorderAttributes b , float f )
 	{
-		shadowColor = JhromeUtils.interpolate( a.shadowColor , b.shadowColor , f );
-		outlineColor = JhromeUtils.interpolate( a.outlineColor , b.outlineColor , f );
-		topColor = JhromeUtils.interpolate( a.topColor , b.topColor , f );
-		bottomColor = JhromeUtils.interpolate( a.bottomColor , b.bottomColor , f );
+		shadowColor = Utils.interpolate( a.shadowColor , b.shadowColor , f );
+		outlineColor = Utils.interpolate( a.outlineColor , b.outlineColor , f );
+		topColor = Utils.interpolate( a.topColor , b.topColor , f );
+		bottomColor = Utils.interpolate( a.bottomColor , b.bottomColor , f );
 	}
 	
 }

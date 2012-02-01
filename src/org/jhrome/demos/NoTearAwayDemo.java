@@ -3,35 +3,35 @@ package org.jhrome.demos;
 
 import java.awt.Window;
 
-import org.jhrome.IJhromeTab;
-import org.jhrome.IJhromeTabDnDPolicy;
-import org.jhrome.IJhromeWindow;
-import org.jhrome.JhromeTabbedPane;
-import org.jhrome.JhromeWindowFactory;
+import org.jhrome.DefaultTabbedPaneWindowFactory;
+import org.jhrome.ITab;
+import org.jhrome.ITabbedPaneDnDPolicy;
+import org.jhrome.ITabbedPaneWindow;
+import org.jhrome.TabbedPane;
 
 public class NoTearAwayDemo implements IJhromeDemo
 {
 	@Override
 	public void start( )
 	{
-		JhromeWindowFactory windowFactory = new JhromeWindowFactory( );
-		IJhromeWindow jhromeWindow = windowFactory.createWindow( );
-		Window window = jhromeWindow.getWindow( );
+		DefaultTabbedPaneWindowFactory windowFactory = new DefaultTabbedPaneWindowFactory( );
+		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
+		Window window = tabbedPaneWindow.getWindow( );
 		
-		IJhromeTab tab1 = jhromeWindow.getTabbedPane( ).getTabFactory( ).createTab( "Try to tear tabs away!" );
-		jhromeWindow.getTabbedPane( ).addTab( tab1 );
-		jhromeWindow.getTabbedPane( ).setSelectedTab( tab1 );
+		ITab tab1 = tabbedPaneWindow.getTabbedPane( ).getTabFactory( ).createTab( "Try to tear tabs away!" );
+		tabbedPaneWindow.getTabbedPane( ).addTab( tab1 );
+		tabbedPaneWindow.getTabbedPane( ).setSelectedTab( tab1 );
 		
-		jhromeWindow.getTabbedPane( ).setDnDPolicy( new IJhromeTabDnDPolicy( )
+		tabbedPaneWindow.getTabbedPane( ).setDnDPolicy( new ITabbedPaneDnDPolicy( )
 		{
 			@Override
-			public boolean isTearAwayAllowed( JhromeTabbedPane tabbedPane , IJhromeTab tab )
+			public boolean isTearAwayAllowed( TabbedPane tabbedPane , ITab tab )
 			{
 				return false;
 			}
 			
 			@Override
-			public boolean isSnapInAllowed( JhromeTabbedPane tabbedPane , IJhromeTab tab )
+			public boolean isSnapInAllowed( TabbedPane tabbedPane , ITab tab )
 			{
 				return true;
 			}

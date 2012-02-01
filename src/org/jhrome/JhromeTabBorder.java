@@ -14,6 +14,11 @@ import java.awt.geom.Path2D;
 
 import javax.swing.border.Border;
 
+/**
+ * The default (Google Chrome style) border and background for a {@code JhromeTab}.
+ * 
+ * @author andy.edwards
+ */
 public class JhromeTabBorder implements Border
 {
 	public final JhromeTabBorderAttributes	attrs	= new JhromeTabBorderAttributes( );

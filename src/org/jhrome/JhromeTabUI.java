@@ -13,17 +13,21 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicButtonUI;
 
-public class JhromeTabUI extends ComponentUI
+/**
+ * The UI for a {@link DefaultTab}.
+ * 
+ * @author andy.edwards
+ */
+public class JhromeTabUI extends TabUI
 {
 	public JhromeTabUI( )
 	{
 		init( );
 	}
 	
-	JhromeTab					tab;
+	DefaultTab					defaultTab;
 	
 	CompoundBorder				compoundBorder;
 	
@@ -59,9 +63,9 @@ public class JhromeTabUI extends ComponentUI
 	
 	protected void onHighlightTimerEvent( ActionEvent e )
 	{
-		if( tab != null )
+		if( defaultTab != null )
 		{
-			tab.repaint( );
+			defaultTab.repaint( );
 		}
 	}
 	
@@ -69,23 +73,23 @@ public class JhromeTabUI extends ComponentUI
 	public void installUI( JComponent c )
 	{
 		super.installUI( c );
-		tab = ( JhromeTab ) c;
+		defaultTab = ( DefaultTab ) c;
 		
-		tab.setBorder( compoundBorder );
+		defaultTab.setBorder( compoundBorder );
 		
-		tab.label.setFont( tab.label.getFont( ).deriveFont( Font.PLAIN ) );
-		tab.label.setForeground( unselectedLabelColor );
+		defaultTab.label.setFont( defaultTab.label.getFont( ).deriveFont( Font.PLAIN ) );
+		defaultTab.label.setForeground( unselectedLabelColor );
 		
-		tab.closeButton.setUI( new BasicButtonUI( ) );
-		tab.closeButton.setBorderPainted( false );
-		tab.closeButton.setContentAreaFilled( false );
-		tab.closeButton.setOpaque( false );
-		tab.closeButton.setIcon( JhromeTabCloseButtonIcons.getJhromeNormalIcon( ) );
-		tab.closeButton.setRolloverIcon( JhromeTabCloseButtonIcons.getJhromeRolloverIcon( ) );
-		tab.closeButton.setPressedIcon( JhromeTabCloseButtonIcons.getJhromePressedIcon( ) );
-		tab.closeButton.setPreferredSize( new Dimension( tab.closeButton.getIcon( ).getIconWidth( ) + 1 , tab.closeButton.getIcon( ).getIconHeight( ) + 1 ) );
+		defaultTab.closeButton.setUI( new BasicButtonUI( ) );
+		defaultTab.closeButton.setBorderPainted( false );
+		defaultTab.closeButton.setContentAreaFilled( false );
+		defaultTab.closeButton.setOpaque( false );
+		defaultTab.closeButton.setIcon( JhromeTabCloseButtonIcons.getJhromeNormalIcon( ) );
+		defaultTab.closeButton.setRolloverIcon( JhromeTabCloseButtonIcons.getJhromeRolloverIcon( ) );
+		defaultTab.closeButton.setPressedIcon( JhromeTabCloseButtonIcons.getJhromePressedIcon( ) );
+		defaultTab.closeButton.setPreferredSize( new Dimension( defaultTab.closeButton.getIcon( ).getIconWidth( ) + 1 , defaultTab.closeButton.getIcon( ).getIconHeight( ) + 1 ) );
 		
-		tab.setOpaque( false );
+		defaultTab.setOpaque( false );
 		
 		highlightTimer = new javax.swing.Timer( 30 , new ActionListener( )
 		{
@@ -102,40 +106,40 @@ public class JhromeTabUI extends ComponentUI
 	{
 		super.uninstallUI( c );
 		
-		tab = ( JhromeTab ) c;
-		tab.setBorder( null );
+		defaultTab = ( DefaultTab ) c;
+		defaultTab.setBorder( null );
 		
-		tab.closeButton.setBorderPainted( true );
-		tab.closeButton.setContentAreaFilled( true );
-		tab.closeButton.setOpaque( true );
-		tab.closeButton.setIcon( null );
-		tab.closeButton.setRolloverIcon( null );
-		tab.closeButton.setPressedIcon( null );
-		tab.setPreferredSize( null );
+		defaultTab.closeButton.setBorderPainted( true );
+		defaultTab.closeButton.setContentAreaFilled( true );
+		defaultTab.closeButton.setOpaque( true );
+		defaultTab.closeButton.setIcon( null );
+		defaultTab.closeButton.setRolloverIcon( null );
+		defaultTab.closeButton.setPressedIcon( null );
+		defaultTab.setPreferredSize( null );
 		
-		tab = null;
+		defaultTab = null;
 	}
 	
 	@Override
 	public void paint( Graphics g , JComponent c )
 	{
-		tab = ( JhromeTab ) c;
-		update( tab );
+		defaultTab = ( DefaultTab ) c;
+		update( defaultTab );
 		super.paint( g , c );
 	}
 	
-	protected void update( JhromeTab tab )
+	protected void update( DefaultTab defaultTab )
 	{
-		if( tab.isSelected( ) )
+		if( defaultTab.isSelected( ) )
 		{
 			outerBorder.attrs.copyAttributes( selectedAttributes );
 			highlightTimer.stop( );
-			tab.label.setForeground( selectedLabelColor );
+			defaultTab.label.setForeground( selectedLabelColor );
 		}
 		else
 		{
-			tab.label.setForeground( unselectedLabelColor );
-			float targetHighlight = tab.isRollover( ) ? 1f : 0f;
+			defaultTab.label.setForeground( unselectedLabelColor );
+			float targetHighlight = defaultTab.isRollover( ) ? 1f : 0f;
 			if( highlight != targetHighlight )
 			{
 				highlight = animate( highlight , targetHighlight );
@@ -168,9 +172,9 @@ public class JhromeTabUI extends ComponentUI
 	 * 
 	 * @see org.jhrome.IJhromeTab#isDraggableAt(java.awt.Point)
 	 */
-	public boolean isDraggableAt( JhromeTab tab , Point p )
+	public boolean isDraggableAt( DefaultTab defaultTab , Point p )
 	{
-		return isHoverableAt( tab , p ) && !tab.closeButton.contains( SwingUtilities.convertPoint( tab , p , tab.closeButton ) );
+		return isHoverableAt( defaultTab , p ) && !defaultTab.closeButton.contains( SwingUtilities.convertPoint( defaultTab , p , defaultTab.closeButton ) );
 	}
 	
 	/*
@@ -178,9 +182,9 @@ public class JhromeTabUI extends ComponentUI
 	 * 
 	 * @see org.jhrome.IJhromeTab#isSelectableAt(java.awt.Point)
 	 */
-	public boolean isSelectableAt( JhromeTab tab , Point p )
+	public boolean isSelectableAt( DefaultTab defaultTab , Point p )
 	{
-		return isDraggableAt( tab , p );
+		return isDraggableAt( defaultTab , p );
 	}
 	
 	/*
@@ -188,7 +192,7 @@ public class JhromeTabUI extends ComponentUI
 	 * 
 	 * @see org.jhrome.IJhromeTab#isHoverableAt(java.awt.Point)
 	 */
-	public boolean isHoverableAt( JhromeTab tab , Point p )
+	public boolean isHoverableAt( DefaultTab defaultTab , Point p )
 	{
 		return outerBorder.contains( p );
 	}

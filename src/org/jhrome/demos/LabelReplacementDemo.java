@@ -8,20 +8,20 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
-import org.jhrome.IJhromeWindow;
-import org.jhrome.JhromeTab;
-import org.jhrome.JhromeWindowFactory;
+import org.jhrome.DefaultTabbedPaneWindowFactory;
+import org.jhrome.ITabbedPaneWindow;
+import org.jhrome.DefaultTab;
 
 public class LabelReplacementDemo implements IJhromeDemo
 {
 	@Override
 	public void start( )
 	{
-		JhromeWindowFactory windowFactory = new JhromeWindowFactory( );
-		IJhromeWindow jhromeWindow = windowFactory.createWindow( );
-		final Window window = jhromeWindow.getWindow( );
+		DefaultTabbedPaneWindowFactory windowFactory = new DefaultTabbedPaneWindowFactory( );
+		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
+		final Window window = tabbedPaneWindow.getWindow( );
 		
-		JhromeTab tab1 = new JhromeTab( "Tab 1" );
+		DefaultTab tab1 = new DefaultTab( "Tab 1" );
 		JButton button = new JButton( "Click Me!" );
 		tab1.setOverrideLabel( button );
 		button.addActionListener( new ActionListener( )
@@ -33,8 +33,8 @@ public class LabelReplacementDemo implements IJhromeDemo
 			}
 		} );
 		
-		jhromeWindow.getTabbedPane( ).addTab( tab1 );
-		jhromeWindow.getTabbedPane( ).setSelectedTab( tab1 );
+		tabbedPaneWindow.getTabbedPane( ).addTab( tab1 );
+		tabbedPaneWindow.getTabbedPane( ).setSelectedTab( tab1 );
 		
 		window.setSize( 800 , 600 );
 		window.setLocationRelativeTo( null );

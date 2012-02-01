@@ -7,6 +7,13 @@ import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.util.HashSet;
 
+/**
+ * A tool that allows you listen to a {@link Component} and all of its children. Even when children or added or removed,
+ * the listeners will automatically be added/removed as necessary.
+ * 
+ * @author andy.edwards
+ * 
+ */
 public abstract class RecursiveListener
 {
 	private ContainerListener	containerListener	= new HierarchyChangeListener( );
