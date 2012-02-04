@@ -54,44 +54,47 @@ import javax.swing.Timer;
 import org.omg.CORBA.BooleanHolder;
 
 /**
- * {@link TabbedPane} is a Google Chrome-like tabbed pane, providing animated jhromeTab layout,
- * drag and drop capabilities, and a new jhromeTab button. All Google Chrome behavior is provided by default.
- * Tabs can be dragged around within {@code JhromeTabbedPane} and rearranged, they can be "torn away" or
+ * {@link TabbedPane} is a Google Chrome-like tabbed pane, providing animated tab layout,
+ * drag and drop capabilities, and a new tab button. All Google Chrome behavior is provided by default.
+ * Tabs can be dragged around within {@code TabbedPane} and rearranged, they can be "torn away" or
  * dragged out and opened in new windows, and they can be dragged from one window to another. If all the tabs
- * in a {@code JhromeTabbedPane} are closed or torn away, the window containing that {@code JhromeTabbedPane} is disposed.
- * When a jhromeTab is torn away, a ghosted drag image window showing the jhromeTab and its contents will appear and follow the mouse cursor until
- * the jhromeTab is dragged over another {@code JhromeTabbedPane} or dropped.<br />
+ * in a {@code TabbedPane} are closed or torn away, the window containing that {@code TabbedPane} is disposed.
+ * When a tab is torn away, a ghosted drag image window showing the tab and its contents will appear and follow the mouse cursor until
+ * the tab is dragged over another {@code TabbedPane} or dropped.<br />
  * <br />
  * 
  * Animation includes tabs expanding when added, contracting when removed,
  * jumping around when being reordered, contracting simultaneously when there is not enough room, and expanding simultaneously when there is room again and the
- * mouse is no longer on top of the jhromeTab zone.<br />
+ * mouse is no longer on top of the tab zone.<br />
  * <br />
  * 
- * {@code JhromeTabbedPane} is designed to allow you to customize the look and behavior as much as possible. The following
+ * {@code TabbedPane} is designed to allow you to customize the look and behavior as much as possible. The following
  * interfaces help with customization:
  * <ul>
- * <li>{@link ITab} provides an interface to jhromeTab renderers/content. You can use literally any {@link Component} (or combination of {@code Component}s) in
- * a jhromeTab renderer by providing them through an {@code IJhromeTab} implementation.
- * <li>{@link ITabFactory} creates new tabs when the new jhromeTab button is clicked. By providing your own jhromeTab factory you can use any kind of tabs you
- * like with {@code JhromeTabbedPane}.</li>
- * <li>{@link ITabbedPaneWindowFactory} creates new windows for tabs that are torn away into their own windows. By providing your own window factory you can use
- * any kind of windows you like with {@code JhromeTabbedPane}.</li>
- * <li>{@link ITabbedPaneWindow} allows one {@code JhromeTabbedPane} to add a jhromeTab to the {@code JhromeTabbedPane} of a new window created when the
- * jhromeTab is torn away. You can lay out a {@code JhromeTabbedPane} in a Window any way you like, and {@code JhromeTabbedPane} will still be able to use it.
- * <li>{@link ITabbedPaneDnDPolicy} controls whether tabs may be torn away or snapped back in. By providing your own DnD policy you can create arbitrarily
- * complex behavior, preventing only certain tabs from being torn away, certain tabs from being snapped in, only at certain times, etc.</li>
+ * <li>{@link ITab} provides an interface to tab renderers/content. You can use literally any {@link Component} (or combination of {@code Component}s) in a tab
+ * renderer by providing them through an {@code ITab} implementation.
+ * <li>{@link ITabFactory} creates new tabs when the new tab button is clicked. By providing your own tab factory you can use any kind of tabs you like with
+ * {@code TabbedPane}.</li>
+ * <li>{@link ITabbedPaneDnDPolicy} controls whether tabs may be torn away or snapped back in (by default both are always allowed). By providing your own DnD
+ * policy you can create arbitrarily complex behavior, preventing only certain tabs from being torn away, certain tabs from being snapped in, only at certain
+ * times, etc.</li>
+ * <li>{@link IFloatingTabHandler} determines what happens when a tab is torn away from this {@code TabbedPane} and is "floating."
+ * {@link DefaultFloatingTabHandler} shows a ghost drag image of the tab in another window, but you may create different behavior by providing your own
+ * {@link IFloatingTabHandler}.
+ * <li>{@link ITabDropFailureHandler} determines what to do when a tab drop fails (i.e. it is dropped on the desktop or another application that rejects the
+ * drop). The {@link DefaultTabDropFailureHandler} creates a new window for the tab, but you can do something else by providing your own
+ * {@link ITabDropFailureHandler}.
  * </ul>
  * 
- * Also, {@code JhromeTabbedPane} allows you to get its new jhromeTab button and content pane so that you can modify them arbitrarily.<br />
+ * Also, {@code TabbedPane} allows you to get its new tab button and content pane so that you can modify them arbitrarily.<br />
  * <br />
  * 
- * Since the layout is animated, when you remove a jhromeTab from {@code JhromeTabbedPane} (using {@link #removeTab(ITab)}), it makes it start contracting
- * and doesn't actually remove the jhromeTab renderer component until it is done contracting. However, all public methods that involve the jhromeTab list behave
+ * Since the layout is animated, when you remove a tab from {@code TabbedPane} (using {@link #removeTab(ITab)}), it makes it start contracting
+ * and doesn't actually remove the tab renderer component until it is done contracting. However, all public methods that involve the tab list behave
  * as if
- * tabs are removed immediately. For example, if you remove a jhromeTab, it will no longer show up in {@link #getTabs()}, even while the jhromeTab renderer
+ * tabs are removed immediately. For example, if you remove a tab, it will no longer show up in {@link #getTabs()}, even while the tab renderer
  * component is
- * still a child of this {@code JhromeTabbedPane} and contracting. If you add the jhromeTab back before it is done contracting, it will jump to the new position
+ * still a child of this {@code TabbedPane} and contracting. If you add the tab back before it is done contracting, it will jump to the new position
  * and expand back to full size.
  * 
  * @author andy.edwards
@@ -114,39 +117,39 @@ public class TabbedPane extends JLayeredPane
 		Dimension		prefSize;
 		
 		/**
-		 * Whether the jhromeTab is being removed (contracting until its width reaches zero, when it will be completely removed)
+		 * Whether the tab is being removed (contracting until its width reaches zero, when it will be completely removed)
 		 */
 		boolean			isBeingRemoved;
 		
 		/**
-		 * The jhromeTab's target x position in virtual coordinate space. It will be scaled down to produce the actual target x position.
+		 * The tab's target x position in virtual coordinate space. It will be scaled down to produce the actual target x position.
 		 */
 		int				vTargetX;
 		/**
-		 * The jhromeTab's target width in virtual coordinate space. This does not include the overlap area -- it is the distance to the virtual target x
+		 * The tab's target width in virtual coordinate space. This does not include the overlap area -- it is the distance to the virtual target x
 		 * position of
-		 * the next jhromeTab. To get the actual target width, this value will be scaled down and the overlap amount will be added.
+		 * the next tab. To get the actual target width, this value will be scaled down and the overlap amount will be added.
 		 */
 		int				vTargetWidth;
 		
 		/**
-		 * The jhromeTab's target bounds in actual coordinate space. Not valid for tabs that are being removed.
+		 * The tab's target bounds in actual coordinate space. Not valid for tabs that are being removed.
 		 */
 		Rectangle		targetBounds	= new Rectangle( );
 		
 		/**
-		 * The jhromeTab's current x position in virtual coordinate space. It will be scaled down to produce the actual current x position.
+		 * The tab's current x position in virtual coordinate space. It will be scaled down to produce the actual current x position.
 		 */
 		int				vCurrentX;
 		/**
-		 * The jhromeTab's current width in virtual coordinate space. This does not include the overlap area -- it is the distance to the virtual current x
+		 * The tab's current width in virtual coordinate space. This does not include the overlap area -- it is the distance to the virtual current x
 		 * position
-		 * of the next jhromeTab. To get the actual current width, this value will be scaled down and the overlap amount will be added.
+		 * of the next tab. To get the actual current width, this value will be scaled down and the overlap amount will be added.
 		 */
 		int				vCurrentWidth;
 		
 		/**
-		 * Whether the jhromeTab is being dragged.
+		 * Whether the tab is being dragged.
 		 */
 		boolean			isBeingDragged;
 		
@@ -155,8 +158,8 @@ public class TabbedPane extends JLayeredPane
 		 */
 		int				dragX;
 		/**
-		 * The relative x position at which the jhromeTab was grabbed, as a proportion of its width (0.0 = left side, 0.5 = middle, 1.0 = right side).
-		 * This way if the jhromeTab width changes while it's being dragged, the layout manager can still give it a reasonable position relative to the mouse
+		 * The relative x position at which the tab was grabbed, as a proportion of its width (0.0 = left side, 0.5 = middle, 1.0 = right side).
+		 * This way if the tab width changes while it's being dragged, the layout manager can still give it a reasonable position relative to the mouse
 		 * cursor.
 		 */
 		double			grabX;
@@ -181,7 +184,7 @@ public class TabbedPane extends JLayeredPane
 	
 	/**
 	 * How many pixels the content panel overlaps the tabs. This is necessary with the
-	 * Google Chrome appearance to make the selected jhromeTab and the content panel look like
+	 * Google Chrome appearance to make the selected tab and the content panel look like
 	 * a contiguous object
 	 */
 	private int						contentPanelOverlap		= 1;
@@ -658,7 +661,7 @@ public class TabbedPane extends JLayeredPane
 				{
 					int index = tabs.indexOf( info );
 					
-					// select the closest jhromeTab that is not being removed
+					// select the closest tab that is not being removed
 					TabInfo newSelectedTab = null;
 					
 					for( int i = index + 1 ; i < tabs.size( ) ; i++ )
@@ -742,7 +745,7 @@ public class TabbedPane extends JLayeredPane
 			TabInfo info = getInfo( tab );
 			if( info == null || info.isBeingRemoved )
 			{
-				throw new IllegalArgumentException( "jhromeTab must be a child of this " + getClass( ).getName( ) );
+				throw new IllegalArgumentException( "tab must be a child of this " + getClass( ).getName( ) );
 			}
 			setSelectedTab( info );
 		}
@@ -878,7 +881,7 @@ public class TabbedPane extends JLayeredPane
 	private class TabLayoutManager implements LayoutManager
 	{
 		/**
-		 * The sustained total width of the jhromeTab zone in virtual coordinate space. This does not include the overlap area of the last jhromeTab.
+		 * The sustained total width of the tab zone in virtual coordinate space. This does not include the overlap area of the last tab.
 		 */
 		private int		vSustainedTabZoneWidth	= 0;
 		
@@ -970,20 +973,20 @@ public class TabbedPane extends JLayeredPane
 			BooleanHolder animNeeded = new BooleanHolder( false );
 			
 			/**
-			 * The target x position of the next jhromeTab, in virtual coordinate space.
+			 * The target x position of the next tab, in virtual coordinate space.
 			 */
 			int vTargetX = 0;
 			
 			/**
-			 * The target width of the jhromeTab zone, which is the total target width of all tabs, except those being removed, in virtual coordinate space.
-			 * This does not include the overlap area of the last jhromeTab.
+			 * The target width of the tab zone, which is the total target width of all tabs, except those being removed, in virtual coordinate space.
+			 * This does not include the overlap area of the last tab.
 			 */
 			int vTargetTabZoneWidth = 0;
 			
 			/**
-			 * The current width of the jhromeTab zone, which is the total current width of all tabs, including those being removed, in virtual coordinate
+			 * The current width of the tab zone, which is the total current width of all tabs, including those being removed, in virtual coordinate
 			 * space.
-			 * This does not include the overlap area of the last jhromeTab.
+			 * This does not include the overlap area of the last tab.
 			 */
 			int vCurrentTabZoneWidth = 0;
 			
@@ -998,10 +1001,10 @@ public class TabbedPane extends JLayeredPane
 				
 				info.vTargetWidth = info.isBeingRemoved ? 0 : Math.max( 0 , useUniformWidth ? maxUniformWidth - overlap : info.prefSize.width - overlap );
 				
-				// animate the jhromeTab x position
+				// animate the tab x position
 				info.vCurrentX = animate( info.vCurrentX , vTargetX , animFactor , animNeeded );
 				
-				// animate the jhromeTab width
+				// animate the tab width
 				info.vCurrentWidth = animate( info.vCurrentWidth , info.vTargetWidth , animFactor , animNeeded );
 				
 				if( info.isBeingDragged )
@@ -1024,8 +1027,8 @@ public class TabbedPane extends JLayeredPane
 			 */
 			int vTargetRightButtonsPanelX = lastInfo != null ? lastInfo.vCurrentX == lastInfo.vTargetX ? lastInfo.vCurrentX + lastInfo.vCurrentWidth : lastInfo.vTargetX + lastInfo.vCurrentWidth : 0;
 			
-			// Animate the jhromeTab zone (virtual) width.
-			// if the sustained jhromeTab zone width must increase to reach the current, do it immediately, without animation; if it must shrink to reach the target, do it with animation,
+			// Animate the tab zone (virtual) width.
+			// if the sustained tab zone width must increase to reach the current, do it immediately, without animation; if it must shrink to reach the target, do it with animation,
 			// but only if the mouse is not over the top zone.
 			if( reset || vCurrentTabZoneWidth > vSustainedTabZoneWidth )
 			{
@@ -1040,7 +1043,7 @@ public class TabbedPane extends JLayeredPane
 			// Compute necessary width scale to fit all tabs on screen
 			widthScale = vSustainedTabZoneWidth > availTabZoneWidth - overlap ? ( availTabZoneWidth - overlap ) / ( double ) vSustainedTabZoneWidth : 1.0;
 			
-			// Adjust width scale as necessary so that no jhromeTab (except those being removed) is narrower than its minimum width
+			// Adjust width scale as necessary so that no tab (except those being removed) is narrower than its minimum width
 			double adjWidthScale = widthScale;
 			for( int i = 0 ; i < tabs.size( ) ; i++ )
 			{
@@ -1146,7 +1149,7 @@ public class TabbedPane extends JLayeredPane
 		}
 	}
 	
-	private static class JhromeTransferable implements Transferable
+	private static class DummyTransferable implements Transferable
 	{
 		@Override
 		public DataFlavor[ ] getTransferDataFlavors( )
@@ -1207,7 +1210,7 @@ public class TabbedPane extends JLayeredPane
 				}
 				Point p = SwingUtilities.convertPoint( TabbedPane.this , dragOrigin , draggedTab.getRenderer( ) );
 				grabX = p.x / ( double ) draggedTab.getRenderer( ).getWidth( );
-				Transferable t = new JhromeTransferable( );
+				Transferable t = new DummyTransferable( );
 				source.startDrag( dge , Cursor.getPredefinedCursor( Cursor.DEFAULT_CURSOR ) , t , this );
 			}
 		}
@@ -1232,7 +1235,7 @@ public class TabbedPane extends JLayeredPane
 		{
 			if( draggedTab != null )
 			{
-				TabbedPane draggedParent = getJhromeTabbedPaneAncestor( draggedTab.getRenderer( ) );
+				TabbedPane draggedParent = getTabbedPaneAncestor( draggedTab.getRenderer( ) );
 				if( draggedParent != null )
 				{
 					Point p = dsde.getLocation( );
@@ -1264,7 +1267,7 @@ public class TabbedPane extends JLayeredPane
 			}
 			dragFloatingTabHandler = null;
 			
-			TabbedPane draggedParent = getJhromeTabbedPaneAncestor( draggedTab.getRenderer( ) );
+			TabbedPane draggedParent = getTabbedPaneAncestor( draggedTab.getRenderer( ) );
 			
 			if( draggedTab != null && draggedParent == null && tabDropFailureHandler != null )
 			{
@@ -1375,7 +1378,7 @@ public class TabbedPane extends JLayeredPane
 	{
 		if( draggedTab != null )
 		{
-			TabbedPane draggedParent = getJhromeTabbedPaneAncestor( draggedTab.getRenderer( ) );
+			TabbedPane draggedParent = getTabbedPaneAncestor( draggedTab.getRenderer( ) );
 			if( draggedParent != null && dte.getDropTargetContext( ).getComponent( ) == draggedParent && draggedParent.isTearAwayAllowed( draggedTab ) )
 			{
 				if( dragFloatingTabHandler != null )
@@ -1391,7 +1394,7 @@ public class TabbedPane extends JLayeredPane
 	{
 		if( draggedTab != null )
 		{
-			TabbedPane draggedParent = getJhromeTabbedPaneAncestor( draggedTab.getRenderer( ) );
+			TabbedPane draggedParent = getTabbedPaneAncestor( draggedTab.getRenderer( ) );
 			if( draggedParent != null && dsde.getDragSourceContext( ).getComponent( ) == draggedParent && draggedParent.isTearAwayAllowed( draggedTab ) )
 			{
 				if( dragFloatingTabHandler != null )
@@ -1405,7 +1408,7 @@ public class TabbedPane extends JLayeredPane
 	
 	private static void removeDraggedTabFromParent( )
 	{
-		TabbedPane draggedParent = getJhromeTabbedPaneAncestor( draggedTab.getRenderer( ) );
+		TabbedPane draggedParent = getTabbedPaneAncestor( draggedTab.getRenderer( ) );
 		draggedParent.setDragState( null , 0 , 0 );
 		draggedParent.removeTabImmediately( draggedTab );
 		if( draggedParent.getTabCount( ) == 0 )
@@ -1430,7 +1433,7 @@ public class TabbedPane extends JLayeredPane
 				return;
 			}
 			
-			TabbedPane draggedParent = getJhromeTabbedPaneAncestor( draggedTab.getRenderer( ) );
+			TabbedPane draggedParent = getTabbedPaneAncestor( draggedTab.getRenderer( ) );
 			
 			if( draggedParent != tabbedPane && ( draggedParent == null || draggedParent.isTearAwayAllowed( draggedTab ) ) && tabbedPane.isSnapInAllowed( draggedTab ) )
 			{
@@ -1539,7 +1542,7 @@ public class TabbedPane extends JLayeredPane
 		}
 	}
 	
-	public static TabbedPane getJhromeTabbedPaneAncestor( Component c )
+	public static TabbedPane getTabbedPaneAncestor( Component c )
 	{
 		while( c != null )
 		{

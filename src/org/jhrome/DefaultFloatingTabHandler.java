@@ -17,7 +17,7 @@ public class DefaultFloatingTabHandler implements IFloatingTabHandler
 	
 	public void initialize( ITab draggedTab )
 	{
-		TabbedPane tabbedPane = TabbedPane.getJhromeTabbedPaneAncestor( draggedTab.getRenderer( ) );
+		TabbedPane tabbedPane = TabbedPane.getTabbedPaneAncestor( draggedTab.getRenderer( ) );
 		
 		if( tabbedPane != null )
 		{

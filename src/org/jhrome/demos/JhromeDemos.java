@@ -111,7 +111,7 @@ public class JhromeDemos implements IJhromeDemo
 						{
 							DemoItem demoItem = ( DemoItem ) demoList.getSelectedValue( );
 							
-							TabbedPane tabbedPane = TabbedPane.getJhromeTabbedPaneAncestor( demoList );
+							TabbedPane tabbedPane = TabbedPane.getTabbedPaneAncestor( demoList );
 							if( tabbedPane != null )
 							{
 								DefaultTab demoTab = new DefaultTab( demoItem.name , createDemoPanel( demoItem.demo , demoItem.source ) );
