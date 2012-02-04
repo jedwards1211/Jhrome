@@ -390,7 +390,7 @@ public class TabbedPane extends JLayeredPane
 	}
 	
 	/**
-	 * @return whether to make all tabs the same width.
+	 * @return whether to make all tabs the same width. If uniform width is not used, the tabs' preferred widths will be used.
 	 */
 	public boolean isUseUniformWidth( )
 	{
@@ -398,7 +398,7 @@ public class TabbedPane extends JLayeredPane
 	}
 	
 	/**
-	 * Sets whether to make all tabs the same width, rather than taking their preferred size into account.
+	 * Sets whether to make all tabs the same width. If uniform width is not used, the tabs' preferred widths will be used.
 	 */
 	public void setUseUniformWidth( boolean useUniformWidth )
 	{
@@ -433,6 +433,14 @@ public class TabbedPane extends JLayeredPane
 		}
 	}
 	
+	/**
+	 * @param p
+	 *            a {@link Point} in this tabbed pane's coordinate system.
+	 * 
+	 * @return the hoverable tab under {@code p}, or {@code null} if no such tab exists.
+	 * 
+	 * @see ITab#isHoverableAt(Point)
+	 */
 	public ITab getHoverableTabAt( Point p )
 	{
 		checkEDT( );
@@ -462,6 +470,14 @@ public class TabbedPane extends JLayeredPane
 		return null;
 	}
 	
+	/**
+	 * @param p
+	 *            a {@link Point} in this tabbed pane's coordinate system.
+	 * 
+	 * @return the draggable tab under {@code p}, or {@code null} if no such tab exists.
+	 * 
+	 * @see ITab#isDraggableAt(Point)
+	 */
 	public ITab getDraggableTabAt( Point p )
 	{
 		checkEDT( );
@@ -491,6 +507,14 @@ public class TabbedPane extends JLayeredPane
 		return null;
 	}
 	
+	/**
+	 * @param p
+	 *            a {@link Point} in this tabbed pane's coordinate system.
+	 * 
+	 * @return the selectable tab under {@code p}, or {@code null} if no such tab exists.
+	 * 
+	 * @see ITab#isSelectableAt(Point)
+	 */
 	public ITab getSelectableTabAt( Point p )
 	{
 		checkEDT( );
@@ -622,7 +646,7 @@ public class TabbedPane extends JLayeredPane
 	}
 	
 	/**
-	 * Adds a tab to this tabbed pane at the next index (tab count).
+	 * Adds a tab to this tabbed pane at the next index (tab count). The new tab will not be selected.
 	 * 
 	 * @param tab
 	 *            the tab to add.
@@ -636,7 +660,7 @@ public class TabbedPane extends JLayeredPane
 	}
 	
 	/**
-	 * Inserts a tab at a specific index in the tabbed pane.
+	 * Inserts a tab at a specific index in the tabbed pane. The new tab will not be selected.
 	 * 
 	 * @param index
 	 *            the index to add the tab at. Like {@link List#add(int, Object)}, this method will insert the new tab before the tab at {@code index}.
@@ -732,24 +756,6 @@ public class TabbedPane extends JLayeredPane
 	}
 	
 	/**
-	 * Notifies this {@code TabbedPane} that a tab's content has changed. If that tab is selected, its old content will be removed from this {@code TabbedPane}
-	 * and replaced with the tab's new content.
-	 * 
-	 * @param tab
-	 *            the tab whose content has changed. If {@code tab} is not a member of this tabbed pane, this method has no effect.
-	 */
-	public void tabContentChanged( ITab tab )
-	{
-		checkEDT( );
-		
-		TabInfo info = getInfo( tab );
-		if( info == selectedTab )
-		{
-			setContent( tab.getContent( ) );
-		}
-	}
-	
-	/**
 	 * Moves a tab from its current index to a new index.
 	 * 
 	 * @param tab
@@ -806,6 +812,9 @@ public class TabbedPane extends JLayeredPane
 	 * hierarchy. However, the tab will be immediately removed from the list of tabs in this tabbed pane, so {@link #getTabs()}, {@link #addTab(ITab)},
 	 * {@link #moveTab(ITab, int)}, etc. will all behave as if it is no longer a member of this tabbed pane. If you want to remove the tab and its renderer
 	 * component immediately, use {@link #removeTabImmediately(ITab)}.
+	 * 
+	 * If the selected tab is removed, one of the adjacent tabs will be selected before it is removed. If it is the only tab, the selection will be cleared
+	 * before it is removed.
 	 * 
 	 * {@code tab} the tab to remove. If {@code tab} is not a member of this tabbed pane, this method has no effect.
 	 */
@@ -881,6 +890,9 @@ public class TabbedPane extends JLayeredPane
 	 * Removes a tab from this tabbed pane without animation. This means the tab renderer will be removed from the component hierarchy immediately, unlike
 	 * {@link #removeTab(ITab)}.
 	 * 
+	 * If the selected tab is removed, one of the adjacent tabs will be selected before it is removed. If it is the only tab, the selection will be cleared
+	 * before it is removed.
+	 * 
 	 * @param tab
 	 *            the tab to remove. If {@code tab} is not a member of this tabbed pane, this method has no effect.
 	 */
@@ -911,14 +923,16 @@ public class TabbedPane extends JLayeredPane
 	}
 	
 	/**
-	 * Removes all tabs from this tabbed pane without animation. This method is equivalent to calling {@link #removeTabImmediately(ITab)} on all tabs in this
-	 * tabbed pane.
+	 * Removes all tabs from this tabbed pane without animation. This method is equivalent to setting the selected tab to {@code null} and then removing all
+	 * tabs one by one.
 	 */
 	public void removeAllTabs( )
 	{
 		checkEDT( );
 		
 		long time = System.currentTimeMillis( );
+		
+		setSelectedTab( ( TabInfo ) null );
 		
 		List<ITab> removedTabs = new ArrayList<ITab>( );
 		
@@ -943,7 +957,7 @@ public class TabbedPane extends JLayeredPane
 	}
 	
 	/**
-	 * Sets the selected tab.
+	 * Sets the selected tab. The selected tab is not affected by other methods unless otherwise specified.
 	 * 
 	 * @param tab
 	 *            the new selected tab. If {@code null} is given, the selection will be cleared.
@@ -968,18 +982,6 @@ public class TabbedPane extends JLayeredPane
 			}
 			setSelectedTab( info );
 		}
-	}
-	
-	/**
-	 * Immediately updates the tabs' bounds to their eventual position where animation is complete.
-	 */
-	public void finishAnimation( )
-	{
-		checkEDT( );
-		
-		layout.finishAnimation = true;
-		invalidate( );
-		validate( );
 	}
 	
 	private void setSelectedTab( TabInfo info )
@@ -1029,6 +1031,36 @@ public class TabbedPane extends JLayeredPane
 		{
 			contentPanel.add( content , BorderLayout.CENTER );
 		}
+		invalidate( );
+		validate( );
+	}
+	
+	/**
+	 * Notifies this {@code TabbedPane} that a tab's content has changed. If that tab is selected, its old content will be removed from this {@code TabbedPane}
+	 * and replaced with the tab's new content.
+	 * 
+	 * @param tab
+	 *            the tab whose content has changed. If {@code tab} is not a member of this tabbed pane, this method has no effect.
+	 */
+	public void tabContentChanged( ITab tab )
+	{
+		checkEDT( );
+		
+		TabInfo info = getInfo( tab );
+		if( info == selectedTab )
+		{
+			setContent( tab.getContent( ) );
+		}
+	}
+	
+	/**
+	 * Immediately updates the tabs' bounds to their eventual position where animation is complete.
+	 */
+	public void finishAnimation( )
+	{
+		checkEDT( );
+		
+		layout.finishAnimation = true;
 		invalidate( );
 		validate( );
 	}
