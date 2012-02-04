@@ -43,6 +43,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -389,7 +390,7 @@ public class TabbedPane extends JLayeredPane
 	}
 	
 	/**
-	 * @return whether to keep all tabs the same width.
+	 * @return whether to make all tabs the same width.
 	 */
 	public boolean isUseUniformWidth( )
 	{
@@ -397,7 +398,7 @@ public class TabbedPane extends JLayeredPane
 	}
 	
 	/**
-	 * Sets whether to keep all tabs the same with, rather than taking their preferred size into account.
+	 * Sets whether to make all tabs the same width, rather than taking their preferred size into account.
 	 */
 	public void setUseUniformWidth( boolean useUniformWidth )
 	{
@@ -409,11 +410,19 @@ public class TabbedPane extends JLayeredPane
 		}
 	}
 	
+	/**
+	 * @return the width to make each tab if {@link #isUseUniformWidth()} is {@code true}. If there are too many tabs in this tabbed pane to fit at this width,
+	 *         they will of course be squashed down.
+	 */
 	public int getMaxUniformWidth( )
 	{
 		return maxUniformWidth;
 	}
 	
+	/**
+	 * Sets the width to make each tab if {@link #isUseUniformWidth()} is {@code true}. If there are too many tabs in this tabbed pane to fit at this width,
+	 * they will of course be squashed down.
+	 */
 	public void setMaxUniformWidth( int maxUniformWidth )
 	{
 		if( this.maxUniformWidth != maxUniformWidth )
@@ -576,6 +585,9 @@ public class TabbedPane extends JLayeredPane
 		return virtual;
 	}
 	
+	/**
+	 * @return the number of tabs in this tabbed pane.
+	 */
 	public int getTabCount( )
 	{
 		checkEDT( );
@@ -591,6 +603,9 @@ public class TabbedPane extends JLayeredPane
 		return count;
 	}
 	
+	/**
+	 * @return a newly-constructed {@link List} of the tabs in this tabbed pane.
+	 */
 	public List<ITab> getTabs( )
 	{
 		checkEDT( );
@@ -606,16 +621,49 @@ public class TabbedPane extends JLayeredPane
 		return result;
 	}
 	
+	/**
+	 * Adds a tab to this tabbed pane at the next index (tab count).
+	 * 
+	 * @param tab
+	 *            the tab to add.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if {@code tab} is already a member of this tabbed pane.
+	 */
 	public void addTab( final ITab tab )
 	{
 		addTab( getTabCount( ) , tab );
 	}
 	
+	/**
+	 * Inserts a tab at a specific index in the tabbed pane.
+	 * 
+	 * @param index
+	 *            the index to add the tab at. Like {@link List#add(int, Object)}, this method will insert the new tab before the tab at {@code index}.
+	 * @param tab
+	 *            the tab to add.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if {@code index} is less than 0 or greater than the tab count, or {@code tab} is already a member of this tabbed pane.
+	 */
 	public void addTab( int index , final ITab tab )
 	{
 		addTab( index , tab , true );
 	}
 	
+	/**
+	 * Inserts a tab at a specific index in the tabbed pane.
+	 * 
+	 * @param index
+	 *            the index to add the tab at. Like {@link List#add(int, Object)}, this method will insert the new tab before the tab at {@code index}.
+	 * @param tab
+	 *            the tab to add.
+	 * @param expand
+	 *            whether to animate the new tab expansion. If {@code false}, the new tab will immediately appear at full size.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if {@code index} is less than 0 or greater than the tab count, or {@code tab} is already a member of this tabbed pane.
+	 */
 	public void addTab( int index , final ITab tab , boolean expand )
 	{
 		checkEDT( );
@@ -683,6 +731,13 @@ public class TabbedPane extends JLayeredPane
 		notifyTabbedPaneListeners( event );
 	}
 	
+	/**
+	 * Notifies this {@code TabbedPane} that a tab's content has changed. If that tab is selected, its old content will be removed from this {@code TabbedPane}
+	 * and replaced with the tab's new content.
+	 * 
+	 * @param tab
+	 *            the tab whose content has changed. If {@code tab} is not a member of this tabbed pane, this method has no effect.
+	 */
 	public void tabContentChanged( ITab tab )
 	{
 		checkEDT( );
@@ -694,6 +749,17 @@ public class TabbedPane extends JLayeredPane
 		}
 	}
 	
+	/**
+	 * Moves a tab from its current index to a new index.
+	 * 
+	 * @param tab
+	 *            the tab to move.
+	 * @param newIndex
+	 *            the index to move the tab to. Like {@link List#add(int, Object)}, this method will insert {@code tab} before the tab at {@code newIndex}.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if {@code newIndex} is less than 0, greater than the tab count, or {@code tab} is not a member of this tabbed pane.
+	 */
 	public void moveTab( ITab tab , int newIndex )
 	{
 		int tabCount = getTabCount( );
@@ -735,6 +801,14 @@ public class TabbedPane extends JLayeredPane
 		
 	}
 	
+	/**
+	 * Removes a tab from this tabbed pane with animation. The layout will animate the tab renderer shrinking before it is actually removed from the component
+	 * hierarchy. However, the tab will be immediately removed from the list of tabs in this tabbed pane, so {@link #getTabs()}, {@link #addTab(ITab)},
+	 * {@link #moveTab(ITab, int)}, etc. will all behave as if it is no longer a member of this tabbed pane. If you want to remove the tab and its renderer
+	 * component immediately, use {@link #removeTabImmediately(ITab)}.
+	 * 
+	 * {@code tab} the tab to remove. If {@code tab} is not a member of this tabbed pane, this method has no effect.
+	 */
 	public void removeTab( ITab tab )
 	{
 		removeTab( tab , true );
@@ -803,6 +877,13 @@ public class TabbedPane extends JLayeredPane
 		}
 	}
 	
+	/**
+	 * Removes a tab from this tabbed pane without animation. This means the tab renderer will be removed from the component hierarchy immediately, unlike
+	 * {@link #removeTab(ITab)}.
+	 * 
+	 * @param tab
+	 *            the tab to remove. If {@code tab} is not a member of this tabbed pane, this method has no effect.
+	 */
 	public void removeTabImmediately( ITab tab )
 	{
 		removeTab( tab , false );
@@ -829,6 +910,10 @@ public class TabbedPane extends JLayeredPane
 		}
 	}
 	
+	/**
+	 * Removes all tabs from this tabbed pane without animation. This method is equivalent to calling {@link #removeTabImmediately(ITab)} on all tabs in this
+	 * tabbed pane.
+	 */
 	public void removeAllTabs( )
 	{
 		checkEDT( );
@@ -844,11 +929,28 @@ public class TabbedPane extends JLayeredPane
 			removeTabImmediately( info.tab );
 		}
 		
-		TabsClearedEvent event = new TabsClearedEvent( this , time , removedTabs );
+		TabsClearedEvent event = new TabsClearedEvent( this , time , Collections.unmodifiableList( removedTabs ) );
 		
 		notifyTabbedPaneListeners( event );
 	}
 	
+	/**
+	 * @return the selected tab, or {@code null} if no tab is selected.
+	 */
+	public ITab getSelectedTab( )
+	{
+		return selectedTab != null ? selectedTab.tab : null;
+	}
+	
+	/**
+	 * Sets the selected tab.
+	 * 
+	 * @param tab
+	 *            the new selected tab. If {@code null} is given, the selection will be cleared.
+	 * 
+	 * @throws IllegalArgumentException
+	 *             if {@code tab} is non-{@code null} but not a member of this tabbed pane.
+	 */
 	public void setSelectedTab( ITab tab )
 	{
 		checkEDT( );
@@ -866,6 +968,18 @@ public class TabbedPane extends JLayeredPane
 			}
 			setSelectedTab( info );
 		}
+	}
+	
+	/**
+	 * Immediately updates the tabs' bounds to their eventual position where animation is complete.
+	 */
+	public void finishAnimation( )
+	{
+		checkEDT( );
+		
+		layout.finishAnimation = true;
+		invalidate( );
+		validate( );
 	}
 	
 	private void setSelectedTab( TabInfo info )
@@ -955,16 +1069,28 @@ public class TabbedPane extends JLayeredPane
 		}
 	}
 	
+	/**
+	 * @return the new tab button. This tabbed pane manages its appearance and action by default. You are free to modify it however you wish, but behavior is
+	 *         undefined in this case so be careful.
+	 */
 	public JButton getNewTabButton( )
 	{
 		return newTabButton;
 	}
 	
+	/**
+	 * @return the content panel. This tabbed pane adds the tab content to it automatically. You are free to modify it however you wish, but behavior is
+	 *         undefined in this case so be careful.
+	 */
 	public JPanel getContentPanel( )
 	{
 		return contentPanel;
 	}
 	
+	/**
+	 * Removes all tabs, stops animation and attempts to unregister all listeners that could prevent this TabbedPane from being finalized. However, I am not yet
+	 * certain if this method eliminates all potential memory leaks (excluding references apart from internal TabbedPane code.
+	 */
 	public void dispose( )
 	{
 		checkEDT( );
@@ -1016,6 +1142,8 @@ public class TabbedPane extends JLayeredPane
 		 * The current width scale.
 		 */
 		private double	widthScale				= 1.0;
+		
+		private boolean	finishAnimation			= false;
 		
 		private int getInsertIndex( ITab tab , double grabX , int dragX )
 		{
@@ -1078,7 +1206,8 @@ public class TabbedPane extends JLayeredPane
 		{
 			checkEDT( );
 			
-			boolean reset = false;
+			boolean reset = finishAnimation;
+			finishAnimation = false;
 			
 			double animFactor = reset ? 0.0 : TabbedPane.this.animFactor;
 			
@@ -1586,7 +1715,7 @@ public class TabbedPane extends JLayeredPane
 				int dragX = dtde.getLocation( ).x;
 				
 				int newIndex = tabbedPane.layout.getInsertIndex( draggedTab , grabX , dragX );
-				tabbedPane.addTab( newIndex , draggedTab );
+				tabbedPane.addTab( newIndex , draggedTab , false );
 				
 				tabbedPane.setDragState( draggedTab , grabX , dragX );
 				tabbedPane.setSelectedTab( draggedTab );

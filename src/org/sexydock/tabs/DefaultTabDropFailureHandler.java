@@ -30,8 +30,9 @@ public class DefaultTabDropFailureHandler implements ITabDropFailureHandler
 		Window newWindow = newJhromeWindow.getWindow( );
 		TabbedPane tabbedPane = newJhromeWindow.getTabbedPane( );
 		
-		tabbedPane.addTab( draggedTab );
+		tabbedPane.addTab( tabbedPane.getTabCount( ) , draggedTab , false );
 		tabbedPane.setSelectedTab( draggedTab );
+		tabbedPane.finishAnimation( );
 		
 		if( dragSourceWindowSize != null )
 		{
