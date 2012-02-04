@@ -12,5 +12,15 @@ public class TabbedPaneEvent
 	}
 	
 	public final TabbedPane	tabbedPane;
-	public final long				timestamp;
+	public final long		timestamp;
+	
+	public TabbedPane getTabbedPane( )
+	{
+		return tabbedPane;
+	}
+	
+	public long getTimestamp( )
+	{
+		return timestamp;
+	}
 }

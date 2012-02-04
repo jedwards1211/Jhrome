@@ -68,6 +68,7 @@ public class SexyTabsDemos implements ISexyTabsDemo
 					demoListModel.addElement( new DemoItem( new NoSnapInDemo( ) , "No Snap In Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( NoSnapInDemo.class ) ) ) ) );
 					demoListModel.addElement( new DemoItem( new NestedTabbedPanesDemo( ) , "Nested Tabbed Panes Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( NestedTabbedPanesDemo.class ) ) ) ) );
 					demoListModel.addElement( new DemoItem( new UndecoratedWindowDemo( ) , "Undecorated Window Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( UndecoratedWindowDemo.class ) ) ) ) );
+					demoListModel.addElement( new DemoItem( new ITabbedPaneListenerDemo( ) , "ITabbedPaneListener Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( ITabbedPaneListenerDemo.class ) ) ) ) );
 				}
 				catch( Exception e1 )
 				{

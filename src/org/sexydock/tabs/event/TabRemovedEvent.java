@@ -14,5 +14,21 @@ public class TabRemovedEvent extends TabbedPaneEvent
 	}
 	
 	public final ITab	removedTab;
-	public final int		removedIndex;
+	public final int	removedIndex;
+	
+	public ITab getRemovedTab( )
+	{
+		return removedTab;
+	}
+	
+	public int getRemovedIndex( )
+	{
+		return removedIndex;
+	}
+	
+	@Override
+	public String toString( )
+	{
+		return String.format( "%s[tabbedPane: %s, timestamp: %d, removedTab: %s, removedIndex: %d]" , getClass( ).getName( ) , tabbedPane , timestamp , removedTab , removedIndex );
+	}
 }

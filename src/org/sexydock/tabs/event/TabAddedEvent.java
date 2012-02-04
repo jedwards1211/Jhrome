@@ -14,5 +14,21 @@ public class TabAddedEvent extends TabbedPaneEvent
 	}
 	
 	public final ITab	addedTab;
-	public final int		insertIndex;
+	public final int	insertIndex;
+	
+	public ITab getAddedTab( )
+	{
+		return addedTab;
+	}
+	
+	public int getInsertIndex( )
+	{
+		return insertIndex;
+	}
+	
+	@Override
+	public String toString( )
+	{
+		return String.format( "%s[tabbedPane: %s, timestamp: %d, addedTab: %s, insertIndex: %d]" , getClass( ).getName( ) , tabbedPane , timestamp , addedTab , insertIndex );
+	}
 }

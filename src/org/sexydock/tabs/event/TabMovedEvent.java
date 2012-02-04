@@ -15,6 +15,27 @@ public class TabMovedEvent extends TabbedPaneEvent
 	}
 	
 	public final ITab	movedTab;
-	public final int		prevIndex;
-	public final int		newIndex;
+	public final int	prevIndex;
+	public final int	newIndex;
+	
+	public ITab getMovedTab( )
+	{
+		return movedTab;
+	}
+	
+	public int getPrevIndex( )
+	{
+		return prevIndex;
+	}
+	
+	public int getNewIndex( )
+	{
+		return newIndex;
+	}
+	
+	@Override
+	public String toString( )
+	{
+		return String.format( "%s[tabbedPane: %s, timestamp: %d, movedTab: %s, prevIndex: %d, newIndex: %d]" , getClass( ).getName( ) , tabbedPane , timestamp , movedTab , prevIndex , newIndex );
+	}
 }

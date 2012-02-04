@@ -92,6 +92,11 @@ public class DefaultTab extends JComponent implements ITab
 		}
 	}
 	
+	public Component getOverrideLabel( )
+	{
+		return overrideLabel;
+	}
+	
 	@Override
 	public Dimension getMinimumSize( )
 	{

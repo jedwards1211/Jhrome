@@ -52,27 +52,30 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import org.omg.CORBA.BooleanHolder;
+import org.sexydock.tabs.event.ITabbedPaneListener;
+import org.sexydock.tabs.event.TabAddedEvent;
+import org.sexydock.tabs.event.TabMovedEvent;
+import org.sexydock.tabs.event.TabRemovedEvent;
+import org.sexydock.tabs.event.TabSelectedEvent;
+import org.sexydock.tabs.event.TabbedPaneEvent;
+import org.sexydock.tabs.event.TabsClearedEvent;
 import org.sexydock.tabs.jhrome.JhromeContentPanelBorder;
 import org.sexydock.tabs.jhrome.JhromeNewTabButtonUI;
 import org.sexydock.tabs.jhrome.JhromeTabBorderAttributes;
 
 /**
- * {@link TabbedPane} is a Google Chrome-like tabbed pane, providing animated tab layout,
- * drag and drop capabilities, and a new tab button. All Google Chrome behavior is provided by default.
- * Tabs can be dragged around within {@code TabbedPane} and rearranged, they can be "torn away" or
- * dragged out and opened in new windows, and they can be dragged from one window to another. If all the tabs
- * in a {@code TabbedPane} are closed or torn away, the window containing that {@code TabbedPane} is disposed.
- * When a tab is torn away, a ghosted drag image window showing the tab and its contents will appear and follow the mouse cursor until
- * the tab is dragged over another {@code TabbedPane} or dropped.<br />
+ * {@link TabbedPane} is a Google Chrome-like tabbed pane, providing animated tab layout, drag and drop capabilities, and a new tab button. All Google Chrome
+ * behavior is provided by default. Tabs can be dragged around within {@code TabbedPane} and rearranged, they can be "torn away" or dragged out and opened in
+ * new windows, and they can be dragged from one window to another. If all the tabs in a {@code TabbedPane} are closed or torn away, the window containing that
+ * {@code TabbedPane} is disposed. When a tab is torn away, a ghosted drag image window showing the tab and its contents will appear and follow the mouse cursor
+ * until the tab is dragged over another {@code TabbedPane} or dropped.<br />
  * <br />
  * 
- * Animation includes tabs expanding when added, contracting when removed,
- * jumping around when being reordered, contracting simultaneously when there is not enough room, and expanding simultaneously when there is room again and the
- * mouse is no longer on top of the tab zone.<br />
+ * Animation includes tabs expanding when added, contracting when removed, jumping around when being reordered, contracting simultaneously when there is not
+ * enough room, and expanding simultaneously when there is room again and the mouse is no longer on top of the tab zone.<br />
  * <br />
  * 
- * {@code TabbedPane} is designed to allow you to customize the look and behavior as much as possible. The following
- * interfaces help with customization:
+ * {@code TabbedPane} is designed to allow you to customize the look and behavior as much as possible. The following interfaces help with customization:
  * <ul>
  * <li>{@link ITab} provides an interface to tab renderers/content. You can use literally any {@link Component} (or combination of {@code Component}s) in a tab
  * renderer by providing them through an {@code ITab} implementation.
@@ -92,13 +95,11 @@ import org.sexydock.tabs.jhrome.JhromeTabBorderAttributes;
  * Also, {@code TabbedPane} allows you to get its new tab button and content pane so that you can modify them arbitrarily.<br />
  * <br />
  * 
- * Since the layout is animated, when you remove a tab from {@code TabbedPane} (using {@link #removeTab(ITab)}), it makes it start contracting
- * and doesn't actually remove the tab renderer component until it is done contracting. However, all public methods that involve the tab list behave
- * as if
- * tabs are removed immediately. For example, if you remove a tab, it will no longer show up in {@link #getTabs()}, even while the tab renderer
- * component is
- * still a child of this {@code TabbedPane} and contracting. If you add the tab back before it is done contracting, it will jump to the new position
- * and expand back to full size.
+ * Since the layout is animated, when you remove a tab from {@code TabbedPane} (using {@link #removeTab(ITab)}), it makes it start contracting and doesn't
+ * actually remove the tab renderer component until it is done contracting. However, all public methods that involve the tab list behave as if tabs are removed
+ * immediately. For example, if you remove a tab, it will no longer show up in {@link #getTabs()}, even while the tab renderer component is still a child of
+ * this {@code TabbedPane} and contracting. If you add the tab back before it is done contracting, it will jump to the new position and expand back to full
+ * size.
  * 
  * @author andy.edwards
  */
@@ -129,8 +130,7 @@ public class TabbedPane extends JLayeredPane
 		 */
 		int				vTargetX;
 		/**
-		 * The tab's target width in virtual coordinate space. This does not include the overlap area -- it is the distance to the virtual target x
-		 * position of
+		 * The tab's target width in virtual coordinate space. This does not include the overlap area -- it is the distance to the virtual target x position of
 		 * the next tab. To get the actual target width, this value will be scaled down and the overlap amount will be added.
 		 */
 		int				vTargetWidth;
@@ -145,8 +145,7 @@ public class TabbedPane extends JLayeredPane
 		 */
 		int				vCurrentX;
 		/**
-		 * The tab's current width in virtual coordinate space. This does not include the overlap area -- it is the distance to the virtual current x
-		 * position
+		 * The tab's current width in virtual coordinate space. This does not include the overlap area -- it is the distance to the virtual current x position
 		 * of the next tab. To get the actual current width, this value will be scaled down and the overlap amount will be added.
 		 */
 		int				vCurrentWidth;
@@ -161,63 +160,63 @@ public class TabbedPane extends JLayeredPane
 		 */
 		int				dragX;
 		/**
-		 * The relative x position at which the tab was grabbed, as a proportion of its width (0.0 = left side, 0.5 = middle, 1.0 = right side).
-		 * This way if the tab width changes while it's being dragged, the layout manager can still give it a reasonable position relative to the mouse
-		 * cursor.
+		 * The relative x position at which the tab was grabbed, as a proportion of its width (0.0 = left side, 0.5 = middle, 1.0 = right side). This way if the
+		 * tab width changes while it's being dragged, the layout manager can still give it a reasonable position relative to the mouse cursor.
 		 */
 		double			grabX;
 	}
 	
-	private int						overlap					= 13;
+	private int							overlap					= 13;
 	
-	private double					animFactor				= 0.7;
+	private double						animFactor				= 0.7;
 	
-	private javax.swing.Timer		animTimer;
+	private javax.swing.Timer			animTimer;
 	
-	private TabLayoutManager		layout;
+	private TabLayoutManager			layout;
 	
-	private boolean					useUniformWidth			= true;
-	private int						maxUniformWidth			= 300;
+	private boolean						useUniformWidth			= true;
+	private int							maxUniformWidth			= 300;
 	
-	private boolean					mouseOverTopZone		= true;
+	private boolean						mouseOverTopZone		= true;
 	
-	private MouseManager			mouseOverManager;
+	private MouseManager				mouseOverManager;
 	
-	private TabInfo					selectedTab				= null;
+	private TabInfo						selectedTab				= null;
 	
 	/**
-	 * How many pixels the content panel overlaps the tabs. This is necessary with the
-	 * Google Chrome appearance to make the selected tab and the content panel look like
-	 * a contiguous object
+	 * How many pixels the content panel overlaps the tabs. This is necessary with the Google Chrome appearance to make the selected tab and the content panel
+	 * look like a contiguous object
 	 */
-	private int						contentPanelOverlap		= 1;
+	private int							contentPanelOverlap		= 1;
 	
-	private JPanel					contentPanel;
+	private JPanel						contentPanel;
 	
-	private int						tabMargin				= 2;
+	private int							tabMargin				= 2;
 	
-	private JPanel					rightButtonsPanel;
+	private JPanel						rightButtonsPanel;
 	
-	private JButton					newTabButton;
+	private JButton						newTabButton;
 	
-	private ActionListener			newTabButtonListener;
+	private ActionListener				newTabButtonListener;
 	
-	private DragHandler				dragHandler;
-	private DropHandler				dropHandler;
+	private DragHandler					dragHandler;
+	private DropHandler					dropHandler;
 	
-	private ITabDropFailureHandler	tabDropFailureHandler	= new DefaultTabDropFailureHandler( );
+	private ITabDropFailureHandler		tabDropFailureHandler	= new DefaultTabDropFailureHandler( );
 	
-	private IFloatingTabHandler		floatingTabHandler		= new DefaultFloatingTabHandler( );
+	private IFloatingTabHandler			floatingTabHandler		= new DefaultFloatingTabHandler( );
 	
-	private ITabFactory				tabFactory				= new DefaultTabFactory( );
+	private ITabFactory					tabFactory				= new DefaultTabFactory( );
 	
-	private Rectangle				topZone					= new Rectangle( );
-	private Rectangle				tabZone					= new Rectangle( );
+	private Rectangle					topZone					= new Rectangle( );
+	private Rectangle					tabZone					= new Rectangle( );
 	
-	private int						extraDropZoneSpace		= 25;
-	private Rectangle				dropZone				= new Rectangle( );
+	private int							extraDropZoneSpace		= 25;
+	private Rectangle					dropZone				= new Rectangle( );
 	
-	private ITabbedPaneDnDPolicy	dndPolicy				= null;
+	private ITabbedPaneDnDPolicy		dndPolicy				= null;
+	
+	private List<ITabbedPaneListener>	tabListeners			= new ArrayList<ITabbedPaneListener>( );
 	
 	private class MouseManager extends RecursiveListener
 	{
@@ -398,8 +397,7 @@ public class TabbedPane extends JLayeredPane
 	}
 	
 	/**
-	 * Sets whether to keep all tabs the same with, rather than taking their preferred size
-	 * into account.
+	 * Sets whether to keep all tabs the same with, rather than taking their preferred size into account.
 	 */
 	public void setUseUniformWidth( boolean useUniformWidth )
 	{
@@ -513,6 +511,20 @@ public class TabbedPane extends JLayeredPane
 		return null;
 	}
 	
+	private int getInfoIndex( ITab tab )
+	{
+		checkEDT( );
+		for( int i = 0 ; i < tabs.size( ) ; i++ )
+		{
+			TabInfo info = tabs.get( i );
+			if( info.tab == tab )
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	private TabInfo getInfo( ITab tab )
 	{
 		checkEDT( );
@@ -527,25 +539,41 @@ public class TabbedPane extends JLayeredPane
 		return null;
 	}
 	
-	private int devirtualizeIndex( int index )
+	private int actualizeIndex( int index )
 	{
 		checkEDT( );
 		
 		int virtual = 0;
 		
-		int devirtualized;
-		for( devirtualized = 0 ; devirtualized < tabs.size( ) ; devirtualized++ )
+		int actual;
+		for( actual = 0 ; actual < tabs.size( ) ; actual++ )
 		{
 			if( virtual == index )
 			{
 				break;
 			}
-			if( !tabs.get( devirtualized ).isBeingRemoved )
+			if( !tabs.get( actual ).isBeingRemoved )
 			{
 				virtual++ ;
 			}
 		}
-		return devirtualized;
+		return actual;
+	}
+	
+	private int virtualizeIndex( int index )
+	{
+		checkEDT( );
+		
+		int virtual = 0;
+		
+		for( int actual = 0 ; actual < index ; actual++ )
+		{
+			if( !tabs.get( actual ).isBeingRemoved )
+			{
+				virtual++ ;
+			}
+		}
+		return virtual;
 	}
 	
 	public int getTabCount( )
@@ -592,6 +620,29 @@ public class TabbedPane extends JLayeredPane
 	{
 		checkEDT( );
 		
+		int tabCount = getTabCount( );
+		if( index < 0 || index > tabCount )
+		{
+			throw new IndexOutOfBoundsException( String.format( "Invalid insertion index: %d (tab count: %d)" , index , tabCount ) );
+		}
+		TabInfo existing = getInfo( tab );
+		
+		if( existing != null )
+		{
+			if( existing.isBeingRemoved )
+			{
+				actuallyRemoveTab( tab );
+			}
+			else
+			{
+				throw new IllegalArgumentException( "Tab has already been added: " + tab );
+			}
+		}
+		
+		TabAddedEvent event = new TabAddedEvent( this , System.currentTimeMillis( ) , tab , index );
+		
+		int vIndex = actualizeIndex( index );
+		
 		TabInfo info = new TabInfo( );
 		info.tab = tab;
 		info.prefSize = tab.getRenderer( ).getPreferredSize( );
@@ -618,17 +669,18 @@ public class TabbedPane extends JLayeredPane
 			tab.getCloseButton( ).addActionListener( info.closeButtonHandler );
 		}
 		
-		index = devirtualizeIndex( index );
-		if( index > 0 )
+		if( vIndex > 0 )
 		{
-			TabInfo prev = tabs.get( index - 1 );
+			TabInfo prev = tabs.get( vIndex - 1 );
 			info.vCurrentX = prev.vCurrentX + prev.vCurrentWidth - overlap;
 		}
-		tabs.add( index , info );
+		tabs.add( vIndex , info );
 		add( tab.getRenderer( ) );
 		
 		invalidate( );
 		validate( );
+		
+		notifyTabbedPaneListeners( event );
 	}
 	
 	public void tabContentChanged( ITab tab )
@@ -642,6 +694,47 @@ public class TabbedPane extends JLayeredPane
 		}
 	}
 	
+	public void moveTab( ITab tab , int newIndex )
+	{
+		int tabCount = getTabCount( );
+		if( newIndex < 0 || newIndex > tabCount )
+		{
+			throw new IndexOutOfBoundsException( String.format( "Invalid new index: %d (tab count: %d)" , newIndex , tabCount ) );
+		}
+		
+		int actualNewIndex = actualizeIndex( newIndex );
+		int currentIndex = getInfoIndex( tab );
+		
+		if( currentIndex < 0 )
+		{
+			throw new IllegalArgumentException( "Tab is not a member of this tabbed pane: " + tab );
+		}
+		
+		TabInfo info = tabs.get( currentIndex );
+		
+		if( info.isBeingRemoved )
+		{
+			throw new IllegalArgumentException( "Tab is not a member of this tabbed pane: " + tab );
+		}
+		
+		if( actualNewIndex != currentIndex )
+		{
+			int vCurrentIndex = virtualizeIndex( currentIndex );
+			
+			TabMovedEvent event = new TabMovedEvent( this , System.currentTimeMillis( ) , info.tab , vCurrentIndex , newIndex );
+			
+			actualNewIndex = Math.min( actualNewIndex , tabs.size( ) - 1 );
+			tabs.remove( info );
+			tabs.add( actualNewIndex , info );
+			
+			invalidate( );
+			validate( );
+			
+			notifyTabbedPaneListeners( event );
+		}
+		
+	}
+	
 	public void removeTab( ITab tab )
 	{
 		removeTab( tab , true );
@@ -651,9 +744,18 @@ public class TabbedPane extends JLayeredPane
 	{
 		checkEDT( );
 		
-		TabInfo info = getInfo( tab );
-		if( info != null )
+		int removedIndex = getInfoIndex( tab );
+		
+		if( removedIndex >= 0 )
 		{
+			TabInfo info = tabs.get( removedIndex );
+			if( info.isBeingRemoved )
+			{
+				return;
+			}
+			
+			TabRemovedEvent event = new TabRemovedEvent( this , System.currentTimeMillis( ) , tab , virtualizeIndex( removedIndex ) );
+			
 			if( info == selectedTab )
 			{
 				if( tabs.size( ) == 1 )
@@ -696,6 +798,8 @@ public class TabbedPane extends JLayeredPane
 			info.isBeingRemoved = true;
 			invalidate( );
 			validate( );
+			
+			notifyTabbedPaneListeners( event );
 		}
 	}
 	
@@ -729,10 +833,20 @@ public class TabbedPane extends JLayeredPane
 	{
 		checkEDT( );
 		
+		long time = System.currentTimeMillis( );
+		
+		List<ITab> removedTabs = new ArrayList<ITab>( );
+		
 		while( !tabs.isEmpty( ) )
 		{
-			removeTabImmediately( tabs.get( 0 ).tab );
+			TabInfo info = tabs.get( 0 );
+			removedTabs.add( info.tab );
+			removeTabImmediately( info.tab );
 		}
+		
+		TabsClearedEvent event = new TabsClearedEvent( this , time , removedTabs );
+		
+		notifyTabbedPaneListeners( event );
 	}
 	
 	public void setSelectedTab( ITab tab )
@@ -760,6 +874,14 @@ public class TabbedPane extends JLayeredPane
 		
 		if( selectedTab != info )
 		{
+			int prevIndex = selectedTab != null ? virtualizeIndex( tabs.indexOf( selectedTab ) ) : -1;
+			int newIndex = info != null ? virtualizeIndex( tabs.indexOf( info ) ) : -1;
+			
+			ITab prevTab = selectedTab != null ? selectedTab.tab : null;
+			ITab newTab = info != null ? info.tab : null;
+			
+			TabSelectedEvent event = new TabSelectedEvent( this , System.currentTimeMillis( ) , prevTab , prevIndex , newTab , newIndex );
+			
 			if( selectedTab != null )
 			{
 				selectedTab.tab.setSelected( false );
@@ -779,6 +901,8 @@ public class TabbedPane extends JLayeredPane
 			
 			invalidate( );
 			validate( );
+			
+			notifyTabbedPaneListeners( event );
 		}
 	}
 	
@@ -981,15 +1105,14 @@ public class TabbedPane extends JLayeredPane
 			int vTargetX = 0;
 			
 			/**
-			 * The target width of the tab zone, which is the total target width of all tabs, except those being removed, in virtual coordinate space.
-			 * This does not include the overlap area of the last tab.
+			 * The target width of the tab zone, which is the total target width of all tabs, except those being removed, in virtual coordinate space. This does
+			 * not include the overlap area of the last tab.
 			 */
 			int vTargetTabZoneWidth = 0;
 			
 			/**
-			 * The current width of the tab zone, which is the total current width of all tabs, including those being removed, in virtual coordinate
-			 * space.
-			 * This does not include the overlap area of the last tab.
+			 * The current width of the tab zone, which is the total current width of all tabs, including those being removed, in virtual coordinate space. This
+			 * does not include the overlap area of the last tab.
 			 */
 			int vCurrentTabZoneWidth = 0;
 			
@@ -1031,7 +1154,8 @@ public class TabbedPane extends JLayeredPane
 			int vTargetRightButtonsPanelX = lastInfo != null ? lastInfo.vCurrentX == lastInfo.vTargetX ? lastInfo.vCurrentX + lastInfo.vCurrentWidth : lastInfo.vTargetX + lastInfo.vCurrentWidth : 0;
 			
 			// Animate the tab zone (virtual) width.
-			// if the sustained tab zone width must increase to reach the current, do it immediately, without animation; if it must shrink to reach the target, do it with animation,
+			// if the sustained tab zone width must increase to reach the current, do it immediately, without animation; if it must shrink to reach the target,
+			// do it with animation,
 			// but only if the mouse is not over the top zone.
 			if( reset || vCurrentTabZoneWidth > vSustainedTabZoneWidth )
 			{
@@ -1096,7 +1220,7 @@ public class TabbedPane extends JLayeredPane
 			// lay out the content panel and right button panel
 			contentPanel.setBounds( insets.left , tabZone.y + tabZone.height - contentPanelOverlap , availWidth , availHeight - tabZone.height + contentPanelOverlap );
 			
-			// animate the right buttons panel x position.  If it must increase to reach the target, do it immediately, without animation; 
+			// animate the right buttons panel x position. If it must increase to reach the target, do it immediately, without animation;
 			// If it must decrease, do it with animation.
 			int vCurrentRightButtonsPanelX = ( int ) ( ( rightButtonsPanel.getX( ) - overlap / 2 - tabZone.x ) / widthScale );
 			vCurrentRightButtonsPanelX = animateShrinkingOnly( vCurrentRightButtonsPanelX , vTargetRightButtonsPanelX , animFactor , animNeeded );
@@ -1477,15 +1601,8 @@ public class TabbedPane extends JLayeredPane
 					tabbedPane.setDragState( draggedTab , grabX , dragX );
 					
 					int newIndex = tabbedPane.layout.getInsertIndex( draggedTab , grabX , dragX );
-					if( newIndex != currentIndex )
-					{
-						newIndex = Math.min( newIndex , tabbedPane.tabs.size( ) - 1 );
-						tabbedPane.tabs.remove( info );
-						tabbedPane.tabs.add( newIndex , info );
-						
-						tabbedPane.invalidate( );
-						tabbedPane.validate( );
-					}
+					int vNewIndex = tabbedPane.virtualizeIndex( newIndex );
+					tabbedPane.moveTab( draggedTab , vNewIndex );
 				}
 			}
 		}
@@ -1556,5 +1673,23 @@ public class TabbedPane extends JLayeredPane
 			c = c.getParent( );
 		}
 		return null;
+	}
+	
+	private void notifyTabbedPaneListeners( TabbedPaneEvent event )
+	{
+		for( ITabbedPaneListener listener : tabListeners )
+		{
+			listener.onEvent( event );
+		}
+	}
+	
+	public void addTabbedPaneListener( ITabbedPaneListener listener )
+	{
+		tabListeners.add( listener );
+	}
+	
+	public void removeTabbedPaneListener( ITabbedPaneListener listener )
+	{
+		tabListeners.remove( listener );
 	}
 }

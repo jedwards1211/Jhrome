@@ -15,4 +15,15 @@ public class TabsClearedEvent extends TabbedPaneEvent
 	}
 	
 	public final List<ITab>	removedTabs;
+	
+	public List<ITab> getRemovedTabs( )
+	{
+		return removedTabs;
+	}
+	
+	@Override
+	public String toString( )
+	{
+		return String.format( "%s[tabbedPane: %s, timestamp: %d]" , getClass( ).getName( ) , tabbedPane , timestamp );
+	}
 }
