@@ -1386,6 +1386,7 @@ public class TabbedPane extends JLayeredPane
 			int vCurrentRightButtonsPanelX = ( int ) ( ( rightButtonsPanel.getX( ) - overlap / 2 - tabZone.x ) / widthScale );
 			vCurrentRightButtonsPanelX = animateShrinkingOnly( vCurrentRightButtonsPanelX , vTargetRightButtonsPanelX , animFactor , animNeeded );
 			int rightButtonsPanelX = tabZone.x + ( int ) ( vCurrentRightButtonsPanelX * widthScale ) + overlap / 2;
+			rightButtonsPanelX = Math.min( rightButtonsPanelX , topZone.x + topZone.width - rightButtonsPanelPrefSize.width );
 			rightButtonsPanel.setBounds( rightButtonsPanelX , topZone.y , rightButtonsPanelPrefSize.width , topZone.height );
 			
 			for( int i = tabs.size( ) - 1 ; i >= 0 ; i-- )

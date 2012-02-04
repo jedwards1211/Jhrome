@@ -83,7 +83,7 @@ public class SexyTabsDemos implements ISexyTabsDemo
 				windowFactory.showNewTabButton = false;
 				final ITabbedPaneWindow window = windowFactory.createWindow( );
 				
-				final DefaultTab demoSelectorTab = new DefaultTab( "Jhrome Demos" , demoListPanel );
+				final DefaultTab demoSelectorTab = new DefaultTab( "SexyTabs Demos" , demoListPanel );
 				demoSelectorTab.getLabel( ).setFont( demoSelectorTab.getLabel( ).getFont( ).deriveFont( Font.BOLD ) );
 				demoSelectorTab.getCloseButton( ).setVisible( false );
 				
