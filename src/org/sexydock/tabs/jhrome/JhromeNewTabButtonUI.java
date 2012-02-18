@@ -1,3 +1,27 @@
+/*
+Copyright 2012 James Edwards
+
+Thiimport java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.geom.Path2D;
+import java.awt.image.BufferedImage;
+
+import javax.swing.AbstractButton;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.plaf.basic.BasicButtonUI;
+
+import org.sexydock.tabs.jhrome.JhromeNewTabButtonBorder.Attributes;
+ Lesser General Public License
+along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package org.sexydock.tabs.jhrome;
 

@@ -1,0 +1,46 @@
+     ___________________
+____/ Welcome to Jhrome \__________________________________________________
+
+This is Jhrome, a Google Chrome-style tabbed pane library for Java.
+
+     ______________
+____/ License Info \_______________________________________________________
+
+Jhrome is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Jhrome is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
+
+    ________
+____/ Status \_____________________________________________________________
+
+This project is currently in beta stage.  It works very well, but there are
+no automated tests, it needs more documentation, and it needs more polish
+in areas like look and feel workflow and allowing access to tab DnD state.
+
+I'm going ahead and releasing it because I'm quite busy at the moment, and
+if I wait until it's polished enough for a first release, well, I'll never
+get around to it.  On the other hand, if I do release it now, I'll probably
+be more motivated to polish it up in the future.
+
+The root package is org.sexydock.tabs because I may make an entire docking
+framework based around this, if I feel like it.  If so, that framework will
+be called SexyDock, and this project will be called SexyTabs, or 
+SexyDock.Tabs, or whatever. In the package scheme, Jhrome refers 
+specifically to the Google Chrome look in the org.sexydock.jhrome package.  
+I'm releasing this project as "Jhrome" because I think the name will catch 
+on better.
+
+     _________
+____/ Contact \____________________________________________________________
+
+Jhrome was created by James ("Andy") Edwards.
+e-mail: andy@jedwards.name

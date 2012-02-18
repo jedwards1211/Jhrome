@@ -1,3 +1,21 @@
+/*
+Copyright 2012 James Edwards
+
+This file is part of Jhrome.
+
+Jhrome is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Jhrome is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package org.sexydock.tabs.demos;
 
@@ -69,6 +87,7 @@ public class SexyTabsDemos implements ISexyTabsDemo
 					demoListModel.addElement( new DemoItem( new NestedTabbedPanesDemo( ) , "Nested Tabbed Panes Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( NestedTabbedPanesDemo.class ) ) ) ) );
 					demoListModel.addElement( new DemoItem( new UndecoratedWindowDemo( ) , "Undecorated Window Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( UndecoratedWindowDemo.class ) ) ) ) );
 					demoListModel.addElement( new DemoItem( new ITabbedPaneListenerDemo( ) , "ITabbedPaneListener Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( ITabbedPaneListenerDemo.class ) ) ) ) );
+					demoListModel.addElement( new DemoItem( new SlowAnimationDemo( ) , "Slow Animation Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( SlowAnimationDemo.class ) ) ) ) );
 				}
 				catch( Exception e1 )
 				{

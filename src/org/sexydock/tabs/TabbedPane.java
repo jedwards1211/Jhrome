@@ -1,3 +1,21 @@
+/*
+Copyright 2012 James Edwards
+
+This file is part of Jhrome.
+
+Jhrome is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Jhrome is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 package org.sexydock.tabs;
 
@@ -1371,6 +1389,10 @@ public class TabbedPane extends JLayeredPane
 				if( info.isBeingDragged )
 				{
 					x = info.dragX - ( int ) ( info.grabX * width );
+					// if( i == tabs.size( ) - 1 && x > targetX )
+					// {
+					// x = x / 2 + targetX / 2;
+					// }
 					x = Math.max( topZone.x , Math.min( topZone.x + topZone.width - width , x ) );
 					info.vCurrentX = ( int ) ( ( x - topZone.x ) / widthScale );
 				}
@@ -1386,6 +1408,8 @@ public class TabbedPane extends JLayeredPane
 			int vCurrentRightButtonsPanelX = ( int ) ( ( rightButtonsPanel.getX( ) - overlap / 2 - tabZone.x ) / widthScale );
 			vCurrentRightButtonsPanelX = animateShrinkingOnly( vCurrentRightButtonsPanelX , vTargetRightButtonsPanelX , animFactor , animNeeded );
 			int rightButtonsPanelX = tabZone.x + ( int ) ( vCurrentRightButtonsPanelX * widthScale ) + overlap / 2;
+			
+			// keep right buttons panel from getting pushed off the edge of the tabbed pane when minimum tab width is reached
 			rightButtonsPanelX = Math.min( rightButtonsPanelX , topZone.x + topZone.width - rightButtonsPanelPrefSize.width );
 			rightButtonsPanel.setBounds( rightButtonsPanelX , topZone.y , rightButtonsPanelPrefSize.width , topZone.height );
 			
@@ -1531,7 +1555,7 @@ public class TabbedPane extends JLayeredPane
 					SwingUtilities.convertPointFromScreen( p , draggedParent );
 					if( !Utils.contains( draggedParent.dropZone , p ) )
 					{
-						dragOut( dsde );
+						dragOut( dsde.getDragSourceContext( ).getComponent( ) );
 					}
 				}
 				
@@ -1617,7 +1641,7 @@ public class TabbedPane extends JLayeredPane
 		@Override
 		public void dragExit( DropTargetEvent dte )
 		{
-			TabbedPane.dragOut( dte );
+			TabbedPane.dragOut( dte.getDropTargetContext( ).getComponent( ) );
 		}
 		
 		@Override
@@ -1663,34 +1687,19 @@ public class TabbedPane extends JLayeredPane
 		return dndPolicy == null || dndPolicy.isSnapInAllowed( this , tab );
 	}
 	
-	private static void dragOut( DropTargetEvent dte )
+	private static void dragOut( Component dragOutComponent )
 	{
 		if( draggedTab != null )
 		{
 			TabbedPane draggedParent = getTabbedPaneAncestor( draggedTab.getRenderer( ) );
-			if( draggedParent != null && dte.getDropTargetContext( ).getComponent( ) == draggedParent && draggedParent.isTearAwayAllowed( draggedTab ) )
+			if( draggedParent != null && dragOutComponent == draggedParent && draggedParent.isTearAwayAllowed( draggedTab ) )
 			{
 				if( dragFloatingTabHandler != null )
 				{
 					dragFloatingTabHandler.onFloatingBegin( draggedTab );
 				}
 				removeDraggedTabFromParent( );
-			}
-		}
-	}
-	
-	private static void dragOut( DragSourceDragEvent dsde )
-	{
-		if( draggedTab != null )
-		{
-			TabbedPane draggedParent = getTabbedPaneAncestor( draggedTab.getRenderer( ) );
-			if( draggedParent != null && dsde.getDragSourceContext( ).getComponent( ) == draggedParent && draggedParent.isTearAwayAllowed( draggedTab ) )
-			{
-				if( dragFloatingTabHandler != null )
-				{
-					dragFloatingTabHandler.onFloatingBegin( draggedTab );
-				}
-				removeDraggedTabFromParent( );
+				// draggedParent.mouseOverTopZone = false;
 			}
 		}
 	}
@@ -1718,7 +1727,7 @@ public class TabbedPane extends JLayeredPane
 			Point p = dtde.getLocation( );
 			if( !Utils.contains( tabbedPane.dropZone , p ) )
 			{
-				dragOut( dtde );
+				dragOut( dtde.getDropTargetContext( ).getComponent( ) );
 				return;
 			}
 			
@@ -1737,6 +1746,8 @@ public class TabbedPane extends JLayeredPane
 				}
 				
 				draggedParent = tabbedPane;
+				
+				// tabbedPane.mouseOverTopZone = true;
 				
 				Window ancestor = SwingUtilities.getWindowAncestor( tabbedPane );
 				if( ancestor != null )
@@ -1758,7 +1769,6 @@ public class TabbedPane extends JLayeredPane
 				TabInfo info = tabbedPane.getInfo( draggedTab );
 				if( info != null )
 				{
-					int currentIndex = tabbedPane.tabs.indexOf( info );
 					int dragX = dtde.getLocation( ).x;
 					tabbedPane.setDragState( draggedTab , grabX , dragX );
 					
@@ -1853,5 +1863,10 @@ public class TabbedPane extends JLayeredPane
 	public void removeTabbedPaneListener( ITabbedPaneListener listener )
 	{
 		tabListeners.remove( listener );
+	}
+	
+	public void setAnimationFactor( double factor )
+	{
+		animFactor = factor;
 	}
 }
