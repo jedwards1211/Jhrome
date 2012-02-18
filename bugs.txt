@@ -63,6 +63,8 @@ Created: 2012-01-26
 Description: When using non-uniform tab widths, it is possible to drag a wide tab past
 the right end of the tab zone until it swaps positions with the rightmost tab.
 
+Fixed: 2012-02
+
 --------------------------------------------------------------------------------
 
 Bug ID: 7
@@ -79,5 +81,7 @@ Bug ID: 8
 Created: 2012-01-26
 
 Description: JhromeTabbedPane does not check that added tabs already exist or are being removed.
+
+Fixed: 2012-02
 
 --------------------------------------------------------------------------------
