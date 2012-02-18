@@ -19,6 +19,15 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
+     _________________
+____/ Getting Started \____________________________________________________
+
+To get started, run org.sexydock.tabs.demos.SexyTabsDemos.  The program
+displays source code for various examples and allows you to launch them.
+This source code should be a good first introduction.  If you have other
+questions, check the Javadocs in org.sexydock.tabs.TabbedPane, or send me
+an e-mail.
+ 
      ________
 ____/ Status \_____________________________________________________________
 
