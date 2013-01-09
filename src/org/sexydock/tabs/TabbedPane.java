@@ -237,6 +237,8 @@ public class TabbedPane extends JLayeredPane
 	
 	private List<ITabbedPaneListener>	tabListeners			= new ArrayList<ITabbedPaneListener>( );
 	
+	private boolean						closeParent				= true;
+	
 	private class MouseManager extends RecursiveListener
 	{
 		MouseAdapter	adapter	= new MouseAdapter( )
@@ -746,7 +748,7 @@ public class TabbedPane extends JLayeredPane
 				public void actionPerformed( ActionEvent e )
 				{
 					removeTab( tab );
-					if( getTabCount( ) == 0 )
+					if( getTabCount( ) == 0 && TabbedPane.this.closeParent )
 					{
 						Window window = SwingUtilities.getWindowAncestor( TabbedPane.this );
 						if( window != null )
@@ -1868,5 +1870,19 @@ public class TabbedPane extends JLayeredPane
 	public void setAnimationFactor( double factor )
 	{
 		animFactor = factor;
+	}
+
+	/**
+	 * @return the closeParent
+	 */
+	public boolean isCloseParent() {
+		return closeParent;
+	}
+
+	/**
+	 * @param closeParent the closeParent to set
+	 */
+	public void setCloseParent(boolean closeParent) {
+		this.closeParent = closeParent;
 	}
 }
