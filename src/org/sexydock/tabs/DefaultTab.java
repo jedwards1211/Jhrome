@@ -47,7 +47,9 @@ public class DefaultTab extends JComponent implements ITab
 	
 	static
 	{
-		UIManager.getDefaults( ).put( uiClassId , JhromeTabUI.class.getName( ) );
+		if (UIManager.get(uiClassId) == null) {
+			UIManager.getDefaults( ).put( uiClassId , JhromeTabUI.class.getName( ) );
+		}
 	}
 	
 	JLabel						label;
