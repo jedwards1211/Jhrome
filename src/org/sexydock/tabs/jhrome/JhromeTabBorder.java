@@ -41,8 +41,8 @@ public class JhromeTabBorder implements Border
 {
 	public final JhromeTabBorderAttributes	attrs	= new JhromeTabBorderAttributes( );
 	
-	private Path2D							openPath;
-	private Path2D							closedPath;
+	protected Path2D							openPath;
+	protected Path2D							closedPath;
 	
 	private void updatePaths( int x , int y , int width , int height )
 	{
