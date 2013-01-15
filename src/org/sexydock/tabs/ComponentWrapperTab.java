@@ -108,5 +108,10 @@ public class ComponentWrapperTab implements ITab
 	{
 		this.rollover = rollover;
 	}
+
+	@Override
+	public void setTitle(String title) {
+		
+	}
 	
 }

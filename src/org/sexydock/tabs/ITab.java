@@ -106,4 +106,9 @@ public interface ITab
 	 */
 	public abstract void setRollover( boolean rollover );
 	
+	/**
+	 * Sets the title of the tab.
+	 */
+	public abstract void setTitle( String title );
+	
 }
