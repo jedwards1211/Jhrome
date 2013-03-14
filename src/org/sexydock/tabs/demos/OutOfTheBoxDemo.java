@@ -21,6 +21,8 @@ package org.sexydock.tabs.demos;
 
 import java.awt.Window;
 
+import javax.swing.plaf.metal.MetalTabbedPaneUI;
+
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneWindow;
 import org.sexydock.tabs.JhromeTabbedPaneUI;
@@ -35,7 +37,7 @@ public class OutOfTheBoxDemo implements ISexyTabsDemo
 		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
 		Window window = tabbedPaneWindow.getWindow( );
 		
-		JhromeTabbedPaneUI ui = (JhromeTabbedPaneUI) tabbedPaneWindow.getTabbedPane( ).getUI( );
+		JhromeTabbedPaneUI ui = ( JhromeTabbedPaneUI ) tabbedPaneWindow.getTabbedPane( ).getUI( );
 		Tab tab1 = ui.getTabFactory( ).createTab( "Tab 1" );
 		ui.addTab( tab1 );
 		ui.setSelectedTab( tab1 );

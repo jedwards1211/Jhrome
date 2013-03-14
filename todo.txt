@@ -1,13 +1,17 @@
 Things necessary for first release:
--add uninstallUI() to JhromeTabbedPaneUI
+-check what other core functionality needs to be supported; mnemonics, keyboard navigation, etc.
+-Add getters/setters for some more properties in JhromeTabbedPane
 -add installDefaults() to JhromeTabbedPaneUI, BasicTabUI, JhromeTabUI
--add getter/setter for content border in JhromeTabbedPaneUI
+	-animation
+	-overlaps
+	-colors
+	-sizes
+	-strokes
+	-etc
 -create examples of default workflow to set up UI defaults to use Jhrome
 -create a look and feel that doesn't look like Chrome
 -investigate JhromeTabbedPaneUI extensibility
--check what other core functionality needs to be supported; mnemonics, keyboard navigation, etc.
 -Remove auto window & tab numbers from factories; allow those to be pre-set
--Add getters/setters for some more properties in JhromeTabbedPane
 -ensure there will be no backward-compatibility problems in the future
 -Javadoc!
 

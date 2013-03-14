@@ -39,12 +39,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicButtonUI;
-
-import org.sexydock.tabs.jhrome.JhromeTabBorderAttributes;
-import org.sexydock.tabs.jhrome.JhromeTabCloseButtonIcons;
 
 /**
  * The UI for a {@link Tab}.
@@ -174,26 +168,7 @@ public class BasicTabUI extends TabUI
 		label.setText( tab.getTitle( ) );
 		label.setIcon( tab.getIcon( ) );
 		
-		boolean closeButtonVisible = false;
-		Object cbvProp = tab.getClientProperty( CLOSE_BUTTON_VISIBLE );
-		if( cbvProp != null && cbvProp instanceof Boolean )
-		{
-			closeButtonVisible = ( Boolean ) cbvProp;
-		}
-		else
-		{
-			JTabbedPane tabbedPane = JhromeTabbedPaneUI.getJTabbedPaneAncestor( tab );
-			if( tabbedPane != null )
-			{
-				cbvProp = tabbedPane.getClientProperty( CLOSE_BUTTON_VISIBLE );
-				if( cbvProp != null && cbvProp instanceof Boolean )
-				{
-					closeButtonVisible = ( Boolean ) cbvProp;
-				}
-			}
-		}
-		
-		closeButton.setVisible( closeButtonVisible );
+		updateCloseButtonVisible( );
 		
 		if( tab.getTabComponent( ) != displayedTabComponent )
 		{
@@ -223,6 +198,30 @@ public class BasicTabUI extends TabUI
 		{
 			label.setForeground( unselectedLabelColor );
 		}
+	}
+
+	private void updateCloseButtonVisible( )
+	{
+		boolean closeButtonVisible = false;
+		Object cbvProp = tab.getClientProperty( "closeButtonVisible" );
+		if( cbvProp != null && cbvProp instanceof Boolean )
+		{
+			closeButtonVisible = ( Boolean ) cbvProp;
+		}
+		else
+		{
+			JTabbedPane tabbedPane = JhromeTabbedPaneUI.getJTabbedPaneAncestor( tab );
+			if( tabbedPane != null )
+			{
+				cbvProp = tabbedPane.getClientProperty( "tabCloseButtonsVisible" );
+				if( cbvProp != null && cbvProp instanceof Boolean )
+				{
+					closeButtonVisible = ( Boolean ) cbvProp;
+				}
+			}
+		}
+		
+		closeButton.setVisible( closeButtonVisible );
 	}
 	
 	/*

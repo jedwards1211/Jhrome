@@ -203,34 +203,35 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		double			grabX;
 	}
 	
-	private int							overlap					= 13;
+	private int							overlap						= 13;
 	
-	private double						animFactor				= 0.7;
+	private double						animFactor					= 0.7;
 	
 	private javax.swing.Timer			animTimer;
 	
 	private TabLayoutManager			layout;
 	
-	private boolean						useUniformWidth			= true;
-	private int							maxUniformWidth			= 300;
+	private boolean						useUniformWidth				= true;
+	private int							maxUniformWidth				= 300;
 	
-	private boolean						mouseOverTopZone		= true;
+	private boolean						mouseOverTopZone			= true;
 	
 	private MouseManager				mouseOverManager;
 	
-	private TabInfo						selectedTab				= null;
+	private TabInfo						selectedTab					= null;
 	
-	private Component					currentContent			= null;
+	private Component					currentContent				= null;
 	
 	/**
 	 * How many pixels the content panel overlaps the tabs. This is necessary with the Google Chrome appearance to make the selected tab and the content panel
 	 * look like a contiguous object
 	 */
-	private int							contentPanelOverlap		= 1;
-	private Border						contentPanelBorder		= new JhromeContentPanelBorder( );
-	private Rectangle					contentPanelBounds		= new Rectangle( );
+	private int							contentPanelOverlap			= 1;
+	private Border						defaultContentPanelBorder	= new JhromeContentPanelBorder( );
+	private Border						contentPanelBorder			= defaultContentPanelBorder;
+	private Rectangle					contentPanelBounds			= new Rectangle( );
 	
-	private int							tabMargin				= 2;
+	private int							tabMargin					= 2;
 	
 	private JPanel						rightButtonsPanel;
 	
@@ -241,27 +242,25 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	private DragHandler					dragHandler;
 	private DropHandler					dropHandler;
 	
-	private ITabDropFailureHandler		tabDropFailureHandler	= new DefaultTabDropFailureHandler( );
+	private ITabDropFailureHandler		tabDropFailureHandler		= new DefaultTabDropFailureHandler( );
 	
-	private IFloatingTabHandler			floatingTabHandler		= new DefaultFloatingTabHandler( );
+	private IFloatingTabHandler			floatingTabHandler			= new DefaultFloatingTabHandler( );
 	
-	private ITabFactory					tabFactory				= new DefaultTabFactory( );
+	private ITabFactory					tabFactory					= new DefaultTabFactory( );
 	
-	private Rectangle					topZone					= new Rectangle( );
-	private Rectangle					tabZone					= new Rectangle( );
+	private Rectangle					topZone						= new Rectangle( );
+	private Rectangle					tabZone						= new Rectangle( );
 	
-	private int							extraDropZoneSpace		= 25;
-	private Rectangle					dropZone				= new Rectangle( );
+	private int							extraDropZoneSpace			= 25;
+	private Rectangle					dropZone					= new Rectangle( );
 	
-	private ITabbedPaneDnDPolicy		dndPolicy				= null;
+	private ITabbedPaneDnDPolicy		dndPolicy					= null;
 	
-	private List<ITabbedPaneListener>	tabListeners			= new ArrayList<ITabbedPaneListener>( );
+	private List<ITabbedPaneListener>	tabListeners				= new ArrayList<ITabbedPaneListener>( );
 	
-	private Handler						handler					= new Handler( );
+	private Handler						handler						= new Handler( );
 	
-	public static final String			NEW_TAB_BUTTON_VISIBLE	= "newTabButtonVisible";
-	
-	private String						newTabButtonUiClassId	= "JhromeNewTabButtonUI";
+	private String						newTabButtonUiClassId		= "JhromeNewTabButtonUI";
 	
 	private class MouseManager extends RecursiveListener
 	{
@@ -332,11 +331,23 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		}
 	}
 	
+	@Override
 	public void installUI( JComponent c )
 	{
 		checkEDT( );
 		tabbedPane = ( JTabbedPane ) c;
 		init( );
+	}
+	
+	@Override
+	public void uninstallUI( JComponent c )
+	{
+		if( c != tabbedPane )
+		{
+			throw new IllegalArgumentException( "Cannot uninstall from a different component than this was installed on" );
+		}
+		checkEDT( );
+		dispose( );
 	}
 	
 	private class TabLayeredPane extends JLayeredPane implements UIResource
@@ -351,8 +362,11 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			@Override
 			public void actionPerformed( ActionEvent e )
 			{
-				tabbedPane.invalidate( );
-				tabbedPane.validate( );
+				if( tabbedPane != null )
+				{
+					tabbedPane.invalidate( );
+					tabbedPane.validate( );
+				}
 			}
 		} );
 		layout = new TabLayoutManager( );
@@ -370,16 +384,6 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		
 		newTabButton = new JButton( );
 		
-		Object ntbvProp = tabbedPane.getClientProperty( NEW_TAB_BUTTON_VISIBLE );
-		if( ntbvProp != null && ntbvProp instanceof Boolean )
-		{
-			newTabButton.setVisible( ( Boolean ) ntbvProp );
-		}
-		else
-		{
-			newTabButton.setVisible( false );
-		}
-		
 		newTabButtonListener = new ActionListener( )
 		{
 			@Override
@@ -396,15 +400,9 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		};
 		
 		newTabButton.addActionListener( newTabButtonListener );
-		Object ntbuiProp = tabbedPane.getClientProperty( "newTabButtonUI" );
-		if( ntbuiProp != null && ntbuiProp instanceof ButtonUI )
-		{
-			newTabButton.setUI( ( ButtonUI ) ntbuiProp );
-		}
-		else
-		{
-			newTabButton.setUI( new JhromeNewTabButtonUI( ) );
-		}
+		updateNewTabButtonVisible( );
+		updateNewTabButtonUI( );
+		updateContentPanelBorder( );
 		
 		rightButtonsPanel = new JPanel( );
 		rightButtonsPanel.setLayout( new GridBagLayout( ) );
@@ -423,6 +421,45 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		tabbedPane.addContainerListener( handler );
 		tabbedPane.getModel( ).addChangeListener( handler );
 		tabbedPane.addPropertyChangeListener( handler );
+	}
+	
+	private void updateNewTabButtonVisible( )
+	{
+		Object ntbvProp = tabbedPane.getClientProperty( "newTabButtonVisible" );
+		if( ntbvProp != null && ntbvProp instanceof Boolean )
+		{
+			newTabButton.setVisible( ( Boolean ) ntbvProp );
+		}
+		else
+		{
+			newTabButton.setVisible( false );
+		}
+	}
+	
+	private void updateContentPanelBorder( )
+	{
+		Object cpbProp = tabbedPane.getClientProperty( "contentPanelBorder" );
+		if( cpbProp != null && cpbProp instanceof Border )
+		{
+			contentPanelBorder = ( Border ) cpbProp;
+		}
+		else
+		{
+			contentPanelBorder = defaultContentPanelBorder;
+		}
+	}
+	
+	private void updateNewTabButtonUI( )
+	{
+		Object ntbuiProp = tabbedPane.getClientProperty( "newTabButtonUI" );
+		if( ntbuiProp != null && ntbuiProp instanceof ButtonUI )
+		{
+			newTabButton.setUI( ( ButtonUI ) ntbuiProp );
+		}
+		else
+		{
+			newTabButton.setUI( new JhromeNewTabButtonUI( ) );
+		}
 	}
 	
 	public ITabFactory getTabFactory( )
@@ -1205,13 +1242,37 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	{
 		checkEDT( );
 		
-		removeAllTabsInternal( );
 		animTimer.stop( );
+		
+		tabbedPane.remove( tabLayeredPane );
 		mouseOverManager.uninstall( tabbedPane );
+		mouseOverManager.removeExcludedComponent( tabbedPane );
+		
+		tabbedPane.removeContainerListener( handler );
+		tabbedPane.getModel( ).removeChangeListener( handler );
+		tabbedPane.removePropertyChangeListener( handler );
+		
+		try
+		{
+			removeAllTabsInternal( );
+		}
+		catch( Exception e )
+		{
+			e.printStackTrace( );
+		}
+		
 		dragHandler.dispose( );
-		dragHandler = null;
+		tabbedPane.setLayout( null );
 		tabbedPane.setDropTarget( null );
+		
+		dragHandler = null;
 		dropHandler = null;
+		handler = null;
+		mouseOverManager = null;
+		layout = null;
+		animTimer = null;
+		tabLayeredPane = null;
+		tabbedPane = null;
 	}
 	
 	private int animate( int value , int target , double animFactor )
@@ -2069,23 +2130,22 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			{
 				updateTab( ( Integer ) evt.getNewValue( ) , false );
 			}
-			else if( NEW_TAB_BUTTON_VISIBLE.equals( evt.getPropertyName( ) ) )
+			else if( "newTabButtonVisible".equals( evt.getPropertyName( ) ) )
 			{
-				if( evt.getNewValue( ) != null && evt.getNewValue( ) instanceof Boolean )
-				{
-					newTabButton.setVisible( ( Boolean ) evt.getNewValue( ) );
-				}
-				else
-				{
-					newTabButton.setVisible( false );
-				}
+				updateNewTabButtonVisible( );
 			}
 			else if( "newTabButtonUI".equals( evt.getPropertyName( ) ) )
 			{
-				if( evt.getNewValue( ) != null && evt.getNewValue( ) instanceof ButtonUI )
-				{
-					newTabButton.setUI( ( ButtonUI ) evt.getNewValue( ) );
-				}
+				updateNewTabButtonUI( );
+			}
+			else if( "tabCloseButtonsVisible".equals( evt.getPropertyName( ) ) )
+			{
+				tabbedPane.repaint( );
+			}
+			else if( "contentPanelBorder".equals( evt.getPropertyName( ) ) )
+			{
+				updateContentPanelBorder( );
+				tabbedPane.repaint( );
 			}
 		}
 		
