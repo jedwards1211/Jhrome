@@ -24,5 +24,5 @@ import java.awt.dnd.DragSourceDropEvent;
 
 public interface ITabDropFailureHandler
 {
-	void onDropFailure( DragSourceDropEvent dsde , ITab draggedTab , Dimension sourceWindowSize );
+	void onDropFailure( DragSourceDropEvent dsde , Tab draggedTab , Dimension sourceWindowSize );
 }

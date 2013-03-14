@@ -19,12 +19,13 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
 package org.sexydock.tabs.event;
 
-import org.sexydock.tabs.ITab;
-import org.sexydock.tabs.TabbedPane;
+import javax.swing.JTabbedPane;
+
+import org.sexydock.tabs.Tab;
 
 public class TabMovedEvent extends TabbedPaneEvent
 {
-	public TabMovedEvent( TabbedPane tabbedPane , long timestamp , ITab movedTab , int prevIndex , int newIndex )
+	public TabMovedEvent( JTabbedPane tabbedPane , long timestamp , Tab movedTab , int prevIndex , int newIndex )
 	{
 		super( tabbedPane , timestamp );
 		this.movedTab = movedTab;
@@ -32,11 +33,11 @@ public class TabMovedEvent extends TabbedPaneEvent
 		this.newIndex = newIndex;
 	}
 	
-	public final ITab	movedTab;
+	public final Tab	movedTab;
 	public final int	prevIndex;
 	public final int	newIndex;
 	
-	public ITab getMovedTab( )
+	public Tab getMovedTab( )
 	{
 		return movedTab;
 	}

@@ -23,9 +23,9 @@ import java.awt.dnd.DragSourceDragEvent;
 
 public interface IFloatingTabHandler
 {
-	void onFloatingBegin( ITab draggedTab );
+	void onFloatingBegin( Tab draggedTab );
 	
-	void onFloatingTabDragged( DragSourceDragEvent dsde , ITab draggedTab , double grabX );
+	void onFloatingTabDragged( DragSourceDragEvent dsde , Tab draggedTab , double grabX );
 	
 	void onFloatingEnd( );
 }

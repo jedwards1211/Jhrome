@@ -30,10 +30,10 @@ public interface ITabFactory
 	/**
 	 * @return a new {IJhromeTab}.
 	 */
-	ITab createTab( );
+	Tab createTab( );
 	
 	/**
 	 * @return a new {IJhromeTab} with the given title.
 	 */
-	ITab createTab( String title );
+	Tab createTab( String title );
 }

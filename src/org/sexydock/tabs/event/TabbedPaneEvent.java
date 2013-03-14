@@ -19,20 +19,20 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
 package org.sexydock.tabs.event;
 
-import org.sexydock.tabs.TabbedPane;
+import javax.swing.JTabbedPane;
 
 public class TabbedPaneEvent
 {
-	public TabbedPaneEvent( TabbedPane tabbedPane , long timestamp )
+	public TabbedPaneEvent( JTabbedPane tabbedPane , long timestamp )
 	{
 		this.timestamp = timestamp;
 		this.tabbedPane = tabbedPane;
 	}
 	
-	public final TabbedPane	tabbedPane;
+	public final JTabbedPane	tabbedPane;
 	public final long		timestamp;
 	
-	public TabbedPane getTabbedPane( )
+	public JTabbedPane getTabbedPane( )
 	{
 		return tabbedPane;
 	}

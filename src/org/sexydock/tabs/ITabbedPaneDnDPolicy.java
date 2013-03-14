@@ -19,6 +19,8 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
 package org.sexydock.tabs;
 
+import javax.swing.JTabbedPane;
+
 /**
  * Controls the drag and drop policy of a {@link TabbedPane}. This includes whether tabs may be torn away from the tabbed pane or snapped in.
  * 
@@ -36,7 +38,7 @@ public interface ITabbedPaneDnDPolicy
 	 *            the {@code IJhromeTab} the user is dragging.
 	 * @return {@code true} if {@code jhromeTab} may be torn away from {@code tabbedPane}.
 	 */
-	boolean isTearAwayAllowed( TabbedPane tabbedPane , ITab tab );
+	boolean isTearAwayAllowed( JTabbedPane tabbedPane , Tab tab );
 	
 	/**
 	 * Controls whether a jhromeTab may be "snapped in" to a {@code JhromeTabbedPane} (if it can be added by being dragged over the tabbed pane).
@@ -47,5 +49,5 @@ public interface ITabbedPaneDnDPolicy
 	 *            the {@code IJhromeTab} the user is dragging.
 	 * @return {@code true} if {@code jhromeTab} may be snapped into {@code tabbedPane}.
 	 */
-	boolean isSnapInAllowed( TabbedPane tabbedPane , ITab tab );
+	boolean isSnapInAllowed( JTabbedPane tabbedPane , Tab tab );
 }

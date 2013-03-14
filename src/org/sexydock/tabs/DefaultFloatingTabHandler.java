@@ -33,19 +33,19 @@ public class DefaultFloatingTabHandler implements IFloatingTabHandler
 	private Window	dragImageWindow	= null;
 	private Image	dragImage		= null;
 	
-	public void initialize( ITab draggedTab )
+	public void initialize( Tab draggedTab )
 	{
-		TabbedPane tabbedPane = TabbedPane.getTabbedPaneAncestor( draggedTab.getRenderer( ) );
+		JhromeTabbedPaneUI tabbedPaneUI = JhromeTabbedPaneUI.getTabbedPaneAncestorUI( draggedTab );
 		
-		if( tabbedPane != null )
+		if( tabbedPaneUI != null )
 		{
-			dragImage = tabbedPane.createDragImage( draggedTab );
+			dragImage = tabbedPaneUI.createDragImage( draggedTab );
 		}
 	}
 	
 	@SuppressWarnings( "serial" )
 	@Override
-	public void onFloatingBegin( ITab draggedTab )
+	public void onFloatingBegin( Tab draggedTab )
 	{
 		initialize( draggedTab );
 		
@@ -76,7 +76,7 @@ public class DefaultFloatingTabHandler implements IFloatingTabHandler
 	}
 	
 	@Override
-	public void onFloatingTabDragged( DragSourceDragEvent dsde , ITab draggedTab , double grabX )
+	public void onFloatingTabDragged( DragSourceDragEvent dsde , Tab draggedTab , double grabX )
 	{
 		if( dragImageWindow != null )
 		{
