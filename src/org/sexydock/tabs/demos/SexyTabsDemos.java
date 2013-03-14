@@ -41,6 +41,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.sexydock.tabs.BasicTabUI;
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneDnDPolicy;
 import org.sexydock.tabs.ITabbedPaneWindow;
@@ -109,13 +110,14 @@ public class SexyTabsDemos implements ISexyTabsDemo
 				demoList.setModel( demoListModel );
 				
 				final DefaultTabbedPaneWindowFactory windowFactory = new DefaultTabbedPaneWindowFactory( );
-				windowFactory.showNewTabButton = false;
 				final ITabbedPaneWindow window = windowFactory.createWindow( );
+				
+				window.getTabbedPane( ).putClientProperty( "newTabButtonVisible" , null );
 				
 				final Tab demoSelectorTab = new Tab( "SexyTabs Demos" , demoListPanel );
 				JhromeTabUI demoSelectorTabUI = (JhromeTabUI) demoSelectorTab.getUI( );
 				demoSelectorTabUI.getLabel( ).setFont( demoSelectorTabUI.getLabel( ).getFont( ).deriveFont( Font.BOLD ) );
-				demoSelectorTabUI.getCloseButton( ).setVisible( false );
+				demoSelectorTab.putClientProperty( "closeButtonVisible" , false );
 				
 				JhromeTabbedPaneUI tabbedPaneUI = ( JhromeTabbedPaneUI ) window.getTabbedPane( ).getUI( );
 				tabbedPaneUI.addTab( demoSelectorTab );

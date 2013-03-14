@@ -39,6 +39,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicButtonUI;
 
@@ -62,13 +63,23 @@ public class JhromeNewTabButtonUI extends BasicButtonUI
 		button.setBorder( border );
 		button.setContentAreaFilled( false );
 		button.setOpaque( false );
-		button.setPreferredSize( new Dimension( 26 , 16 ) );
 	}
 	
 	@Override
 	public void uninstallUI( JComponent c )
 	{
 		super.uninstallUI( c );
+		button.setIcon( null );
+		button.setFocusable( true );
+		button.setContentAreaFilled( true );
+		button.setBorder( null );
+		button.setContentAreaFilled( true );
+		button.setOpaque( true );
+	}
+	
+	public static JhromeNewTabButtonUI createUI( JComponent c )
+	{
+		return new JhromeNewTabButtonUI( );
 	}
 	
 	AbstractButton				button			= null;
@@ -177,5 +188,23 @@ public class JhromeNewTabButtonUI extends BasicButtonUI
 		g2.draw( path );
 		
 		return new ImageIcon( image );
+	}
+	
+	@Override
+	public Dimension getMinimumSize( JComponent c )
+	{
+		return new Dimension( 26 , 16 );
+	}
+	
+	@Override
+	public Dimension getPreferredSize( JComponent c )
+	{
+		return new Dimension( 26 , 16 );
+	}
+	
+	@Override
+	public Dimension getMaximumSize( JComponent c )
+	{
+		return new Dimension( 26 , 16 );
 	}
 }

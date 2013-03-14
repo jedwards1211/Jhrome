@@ -82,6 +82,7 @@ import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.ButtonUI;
 import javax.swing.plaf.TabbedPaneUI;
 import javax.swing.plaf.UIResource;
 
@@ -258,6 +259,10 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	private Handler						handler					= new Handler( );
 	
+	public static final String			NEW_TAB_BUTTON_VISIBLE	= "newTabButtonVisible";
+	
+	private String						newTabButtonUiClassId	= "JhromeNewTabButtonUI";
+	
 	private class MouseManager extends RecursiveListener
 	{
 		MouseAdapter	adapter	= new MouseAdapter( )
@@ -363,7 +368,17 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		mouseOverManager.addExcludedComponent( tabbedPane );
 		mouseOverManager.install( tabbedPane );
 		
-		newTabButton = new JButton( JhromeNewTabButtonUI.createNewTabButtonIcon( ) );
+		newTabButton = new JButton( );
+		
+		Object ntbvProp = tabbedPane.getClientProperty( NEW_TAB_BUTTON_VISIBLE );
+		if( ntbvProp != null && ntbvProp instanceof Boolean )
+		{
+			newTabButton.setVisible( ( Boolean ) ntbvProp );
+		}
+		else
+		{
+			newTabButton.setVisible( false );
+		}
 		
 		newTabButtonListener = new ActionListener( )
 		{
@@ -381,7 +396,15 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		};
 		
 		newTabButton.addActionListener( newTabButtonListener );
-		newTabButton.setUI( new JhromeNewTabButtonUI( ) );
+		Object ntbuiProp = tabbedPane.getClientProperty( "newTabButtonUI" );
+		if( ntbuiProp != null && ntbuiProp instanceof ButtonUI )
+		{
+			newTabButton.setUI( ( ButtonUI ) ntbuiProp );
+		}
+		else
+		{
+			newTabButton.setUI( new JhromeNewTabButtonUI( ) );
+		}
 		
 		rightButtonsPanel = new JPanel( );
 		rightButtonsPanel.setLayout( new GridBagLayout( ) );
@@ -2045,6 +2068,24 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			else if( "indexForTitle".equals( evt.getPropertyName( ) ) )
 			{
 				updateTab( ( Integer ) evt.getNewValue( ) , false );
+			}
+			else if( NEW_TAB_BUTTON_VISIBLE.equals( evt.getPropertyName( ) ) )
+			{
+				if( evt.getNewValue( ) != null && evt.getNewValue( ) instanceof Boolean )
+				{
+					newTabButton.setVisible( ( Boolean ) evt.getNewValue( ) );
+				}
+				else
+				{
+					newTabButton.setVisible( false );
+				}
+			}
+			else if( "newTabButtonUI".equals( evt.getPropertyName( ) ) )
+			{
+				if( evt.getNewValue( ) != null && evt.getNewValue( ) instanceof ButtonUI )
+				{
+					newTabButton.setUI( ( ButtonUI ) evt.getNewValue( ) );
+				}
 			}
 		}
 		

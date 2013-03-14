@@ -58,16 +58,18 @@ public class BasicTabUI extends TabUI
 		init( );
 	}
 	
-	Tab						tab;
+	Tab							tab;
 	
-	JLabel					label;
-	Component				displayedTabComponent;
-	JButton					closeButton;
+	JLabel						label;
+	Component					displayedTabComponent;
+	JButton						closeButton;
 	
-	Color					selectedLabelColor		= Color.BLACK;
-	Color					unselectedLabelColor	= new Color( 80 , 80 , 80 );
+	Color						selectedLabelColor		= Color.BLACK;
+	Color						unselectedLabelColor	= new Color( 80 , 80 , 80 );
 	
-	PropertyChangeHandler	propertyChangeHandler	= new PropertyChangeHandler( );
+	PropertyChangeHandler		propertyChangeHandler	= new PropertyChangeHandler( );
+	
+	public static final String	CLOSE_BUTTON_VISIBLE	= "closeButtonVisible";
 	
 	private void init( )
 	{
@@ -171,6 +173,27 @@ public class BasicTabUI extends TabUI
 	{
 		label.setText( tab.getTitle( ) );
 		label.setIcon( tab.getIcon( ) );
+		
+		boolean closeButtonVisible = false;
+		Object cbvProp = tab.getClientProperty( CLOSE_BUTTON_VISIBLE );
+		if( cbvProp != null && cbvProp instanceof Boolean )
+		{
+			closeButtonVisible = ( Boolean ) cbvProp;
+		}
+		else
+		{
+			JTabbedPane tabbedPane = JhromeTabbedPaneUI.getJTabbedPaneAncestor( tab );
+			if( tabbedPane != null )
+			{
+				cbvProp = tabbedPane.getClientProperty( CLOSE_BUTTON_VISIBLE );
+				if( cbvProp != null && cbvProp instanceof Boolean )
+				{
+					closeButtonVisible = ( Boolean ) cbvProp;
+				}
+			}
+		}
+		
+		closeButton.setVisible( closeButtonVisible );
 		
 		if( tab.getTabComponent( ) != displayedTabComponent )
 		{

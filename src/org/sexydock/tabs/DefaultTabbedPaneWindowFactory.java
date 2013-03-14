@@ -28,8 +28,6 @@ public class DefaultTabbedPaneWindowFactory implements ITabbedPaneWindowFactory
 {
 	private static int	windowCounter		= 1;
 	
-	public boolean		showNewTabButton	= true;
-	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -43,7 +41,6 @@ public class DefaultTabbedPaneWindowFactory implements ITabbedPaneWindowFactory
 		{
 			JhromeTabbedPaneUI ui = ( JhromeTabbedPaneUI ) frame.getTabbedPane( ).getUI( );
 			ui.setWindowFactory( this );
-			ui.getNewTabButton( ).setVisible( showNewTabButton );
 		}
 		frame.setDefaultCloseOperation( DefaultTabbedPaneWindow.DISPOSE_ON_CLOSE );
 		return frame;
