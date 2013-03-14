@@ -31,6 +31,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -56,14 +58,16 @@ public class BasicTabUI extends TabUI
 		init( );
 	}
 	
-	Tab			tab;
+	Tab						tab;
 	
-	JLabel		label;
-	Component	overrideLabel;
-	JButton		closeButton;
+	JLabel					label;
+	Component				overrideTitle;
+	JButton					closeButton;
 	
-	Color		selectedLabelColor		= Color.BLACK;
-	Color		unselectedLabelColor	= new Color( 80 , 80 , 80 );
+	Color					selectedLabelColor		= Color.BLACK;
+	Color					unselectedLabelColor	= new Color( 80 , 80 , 80 );
+	
+	PropertyChangeHandler	propertyChangeHandler	= new PropertyChangeHandler( );
 	
 	private void init( )
 	{
@@ -146,6 +150,8 @@ public class BasicTabUI extends TabUI
 		tab.setLayout( new TabLayout( ) );
 		tab.add( label , BorderLayout.CENTER );
 		tab.add( closeButton , BorderLayout.EAST );
+		
+		tab.addPropertyChangeListener( propertyChangeHandler );
 	}
 	
 	@Override
@@ -160,6 +166,7 @@ public class BasicTabUI extends TabUI
 		
 		tab = ( Tab ) c;
 		
+		tab.removePropertyChangeListener( propertyChangeHandler );
 		tab.remove( label );
 		tab.remove( closeButton );
 		tab.setLayout( null );
@@ -178,6 +185,26 @@ public class BasicTabUI extends TabUI
 	protected void update( )
 	{
 		label.setText( tab.getTitle( ) );
+		
+		if( tab.getOverrideTitle( ) != overrideTitle )
+		{
+			if( overrideTitle != null )
+			{
+				tab.remove( overrideTitle );
+			}
+			
+			overrideTitle = tab.getOverrideTitle( );
+			
+			if( overrideTitle != null )
+			{
+				tab.remove( label );
+				tab.add( overrideTitle , BorderLayout.CENTER );
+			}
+			else
+			{
+				tab.add( label , BorderLayout.CENTER );
+			}
+		}
 		
 		if( tab.isSelected( ) )
 		{
@@ -258,4 +285,12 @@ public class BasicTabUI extends TabUI
 		return label;
 	}
 	
+	private class PropertyChangeHandler implements PropertyChangeListener
+	{
+		@Override
+		public void propertyChange( PropertyChangeEvent evt )
+		{
+			update( );
+		}
+	}
 }

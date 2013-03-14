@@ -22,9 +22,8 @@ package org.sexydock.tabs.launchers;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
@@ -48,11 +47,14 @@ public class NewJhromeTest
 				tabbedPane.setBorder( new EmptyBorder( 5 , 5 , 5 , 5 ) );
 				window.getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
 				
-				for( int i = 0 ; i < 1 ; i++ )
+				for( int i = 0 ; i < 2 ; i++ )
 				{
 					Tab tab = tabbedPaneUI.getTabFactory( ).createTab( "Tab " + i );
 					tabbedPane.addTab( tab.getTitle( ) , tab.getContent( ) );
 				}
+				
+				tabbedPane.setTabComponentAt( 0 , new JButton( "Tab 1" ) );
+				tabbedPane.setTitleAt( 1 , "TEST" );
 				
 				window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 				window.setSize( new Dimension( 800 , 600 ) );

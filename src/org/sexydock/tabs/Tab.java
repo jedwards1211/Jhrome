@@ -15,6 +15,7 @@ public class Tab extends JComponent
 	private static final long	serialVersionUID	= 5209596149902613716L;
 	
 	private String				title;
+	private Component			overrideTitle;
 	private boolean				rollover;
 	private boolean				selected;
 	
@@ -68,9 +69,34 @@ public class Tab extends JComponent
 		return title;
 	}
 	
+	private static boolean equals( Object o1 , Object o2 )
+	{
+		return ( o1 == o2 ) || ( o1 != null && o1.equals( o2 ) ) || ( o2 != null && o2.equals( o1 ) );
+	}
+	
 	public void setTitle( String title )
 	{
-		this.title = title;
+		if( !equals( title , this.title ) )
+		{
+			String oldValue = this.title;
+			this.title = title;
+			firePropertyChange( "title" , oldValue , title );
+		}
+	}
+	
+	public Component getOverrideTitle( )
+	{
+		return overrideTitle;
+	}
+	
+	public void setOverrideTitle( Component overrideTitle )
+	{
+		if( this.overrideTitle != overrideTitle )
+		{
+			Component oldValue = this.overrideTitle;
+			this.overrideTitle = overrideTitle;
+			firePropertyChange( "overrideTitle" , oldValue , overrideTitle );
+		}
 	}
 	
 	public Component getRenderer( )

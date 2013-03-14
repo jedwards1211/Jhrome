@@ -1977,6 +1977,9 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			Component content = tabbedPane.getComponentAt( i );
 			Component tabComponent = tabbedPane.getTabComponentAt( i );
 			String title = tabbedPane.getTitleAt( i );
+			
+			// TODO: handle tab components and title changes
+			
 			TabInfo info = contentMap.get( content );
 			if( info == null )
 			{
@@ -1986,11 +1989,28 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			}
 			else
 			{
+				info.tab.setTitle( title );
+				info.tab.setOverrideTitle( tabComponent );
 				if( tabs.indexOf( info ) != i )
 				{
 					moveTab( info.tab , i );
 				}
 			}
+		}
+	}
+	
+	private void updateTab( int vIndex )
+	{
+		Component content = tabbedPane.getComponentAt( vIndex );
+		Component tabComponent = tabbedPane.getTabComponentAt( vIndex );
+		String title = tabbedPane.getTitleAt( vIndex );
+		
+		TabInfo info = contentMap.get( content );
+		
+		if( info != null )
+		{
+			info.tab.setTitle( title );
+			info.tab.setOverrideTitle( tabComponent );
 		}
 	}
 	
@@ -2008,6 +2028,10 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			if( "indexForTabComponent".equals( evt.getPropertyName( ) ) )
 			{
 				updateTabs( );
+			}
+			else if( "indexForTitle".equals( evt.getPropertyName( ) ) )
+			{
+				updateTab( ( Integer ) evt.getNewValue( ) );
 			}
 		}
 		
