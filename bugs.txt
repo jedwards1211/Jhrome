@@ -93,4 +93,9 @@ Created: 2013-03-14
 Description: Tab highlights are not always working.  Sometimes you have to exit the tab row
 and move the mouse back into it.
 
+Fixed: 2013-03-14
+
+Technical details: Just had to add property change handling for rollover and selected to the 
+new Tab class and JhromeTabUI
+
 --------------------------------------------------------------------------------

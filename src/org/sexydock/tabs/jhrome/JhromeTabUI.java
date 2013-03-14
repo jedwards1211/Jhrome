@@ -25,6 +25,8 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -63,6 +65,8 @@ public class JhromeTabUI extends BasicTabUI
 	
 	Color						selectedLabelColor		= Color.BLACK;
 	Color						unselectedLabelColor	= new Color( 80 , 80 , 80 );
+	
+	PropertyChangeHandler		propertyChangeHandler;
 	
 	private void init( )
 	{
@@ -118,6 +122,9 @@ public class JhromeTabUI extends BasicTabUI
 		
 		tab.setBorder( compoundBorder );
 		tab.setOpaque( false );
+		
+		propertyChangeHandler = new PropertyChangeHandler( );
+		getTab( ).addPropertyChangeListener( propertyChangeHandler );
 	}
 	
 	@Override
@@ -132,6 +139,9 @@ public class JhromeTabUI extends BasicTabUI
 		super.uninstallUI( c );
 		
 		tab.setBorder( null );
+		
+		tab.removePropertyChangeListener( propertyChangeHandler );
+		propertyChangeHandler = null;
 	}
 	
 	protected void update( )
@@ -244,5 +254,20 @@ public class JhromeTabUI extends BasicTabUI
 	public void setUnselectedLabelColor( Color unselectedLabelColor )
 	{
 		this.unselectedLabelColor = unselectedLabelColor;
+	}
+	
+	private class PropertyChangeHandler implements PropertyChangeListener
+	{
+		@Override
+		public void propertyChange( PropertyChangeEvent evt )
+		{
+			if( evt.getSource( ) == getTab( ) )
+			{
+				if( "rollover".equals( evt.getPropertyName( ) ) || "selected".equals( evt.getPropertyName( ) ) )
+				{
+					update( );
+				}
+			}
+		}
 	}
 }

@@ -48,7 +48,11 @@ public class Tab extends JComponent
 	
 	public void setRollover( boolean rollover )
 	{
-		this.rollover = rollover;
+		if( this.rollover != rollover )
+		{
+			this.rollover = rollover;
+			firePropertyChange( "rollover" , !rollover , rollover );
+		}
 	}
 	
 	public boolean isSelected( )
@@ -58,7 +62,11 @@ public class Tab extends JComponent
 	
 	public void setSelected( boolean selected )
 	{
-		this.selected = selected;
+		if( this.selected != selected )
+		{
+			this.selected = selected;
+			firePropertyChange( "selected" , !selected , selected );
+		}
 	}
 	
 	public TabUI getUI( )

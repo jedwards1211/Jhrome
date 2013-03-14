@@ -40,9 +40,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.metal.MetalTabbedPaneUI;
 
-import org.sexydock.tabs.BasicTabUI;
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneDnDPolicy;
 import org.sexydock.tabs.ITabbedPaneWindow;

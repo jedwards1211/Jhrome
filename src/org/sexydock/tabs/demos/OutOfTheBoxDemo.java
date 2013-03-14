@@ -21,8 +21,6 @@ package org.sexydock.tabs.demos;
 
 import java.awt.Window;
 
-import javax.swing.plaf.metal.MetalTabbedPaneUI;
-
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneWindow;
 import org.sexydock.tabs.JhromeTabbedPaneUI;

@@ -375,7 +375,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		tabbedPane.validate( );
 		
 		mouseOverManager = new MouseManager( );
-		mouseOverManager.addExcludedComponent( tabbedPane );
+		mouseOverManager.addExcludedComponent( tabLayeredPane );
 		mouseOverManager.install( tabbedPane );
 		
 		newTabButton = new JButton( );
@@ -1242,7 +1242,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		
 		tabbedPane.remove( tabLayeredPane );
 		mouseOverManager.uninstall( tabbedPane );
-		mouseOverManager.removeExcludedComponent( tabbedPane );
+		mouseOverManager.removeExcludedComponent( tabLayeredPane );
 		
 		tabbedPane.removeContainerListener( handler );
 		tabbedPane.getModel( ).removeChangeListener( handler );
