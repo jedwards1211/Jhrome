@@ -19,30 +19,21 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
 package org.sexydock.tabs.jhrome;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
 
 import org.sexydock.tabs.BasicTabUI;
-import org.sexydock.tabs.JhromeTabbedPaneUI;
 import org.sexydock.tabs.Tab;
 
 /**
@@ -57,8 +48,6 @@ public class JhromeTabUI extends BasicTabUI
 		super( );
 		init( );
 	}
-	
-	private Tab					tab;
 	
 	CompoundBorder				compoundBorder;
 	
@@ -105,16 +94,6 @@ public class JhromeTabUI extends BasicTabUI
 		closeButton.setRolloverIcon( JhromeTabCloseButtonIcons.getJhromeRolloverIcon( ) );
 		closeButton.setPressedIcon( JhromeTabCloseButtonIcons.getJhromePressedIcon( ) );
 		closeButton.setPreferredSize( new Dimension( closeButton.getIcon( ).getIconWidth( ) + 1 , closeButton.getIcon( ).getIconHeight( ) + 1 ) );
-		
-		closeButton.addActionListener( new ActionListener( )
-		{
-			@Override
-			public void actionPerformed( ActionEvent e )
-			{
-				Tab tab = getTab( );
-				JTabbedPane tabbedPane = JhromeTabbedPaneUI.getJTabbedPaneAncestor( tab );
-			}
-		} );
 	}
 	
 	protected void onHighlightTimerEvent( ActionEvent e )
@@ -129,22 +108,6 @@ public class JhromeTabUI extends BasicTabUI
 	public static JhromeTabUI createUI( JComponent c )
 	{
 		return new JhromeTabUI( );
-	}
-	
-	@SuppressWarnings( "serial" )
-	private class TabLayout extends BorderLayout
-	{
-		@Override
-		public Dimension minimumLayoutSize( Container target )
-		{
-			Dimension minSize = super.minimumLayoutSize( target );
-			if( minSize != null )
-			{
-				Insets insets = target.getInsets( );
-				minSize.width = insets.left + insets.right;
-			}
-			return minSize;
-		}
 	}
 	
 	@Override

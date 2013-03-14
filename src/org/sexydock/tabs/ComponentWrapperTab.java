@@ -22,13 +22,12 @@ package org.sexydock.tabs;
 import java.awt.Component;
 import java.awt.Point;
 
-import javax.swing.JButton;
-
 /**
  * An basic implementation of {@link ITab} that allows you to specify your own jhromeTab component. You will probably want to override many of the methods.
  * 
  * @author andy.edwards
  */
+@SuppressWarnings( "serial" )
 public class ComponentWrapperTab extends Tab
 {
 	public ComponentWrapperTab( Component renderer , Component content )

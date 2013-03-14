@@ -153,7 +153,6 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	private static class TabInfo
 	{
-		ActionListener	closeButtonHandler;
 		Tab				tab;
 		Dimension		prefSize;
 		
@@ -240,7 +239,6 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	private ActionListener				newTabButtonListener;
 	
 	private DragHandler					dragHandler;
-	private DropHandler					dropHandler;
 	
 	private ITabDropFailureHandler		tabDropFailureHandler		= new DefaultTabDropFailureHandler( );
 	
@@ -259,8 +257,6 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	private List<ITabbedPaneListener>	tabListeners				= new ArrayList<ITabbedPaneListener>( );
 	
 	private Handler						handler						= new Handler( );
-	
-	private String						newTabButtonUiClassId		= "JhromeNewTabButtonUI";
 	
 	private class MouseManager extends RecursiveListener
 	{
@@ -415,7 +411,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		tabLayeredPane.add( rightButtonsPanel );
 		
 		dragHandler = new DragHandler( tabbedPane , DnDConstants.ACTION_MOVE );
-		dropHandler = new DropHandler( tabbedPane );
+		new DropHandler( tabbedPane );
 		
 		handler = new Handler( );
 		tabbedPane.addContainerListener( handler );
@@ -1266,7 +1262,6 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		tabbedPane.setDropTarget( null );
 		
 		dragHandler = null;
-		dropHandler = null;
 		handler = null;
 		mouseOverManager = null;
 		layout = null;
@@ -1753,11 +1748,9 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	private class DropHandler implements DropTargetListener
 	{
-		DropTarget	target;
-		
 		public DropHandler( Component comp )
 		{
-			target = new DropTarget( comp , this );
+			new DropTarget( comp , this );
 		}
 		
 		private void handleDrag( DropTargetDragEvent dtde )

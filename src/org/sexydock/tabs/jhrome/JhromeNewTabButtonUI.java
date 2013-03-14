@@ -39,7 +39,6 @@ import java.awt.image.BufferedImage;
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicButtonUI;
 

@@ -75,7 +75,7 @@ public class DefaultTabbedPaneWindow extends JFrame implements ITabbedPaneWindow
 		tabbedPane = new JTabbedPane( );
 		tabbedPane.setUI( new JhromeTabbedPaneUI( ) );
 		tabbedPane.setBorder( new EmptyBorder( 3 , 3 , 3 , 3 ) );
-		tabbedPane.putClientProperty( "closeButtonVisible" , true );
+		tabbedPane.putClientProperty( "tabCloseButtonsVisible" , true );
 		tabbedPane.putClientProperty( "newTabButtonVisible" , true );
 		getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
 	}
