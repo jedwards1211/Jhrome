@@ -32,6 +32,7 @@ import java.awt.geom.Path2D;
 
 import javax.swing.border.Border;
 
+
 public class JhromeContentPanelBorder implements Border
 {
 	int		roundness		= 5;

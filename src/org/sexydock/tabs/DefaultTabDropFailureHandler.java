@@ -42,7 +42,7 @@ public class DefaultTabDropFailureHandler implements ITabDropFailureHandler
 	final ITabbedPaneWindowFactory	windowFactory;
 	
 	@Override
-	public void onDropFailure( DragSourceDropEvent dsde , ITab draggedTab , Dimension dragSourceWindowSize )
+	public void onDropFailure( DragSourceDropEvent dsde , Tab draggedTab , Dimension dragSourceWindowSize )
 	{
 		ITabbedPaneWindow newJhromeWindow = windowFactory.createWindow( );
 		Window newWindow = newJhromeWindow.getWindow( );

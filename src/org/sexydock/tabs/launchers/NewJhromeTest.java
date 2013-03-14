@@ -23,6 +23,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
@@ -48,9 +50,8 @@ public class NewJhromeTest
 				
 				for( int i = 0 ; i < 1 ; i++ )
 				{
-					Tab defaultTab = new Tab( "Tab " + i );
-					tabbedPaneUI.addTab( i , defaultTab );
-					tabbedPaneUI.setSelectedTab( defaultTab );
+					Tab tab = tabbedPaneUI.getTabFactory( ).createTab( "Tab " + i );
+					tabbedPane.addTab( tab.getTitle( ) , tab.getContent( ) );
 				}
 				
 				window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
