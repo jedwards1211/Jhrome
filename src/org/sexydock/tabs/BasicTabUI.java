@@ -61,7 +61,7 @@ public class BasicTabUI extends TabUI
 	Tab						tab;
 	
 	JLabel					label;
-	Component				overrideTitle;
+	Component				displayedTabComponent;
 	JButton					closeButton;
 	
 	Color					selectedLabelColor		= Color.BLACK;
@@ -95,21 +95,6 @@ public class BasicTabUI extends TabUI
 	protected Tab getTab( )
 	{
 		return tab;
-	}
-	
-	protected TabbedPane getTabbedPane( )
-	{
-		Container parent = tab.getParent( );
-		while( parent != null )
-		{
-			if( parent instanceof TabbedPane )
-			{
-				return ( TabbedPane ) parent;
-			}
-			parent = parent.getParent( );
-		}
-		
-		return null;
 	}
 	
 	protected void onHighlightTimerEvent( ActionEvent e )
@@ -185,20 +170,21 @@ public class BasicTabUI extends TabUI
 	protected void update( )
 	{
 		label.setText( tab.getTitle( ) );
+		label.setIcon( tab.getIcon( ) );
 		
-		if( tab.getOverrideTitle( ) != overrideTitle )
+		if( tab.getTabComponent( ) != displayedTabComponent )
 		{
-			if( overrideTitle != null )
+			if( displayedTabComponent != null )
 			{
-				tab.remove( overrideTitle );
+				tab.remove( displayedTabComponent );
 			}
 			
-			overrideTitle = tab.getOverrideTitle( );
+			displayedTabComponent = tab.getTabComponent( );
 			
-			if( overrideTitle != null )
+			if( displayedTabComponent != null )
 			{
 				tab.remove( label );
-				tab.add( overrideTitle , BorderLayout.CENTER );
+				tab.add( displayedTabComponent , BorderLayout.CENTER );
 			}
 			else
 			{

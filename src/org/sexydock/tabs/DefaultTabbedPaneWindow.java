@@ -25,6 +25,7 @@ import java.awt.HeadlessException;
 import java.awt.Window;
 
 import javax.swing.JFrame;
+import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 
 /**
@@ -63,15 +64,16 @@ public class DefaultTabbedPaneWindow extends JFrame implements ITabbedPaneWindow
 	@Override
 	public void dispose( )
 	{
-		tabbedPane.dispose( );
+		// tabbedPane.dispose( );
 		super.dispose( );
 	}
 	
-	TabbedPane	tabbedPane;
+	JTabbedPane	tabbedPane;
 	
 	private void init( )
 	{
-		tabbedPane = new TabbedPane( );
+		tabbedPane = new JTabbedPane( );
+		tabbedPane.setUI( new JhromeTabbedPaneUI( ) );
 		tabbedPane.setBorder( new EmptyBorder( 3 , 3 , 3 , 3 ) );
 		getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
 	}
@@ -82,7 +84,7 @@ public class DefaultTabbedPaneWindow extends JFrame implements ITabbedPaneWindow
 	 * @see org.jhrome.IJhromeWindow#getTabbedPane()
 	 */
 	@Override
-	public TabbedPane getTabbedPane( )
+	public JTabbedPane getTabbedPane( )
 	{
 		return tabbedPane;
 	}

@@ -22,10 +22,11 @@ package org.sexydock.tabs.demos;
 import java.awt.Color;
 import java.awt.Window;
 
-import org.sexydock.tabs.DefaultTab;
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneWindow;
 import org.sexydock.tabs.ITabbedPaneWindowFactory;
+import org.sexydock.tabs.JhromeTabbedPaneUI;
+import org.sexydock.tabs.Tab;
 import org.sexydock.tabs.jhrome.JhromeTabUI;
 
 public class ColoredTabDemo implements ISexyTabsDemo
@@ -37,13 +38,14 @@ public class ColoredTabDemo implements ISexyTabsDemo
 		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
 		final Window window = tabbedPaneWindow.getWindow( );
 		
-		DefaultTab tab1 = new DefaultTab( "Tab 1" );
+		Tab tab1 = new Tab( "Tab 1" );
 		JhromeTabUI ui = new JhromeTabUI( );
 		ui.getSelectedAttributes( ).topColor = Color.RED;
 		ui.getRolloverAttributes( ).topColor = Color.BLUE;
 		tab1.setUI( ui );
-		tabbedPaneWindow.getTabbedPane( ).addTab( tab1 );
-		tabbedPaneWindow.getTabbedPane( ).setSelectedTab( tab1 );
+		JhromeTabbedPaneUI tabbedPaneUI = ( JhromeTabbedPaneUI ) tabbedPaneWindow.getTabbedPane( ).getUI( );
+		tabbedPaneUI.addTab( 0 , tab1 , false );
+		tabbedPaneWindow.getTabbedPane( ).setSelectedIndex( 0 );
 		
 		window.setSize( 800 , 600 );
 		window.setLocationRelativeTo( null );

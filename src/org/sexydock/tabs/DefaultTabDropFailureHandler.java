@@ -25,6 +25,7 @@ import java.awt.Point;
 import java.awt.Window;
 import java.awt.dnd.DragSourceDropEvent;
 
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 public class DefaultTabDropFailureHandler implements ITabDropFailureHandler
@@ -46,11 +47,20 @@ public class DefaultTabDropFailureHandler implements ITabDropFailureHandler
 	{
 		ITabbedPaneWindow newJhromeWindow = windowFactory.createWindow( );
 		Window newWindow = newJhromeWindow.getWindow( );
-		TabbedPane tabbedPane = newJhromeWindow.getTabbedPane( );
+		JTabbedPane tabbedPane = newJhromeWindow.getTabbedPane( );
 		
-		tabbedPane.addTab( tabbedPane.getTabCount( ) , draggedTab , false );
-		tabbedPane.setSelectedTab( draggedTab );
-		tabbedPane.finishAnimation( );
+		if( tabbedPane.getUI( ) instanceof JhromeTabbedPaneUI )
+		{
+			JhromeTabbedPaneUI ui = ( JhromeTabbedPaneUI ) tabbedPane.getUI( );
+			ui.addTab( tabbedPane.getTabCount( ) , draggedTab , false );
+			ui.finishAnimation( );
+		}
+		else
+		{
+			tabbedPane.addTab( draggedTab.getTitle( ) , draggedTab.getIcon( ) , draggedTab.getContent( ) , draggedTab.getToolTipText( ) );
+			tabbedPane.setTabComponentAt( tabbedPane.getTabCount( ) - 1 , draggedTab.getTabComponent( ) );
+		}
+		tabbedPane.setSelectedIndex( tabbedPane.getTabCount( ) - 1 );
 		
 		if( dragSourceWindowSize != null )
 		{

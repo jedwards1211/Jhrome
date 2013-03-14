@@ -21,7 +21,6 @@ package org.sexydock.tabs.event;
 
 import javax.swing.JTabbedPane;
 
-import org.sexydock.tabs.ITab;
 import org.sexydock.tabs.Tab;
 
 public class TabAddedEvent extends TabbedPaneEvent

@@ -39,8 +39,12 @@ public class DefaultTabbedPaneWindowFactory implements ITabbedPaneWindowFactory
 	public ITabbedPaneWindow createWindow( )
 	{
 		DefaultTabbedPaneWindow frame = new DefaultTabbedPaneWindow( "Jhrome! " + ( windowCounter++ ) );
-		frame.getTabbedPane( ).setWindowFactory( this );
-		frame.getTabbedPane( ).getNewTabButton( ).setVisible( showNewTabButton );
+		if( frame.getTabbedPane( ).getUI( ) instanceof JhromeTabbedPaneUI )
+		{
+			JhromeTabbedPaneUI ui = ( JhromeTabbedPaneUI ) frame.getTabbedPane( ).getUI( );
+			ui.setWindowFactory( this );
+			ui.getNewTabButton( ).setVisible( showNewTabButton );
+		}
 		frame.setDefaultCloseOperation( DefaultTabbedPaneWindow.DISPOSE_ON_CLOSE );
 		return frame;
 	}

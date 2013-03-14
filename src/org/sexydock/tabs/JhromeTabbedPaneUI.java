@@ -71,6 +71,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
@@ -127,11 +128,11 @@ import org.sexydock.tabs.jhrome.JhromeNewTabButtonUI;
  * Also, {@code TabbedPane} allows you to get its new tab button and content pane so that you can modify them arbitrarily.<br />
  * <br />
  * 
- * Since the layout is animated, when you remove a tab from {@code TabbedPane} (using {@link #removeTab(Tab)}), it makes it start contracting and doesn't
- * actually remove the tab renderer component until it is done contracting. However, all public methods that involve the tab list behave as if tabs are removed
- * immediately. For example, if you remove a tab, it will no longer show up in {@link #getTabs()}, even while the tab renderer component is still a child of
- * this {@code TabbedPane} and contracting. If you add the tab back before it is done contracting, it will jump to the new position and expand back to full
- * size.
+ * Since the layout is animated, when you remove a tab from {@code TabbedPane} (using {@link #removeTabInternal(Tab)}), it makes it start contracting and
+ * doesn't actually remove the tab renderer component until it is done contracting. However, all public methods that involve the tab list behave as if tabs are
+ * removed immediately. For example, if you remove a tab, it will no longer show up in {@link #getTabs()}, even while the tab renderer component is still a
+ * child of this {@code TabbedPane} and contracting. If you add the tab back before it is done contracting, it will jump to the new position and expand back to
+ * full size.
  * 
  * @author andy.edwards
  */
@@ -677,6 +678,11 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		return count;
 	}
 	
+	public Tab getTabAt( int vIndex )
+	{
+		return tabs.get( actualizeIndex( vIndex ) ).tab;
+	}
+	
 	/**
 	 * @return a newly-constructed {@link List} of the tabs in this tabbed pane.
 	 */
@@ -696,20 +702,6 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	}
 	
 	/**
-	 * Adds a tab to this tabbed pane at the next index (tab count). The new tab will not be selected.
-	 * 
-	 * @param tab
-	 *            the tab to add.
-	 * 
-	 * @throws IllegalArgumentException
-	 *             if {@code tab} is already a member of this tabbed pane.
-	 */
-	private void addTab( final Tab tab )
-	{
-		addTab( getTabCount( ) , tab );
-	}
-	
-	/**
 	 * Inserts a tab at a specific index in the tabbed pane. The new tab will not be selected.
 	 * 
 	 * @param vIndex
@@ -720,9 +712,9 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	 * @throws IllegalArgumentException
 	 *             if {@code index} is less than 0 or greater than the tab count, or {@code tab} is already a member of this tabbed pane.
 	 */
-	private void addTab( int vIndex , final Tab tab )
+	private void addTabInternal( int vIndex , final Tab tab )
 	{
-		addTab( vIndex , tab , true );
+		addTabInternal( vIndex , tab , true );
 	}
 	
 	/**
@@ -738,7 +730,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	 * @throws IllegalArgumentException
 	 *             if {@code index} is less than 0 or greater than the tab count, or {@code tab} is already a member of this tabbed pane.
 	 */
-	private void addTab( int vIndex , final Tab tab , boolean expand )
+	private void addTabInternal( int vIndex , final Tab tab , boolean expand )
 	{
 		checkEDT( );
 		
@@ -787,6 +779,22 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		notifyTabbedPaneListeners( event );
 	}
 	
+	public void addTab( int vIndex , Tab tab , boolean expand )
+	{
+		addTabInternal( vIndex , tab , expand );
+		handler.disable = true;
+		try
+		{
+			tabbedPane.insertTab( tab.getTitle( ) , tab.getIcon( ) , tab.getContent( ) , tab.getToolTipText( ) , vIndex );
+			tabbedPane.setTabComponentAt( vIndex , tab.getTabComponent( ) );
+		}
+		finally
+		{
+			handler.disable = false;
+		}
+		setSelectedIndexInternal( tabbedPane.getSelectedIndex( ) );
+	}
+	
 	/**
 	 * Moves a tab from its current index to a new index.
 	 * 
@@ -798,7 +806,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	 * @throws IllegalArgumentException
 	 *             if {@code newIndex} is less than 0, greater than the tab count, or {@code tab} is not a member of this tabbed pane.
 	 */
-	private void moveTab( Tab tab , int vNewIndex )
+	private void moveTabInternal( Tab tab , int vNewIndex )
 	{
 		int tabCount = getTabCount( );
 		if( vNewIndex < 0 || vNewIndex > tabCount )
@@ -839,6 +847,15 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		
 	}
 	
+	/**
+	 * Moves the given tab with animation (if enabled). Attempting to do this by removing / adding back the tab in the {@link JTabbedPane} won't produce the
+	 * same effect.
+	 * 
+	 * @param vCurrentIndex
+	 *            the current index of the tab to move.
+	 * @param vNewIndex
+	 *            the index to move the tab to.
+	 */
 	public void moveTab( int vCurrentIndex , int vNewIndex )
 	{
 		TabInfo info = tabs.get( actualizeIndex( vCurrentIndex ) );
@@ -850,33 +867,33 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			if( index >= 0 )
 			{
 				tabbedPane.removeTabAt( index );
-				tabbedPane.insertTab( info.tab.getTitle( ) , null , info.tab.getContent( ) , info.tab.getToolTipText( ) , actualizeIndex( vNewIndex ) );
+				tabbedPane.insertTab( info.tab.getTitle( ) , info.tab.getIcon( ) , info.tab.getContent( ) , info.tab.getToolTipText( ) , actualizeIndex( vNewIndex ) );
 			}
 		}
 		finally
 		{
 			handler.disable = false;
 		}
-		moveTab( info.tab , vNewIndex );
+		moveTabInternal( info.tab , vNewIndex );
 	}
 	
 	/**
 	 * Removes a tab from this tabbed pane with animation. The layout will animate the tab renderer shrinking before it is actually removed from the component
-	 * hierarchy. However, the tab will be immediately removed from the list of tabs in this tabbed pane, so {@link #getTabs()}, {@link #addTab(Tab)},
-	 * {@link #moveTab(Tab, int)}, etc. will all behave as if it is no longer a member of this tabbed pane. If you want to remove the tab and its renderer
-	 * component immediately, use {@link #removeTabImmediately(Tab)}.
+	 * hierarchy. However, the tab will be immediately removed from the list of tabs in this tabbed pane, so {@link #getTabs()}, {@link #addTabInternal(Tab)},
+	 * {@link #moveTabInternal(Tab, int)}, etc. will all behave as if it is no longer a member of this tabbed pane. If you want to remove the tab and its
+	 * renderer component immediately, use {@link #removeTabImmediatelyInternal(Tab)}.
 	 * 
 	 * If the selected tab is removed, one of the adjacent tabs will be selected before it is removed. If it is the only tab, the selection will be cleared
 	 * before it is removed.
 	 * 
 	 * {@code tab} the tab to remove. If {@code tab} is not a member of this tabbed pane, this method has no effect.
 	 */
-	private void removeTab( Tab tab )
+	private void removeTabInternal( Tab tab )
 	{
-		removeTab( tab , true );
+		removeTabInternal( tab , true );
 	}
 	
-	private void removeTab( Tab tab , boolean startTimer )
+	private void removeTabInternal( Tab tab , boolean startTimer )
 	{
 		checkEDT( );
 		
@@ -896,7 +913,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			{
 				if( tabs.size( ) == 1 )
 				{
-					setSelectedTab( ( TabInfo ) null );
+					setSelectedTabInternal( ( TabInfo ) null );
 				}
 				else
 				{
@@ -927,7 +944,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 						}
 					}
 					
-					setSelectedTab( newSelectedTab );
+					setSelectedTabInternal( newSelectedTab );
 				}
 			}
 			info.isBeingDragged = false;
@@ -941,7 +958,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	/**
 	 * Removes a tab from this tabbed pane without animation. This means the tab renderer will be removed from the component hierarchy immediately, unlike
-	 * {@link #removeTab(Tab)}.
+	 * {@link #removeTabInternal(Tab)}.
 	 * 
 	 * If the selected tab is removed, one of the adjacent tabs will be selected before it is removed. If it is the only tab, the selection will be cleared
 	 * before it is removed.
@@ -949,9 +966,9 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	 * @param tab
 	 *            the tab to remove. If {@code tab} is not a member of this tabbed pane, this method has no effect.
 	 */
-	private void removeTabImmediately( Tab tab )
+	private void removeTabImmediatelyInternal( Tab tab )
 	{
-		removeTab( tab , false );
+		removeTabInternal( tab , false );
 		actuallyRemoveTab( tab );
 	}
 	
@@ -976,13 +993,13 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	 * Removes all tabs from this tabbed pane without animation. This method is equivalent to setting the selected tab to {@code null} and then removing all
 	 * tabs one by one.
 	 */
-	private void removeAllTabs( )
+	private void removeAllTabsInternal( )
 	{
 		checkEDT( );
 		
 		long time = System.currentTimeMillis( );
 		
-		setSelectedTab( ( TabInfo ) null );
+		setSelectedTabInternal( ( TabInfo ) null );
 		
 		List<Tab> removedTabs = new ArrayList<Tab>( );
 		
@@ -990,7 +1007,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		{
 			TabInfo info = tabs.get( 0 );
 			removedTabs.add( info.tab );
-			removeTabImmediately( info.tab );
+			removeTabImmediatelyInternal( info.tab );
 		}
 		
 		TabsClearedEvent event = new TabsClearedEvent( tabbedPane , time , Collections.unmodifiableList( removedTabs ) );
@@ -1006,35 +1023,29 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		return selectedTab != null ? selectedTab.tab : null;
 	}
 	
-	/**
-	 * Sets the selected tab. The selected tab is not affected by other methods unless otherwise specified.
-	 * 
-	 * @param tab
-	 *            the new selected tab. If {@code null} is given, the selection will be cleared.
-	 * 
-	 * @throws IllegalArgumentException
-	 *             if {@code tab} is non-{@code null} but not a member of this tabbed pane.
-	 */
-	private void setSelectedTab( Tab tab )
+	public void setSelectedTab( Tab tab )
 	{
-		checkEDT( );
-		
-		if( tab == null )
+		int index = getInfoIndex( tab );
+		if( index >= 0 )
 		{
-			setSelectedTab( ( TabInfo ) null );
+			index = virtualizeIndex( index );
+		}
+		setSelectedIndexInternal( index );
+	}
+	
+	private void setSelectedIndexInternal( int vIndex )
+	{
+		if( vIndex < 0 )
+		{
+			setSelectedTabInternal( ( TabInfo ) null );
 		}
 		else
 		{
-			TabInfo info = getInfo( tab );
-			if( info == null || info.isBeingRemoved )
-			{
-				throw new IllegalArgumentException( "tab must be a child of this " + getClass( ).getName( ) );
-			}
-			setSelectedTab( info );
+			setSelectedTabInternal( tabs.get( actualizeIndex( vIndex ) ) );
 		}
 	}
 	
-	private void setSelectedTab( TabInfo info )
+	private void setSelectedTabInternal( TabInfo info )
 	{
 		checkEDT( );
 		
@@ -1058,11 +1069,11 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			if( selectedTab != null )
 			{
 				selectedTab.tab.setSelected( true );
-				setContent( selectedTab.tab.getContent( ) );
+				setContentInternal( selectedTab.tab.getContent( ) );
 			}
 			else
 			{
-				setContent( null );
+				setContentInternal( null );
 			}
 			
 			tabbedPane.invalidate( );
@@ -1072,7 +1083,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		}
 	}
 	
-	private void setContent( Component newContent )
+	private void setContentInternal( Component newContent )
 	{
 		checkEDT( );
 		
@@ -1102,7 +1113,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		TabInfo info = getInfo( tab );
 		if( info == selectedTab )
 		{
-			setContent( tab.getContent( ) );
+			setContentInternal( tab.getContent( ) );
 		}
 	}
 	
@@ -1171,7 +1182,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	{
 		checkEDT( );
 		
-		removeAllTabs( );
+		removeAllTabsInternal( );
 		animTimer.stop( );
 		mouseOverManager.uninstall( tabbedPane );
 		dragHandler.dispose( );
@@ -1752,9 +1763,15 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	{
 		JhromeTabbedPaneUI draggedParent = getTabbedPaneAncestorUI( draggedTab );
 		draggedParent.setDragState( null , 0 , 0 );
-		draggedParent.removeTabImmediately( draggedTab );
+		Component draggedTabComponent = draggedTab.getTabComponent( );
+		draggedParent.removeTabImmediatelyInternal( draggedTab );
 		int tabIndex = draggedParent.tabbedPane.indexOfComponent( draggedTab.getContent( ) );
+		if( tabIndex < 0 )
+		{
+			return;
+		}
 		draggedParent.tabbedPane.removeTabAt( tabIndex );
+		draggedTab.setTabComponent( draggedTabComponent );
 		if( draggedParent.getTabCount( ) == 0 )
 		{
 			Window window = SwingUtilities.getWindowAncestor( draggedParent.tabbedPane );
@@ -1806,10 +1823,9 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 				
 				int newIndex = tabbedPaneUI.layout.getInsertIndex( draggedTab , grabX , dragX );
 				tabbedPaneUI.addTab( newIndex , draggedTab , false );
-				tabbedPaneUI.tabbedPane.insertTab( draggedTab.getTitle( ) , null , draggedTab.getContent( ) , draggedTab.getToolTipText( ) , newIndex );
+				tabbedPaneUI.tabbedPane.setSelectedIndex( newIndex );
 				
 				tabbedPaneUI.setDragState( draggedTab , grabX , dragX );
-				tabbedPaneUI.tabbedPane.setSelectedComponent( draggedTab.getContent( ) );
 			}
 			else
 			{
@@ -1936,24 +1952,30 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		contentPanelBorder.paintBorder( c , g , contentPanelBounds.x , contentPanelBounds.y , contentPanelBounds.width , contentPanelBounds.height );
 	}
 	
+	@Override
+	public void update( Graphics g , JComponent c )
+	{
+		updateTabs( );
+		super.update( g , c );
+	}
+	
 	public int tabForCoordinate( JTabbedPane pane , int x , int y )
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		Tab tab = getHoverableTabAt( new Point( x , y ) );
+		return virtualizeIndex( getInfoIndex( tab ) );
 	}
 	
 	@Override
-	public Rectangle getTabBounds( JTabbedPane pane , int index )
+	public Rectangle getTabBounds( JTabbedPane pane , int vIndex )
 	{
-		// TODO Auto-generated method stub
-		return null;
+		TabInfo info = tabs.get( actualizeIndex( vIndex ) );
+		return info != null ? info.tab.getBounds( ) : null;
 	}
 	
 	@Override
 	public int getTabRunCount( JTabbedPane pane )
 	{
-		// TODO Auto-generated method stub
-		return 0;
+		return 1;
 	}
 	
 	private void updateTabs( )
@@ -1969,48 +1991,39 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		
 		for( Tab tab : toRemove )
 		{
-			removeTab( tab );
+			removeTabInternal( tab );
 		}
 		
 		for( int i = 0 ; i < tabbedPane.getTabCount( ) ; i++ )
 		{
-			Component content = tabbedPane.getComponentAt( i );
-			Component tabComponent = tabbedPane.getTabComponentAt( i );
-			String title = tabbedPane.getTitleAt( i );
-			
-			// TODO: handle tab components and title changes
-			
-			TabInfo info = contentMap.get( content );
-			if( info == null )
-			{
-				Tab tab = tabFactory.createTab( title );
-				tab.setContent( content );
-				addTab( i , tab );
-			}
-			else
-			{
-				info.tab.setTitle( title );
-				info.tab.setOverrideTitle( tabComponent );
-				if( tabs.indexOf( info ) != i )
-				{
-					moveTab( info.tab , i );
-				}
-			}
+			updateTab( i , true );
 		}
 	}
 	
-	private void updateTab( int vIndex )
+	private void updateTab( int vIndex , boolean createIfNecessary )
 	{
+		String title = tabbedPane.getTitleAt( vIndex );
+		Icon icon = tabbedPane.getIconAt( vIndex );
 		Component content = tabbedPane.getComponentAt( vIndex );
 		Component tabComponent = tabbedPane.getTabComponentAt( vIndex );
-		String title = tabbedPane.getTitleAt( vIndex );
 		
 		TabInfo info = contentMap.get( content );
-		
 		if( info != null )
 		{
 			info.tab.setTitle( title );
-			info.tab.setOverrideTitle( tabComponent );
+			info.tab.setIcon( icon );
+			info.tab.setTabComponent( tabComponent );
+			if( tabs.indexOf( info ) != vIndex )
+			{
+				moveTabInternal( info.tab , vIndex );
+			}
+		}
+		else if( createIfNecessary )
+		{
+			Tab tab = tabFactory.createTab( title );
+			tab.setIcon( icon );
+			tab.setContent( content );
+			addTabInternal( vIndex , tab );
 		}
 	}
 	
@@ -2031,7 +2044,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			}
 			else if( "indexForTitle".equals( evt.getPropertyName( ) ) )
 			{
-				updateTab( ( Integer ) evt.getNewValue( ) );
+				updateTab( ( Integer ) evt.getNewValue( ) , false );
 			}
 		}
 		
@@ -2042,7 +2055,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			{
 				return;
 			}
-			setSelectedTab( contentMap.get( tabbedPane.getSelectedComponent( ) ) );
+			setSelectedTabInternal( contentMap.get( tabbedPane.getSelectedComponent( ) ) );
 		}
 		
 		@Override
@@ -2065,5 +2078,10 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			updateTabs( );
 		}
 		
+	}
+	
+	public void addTab( Tab tab )
+	{
+		addTab( getTabCount( ) , tab , true );
 	}
 }

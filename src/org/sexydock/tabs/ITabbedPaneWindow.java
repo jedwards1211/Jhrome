@@ -21,6 +21,8 @@ package org.sexydock.tabs;
 
 import java.awt.Window;
 
+import javax.swing.JTabbedPane;
+
 /**
  * The interface for a window containing a {@link TabbedPane}. {@code JhromeTabbedPane} uses this interface to move a jhromeTab that has been torn away into a
  * new window. This allows you to control the layout and attributes of the window besides its tabbed pane.
@@ -34,7 +36,7 @@ public interface ITabbedPaneWindow
 	/**
 	 * @return the {@code JhromeTabbedPane} in the window.
 	 */
-	TabbedPane getTabbedPane( );
+	JTabbedPane getTabbedPane( );
 	
 	/**
 	 * @return the {@code Window} containing the tabbed pane.

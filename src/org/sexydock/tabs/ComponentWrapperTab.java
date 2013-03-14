@@ -29,10 +29,11 @@ import javax.swing.JButton;
  * 
  * @author andy.edwards
  */
-public class ComponentWrapperTab implements ITab
+public class ComponentWrapperTab extends Tab
 {
 	public ComponentWrapperTab( Component renderer , Component content )
 	{
+		super( "" );
 		this.renderer = renderer;
 		this.content = content;
 	}
@@ -59,12 +60,6 @@ public class ComponentWrapperTab implements ITab
 	public void setContent( Component content )
 	{
 		this.content = content;
-	}
-	
-	@Override
-	public JButton getCloseButton( )
-	{
-		return null;
 	}
 	
 	@Override

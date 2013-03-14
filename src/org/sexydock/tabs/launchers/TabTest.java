@@ -26,7 +26,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JFrame;
 
-import org.sexydock.tabs.DefaultTab;
+import org.sexydock.tabs.Tab;
 
 public class TabTest
 {
@@ -36,7 +36,7 @@ public class TabTest
 		Container content = frame.getContentPane( );
 		content.setLayout( new GridLayout( 1 , 1 , 5 , 5 ) );
 		
-		final DefaultTab defaultTab = new DefaultTab( "Default Tab" );
+		final Tab defaultTab = new Tab( "Default Tab" );
 		content.add( defaultTab );
 		
 		MouseAdapter adapter = new MouseAdapter( )

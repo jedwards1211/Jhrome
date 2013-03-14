@@ -3,6 +3,7 @@ package org.sexydock.tabs;
 import java.awt.Component;
 import java.awt.Point;
 
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.UIManager;
 
@@ -15,7 +16,8 @@ public class Tab extends JComponent
 	private static final long	serialVersionUID	= 5209596149902613716L;
 	
 	private String				title;
-	private Component			overrideTitle;
+	private Icon				icon;
+	private Component			tabComponent;
 	private boolean				rollover;
 	private boolean				selected;
 	
@@ -84,18 +86,33 @@ public class Tab extends JComponent
 		}
 	}
 	
-	public Component getOverrideTitle( )
+	public Component getTabComponent( )
 	{
-		return overrideTitle;
+		return tabComponent;
 	}
 	
-	public void setOverrideTitle( Component overrideTitle )
+	public void setTabComponent( Component overrideTitle )
 	{
-		if( this.overrideTitle != overrideTitle )
+		if( this.tabComponent != overrideTitle )
 		{
-			Component oldValue = this.overrideTitle;
-			this.overrideTitle = overrideTitle;
+			Component oldValue = this.tabComponent;
+			this.tabComponent = overrideTitle;
 			firePropertyChange( "overrideTitle" , oldValue , overrideTitle );
+		}
+	}
+	
+	public Icon getIcon( )
+	{
+		return icon;
+	}
+	
+	public void setIcon( Icon icon )
+	{
+		if( this.icon != icon )
+		{
+			Icon oldValue = this.icon;
+			this.icon = icon;
+			firePropertyChange( "icon" , oldValue , icon );
 		}
 	}
 	

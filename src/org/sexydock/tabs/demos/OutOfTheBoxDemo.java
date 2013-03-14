@@ -22,8 +22,9 @@ package org.sexydock.tabs.demos;
 import java.awt.Window;
 
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
-import org.sexydock.tabs.ITab;
 import org.sexydock.tabs.ITabbedPaneWindow;
+import org.sexydock.tabs.JhromeTabbedPaneUI;
+import org.sexydock.tabs.Tab;
 
 public class OutOfTheBoxDemo implements ISexyTabsDemo
 {
@@ -34,9 +35,10 @@ public class OutOfTheBoxDemo implements ISexyTabsDemo
 		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
 		Window window = tabbedPaneWindow.getWindow( );
 		
-		ITab tab1 = tabbedPaneWindow.getTabbedPane( ).getTabFactory( ).createTab( "Tab 1" );
-		tabbedPaneWindow.getTabbedPane( ).addTab( tab1 );
-		tabbedPaneWindow.getTabbedPane( ).setSelectedTab( tab1 );
+		JhromeTabbedPaneUI ui = (JhromeTabbedPaneUI) tabbedPaneWindow.getTabbedPane( ).getUI( );
+		Tab tab1 = ui.getTabFactory( ).createTab( "Tab 1" );
+		ui.addTab( tab1 );
+		ui.setSelectedTab( tab1 );
 		
 		window.setSize( 800 , 600 );
 		window.setLocationRelativeTo( null );
