@@ -28,6 +28,8 @@ import java.awt.dnd.DragSourceDropEvent;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
+
 public class DefaultTabDropFailureHandler implements ITabDropFailureHandler
 {
 	public DefaultTabDropFailureHandler( )

@@ -25,9 +25,9 @@ import java.awt.Window;
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneWindow;
 import org.sexydock.tabs.ITabbedPaneWindowFactory;
-import org.sexydock.tabs.JhromeTabbedPaneUI;
 import org.sexydock.tabs.Tab;
 import org.sexydock.tabs.jhrome.JhromeTabUI;
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class ColoredTabDemo implements ISexyTabsDemo
 {

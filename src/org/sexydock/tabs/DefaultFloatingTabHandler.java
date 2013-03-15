@@ -26,6 +26,8 @@ import java.awt.Point;
 import java.awt.Window;
 import java.awt.dnd.DragSourceDragEvent;
 
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
+
 import com.sun.awt.AWTUtilities;
 
 public class DefaultFloatingTabHandler implements IFloatingTabHandler

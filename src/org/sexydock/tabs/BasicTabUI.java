@@ -40,6 +40,8 @@ import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
+
 /**
  * The UI for a {@link Tab}.
  * 
@@ -167,6 +169,7 @@ public class BasicTabUI extends TabUI
 	{
 		label.setText( tab.getTitle( ) );
 		label.setIcon( tab.getIcon( ) );
+		label.setDisplayedMnemonic( tab.getMnemonic( ) );
 		
 		updateCloseButtonVisible( );
 		

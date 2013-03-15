@@ -19,6 +19,8 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
 package org.sexydock.tabs;
 
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
+
 /**
  * The default implementation of {@link ITabbedPaneWindowFactory}.
  * 

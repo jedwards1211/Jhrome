@@ -17,7 +17,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.sexydock.tabs;
+package org.sexydock.tabs.jhrome;
 
 import java.awt.AlphaComposite;
 import java.awt.Component;
@@ -67,26 +67,44 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.Action;
+import javax.swing.ActionMap;
 import javax.swing.Icon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.Border;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.plaf.ButtonUI;
+import javax.swing.plaf.ComponentInputMapUIResource;
 import javax.swing.plaf.TabbedPaneUI;
 import javax.swing.plaf.UIResource;
 
 import org.omg.CORBA.BooleanHolder;
+import org.sexydock.tabs.DefaultFloatingTabHandler;
+import org.sexydock.tabs.DefaultTabDropFailureHandler;
+import org.sexydock.tabs.DefaultTabFactory;
+import org.sexydock.tabs.IFloatingTabHandler;
+import org.sexydock.tabs.ITabDropFailureHandler;
+import org.sexydock.tabs.ITabFactory;
+import org.sexydock.tabs.ITabbedPaneDnDPolicy;
+import org.sexydock.tabs.ITabbedPaneWindowFactory;
+import org.sexydock.tabs.RecursiveListener;
+import org.sexydock.tabs.Tab;
+import org.sexydock.tabs.Utils;
 import org.sexydock.tabs.event.ITabbedPaneListener;
 import org.sexydock.tabs.event.TabAddedEvent;
 import org.sexydock.tabs.event.TabMovedEvent;
@@ -94,8 +112,9 @@ import org.sexydock.tabs.event.TabRemovedEvent;
 import org.sexydock.tabs.event.TabSelectedEvent;
 import org.sexydock.tabs.event.TabbedPaneEvent;
 import org.sexydock.tabs.event.TabsClearedEvent;
-import org.sexydock.tabs.jhrome.JhromeContentPanelBorder;
-import org.sexydock.tabs.jhrome.JhromeNewTabButtonUI;
+
+import sun.swing.DefaultLookup;
+import sun.swing.UIAction;
 
 /**
  * {@link JhromeTabbedPaneUI} is a Google Chrome-like tabbed pane, providing animated tab layout, drag and drop capabilities, and a new tab button. All Google
@@ -153,53 +172,53 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	private static class TabInfo
 	{
-		Tab				tab;
-		Dimension		prefSize;
+		Tab			tab;
+		Dimension	prefSize;
 		
 		/**
 		 * Whether the tab is being removed (contracting until its width reaches zero, when it will be completely removed)
 		 */
-		boolean			isBeingRemoved;
+		boolean		isBeingRemoved;
 		
 		/**
 		 * The tab's target x position in virtual coordinate space. It will be scaled down to produce the actual target x position.
 		 */
-		int				vTargetX;
+		int			vTargetX;
 		/**
 		 * The tab's target width in virtual coordinate space. This does not include the overlap area -- it is the distance to the virtual target x position of
 		 * the next tab. To get the actual target width, this value will be scaled down and the overlap amount will be added.
 		 */
-		int				vTargetWidth;
+		int			vTargetWidth;
 		
 		/**
 		 * The tab's target bounds in actual coordinate space. Not valid for tabs that are being removed.
 		 */
-		Rectangle		targetBounds	= new Rectangle( );
+		Rectangle	targetBounds	= new Rectangle( );
 		
 		/**
 		 * The tab's current x position in virtual coordinate space. It will be scaled down to produce the actual current x position.
 		 */
-		int				vCurrentX;
+		int			vCurrentX;
 		/**
 		 * The tab's current width in virtual coordinate space. This does not include the overlap area -- it is the distance to the virtual current x position
 		 * of the next tab. To get the actual current width, this value will be scaled down and the overlap amount will be added.
 		 */
-		int				vCurrentWidth;
+		int			vCurrentWidth;
 		
 		/**
 		 * Whether the tab is being dragged.
 		 */
-		boolean			isBeingDragged;
+		boolean		isBeingDragged;
 		
 		/**
 		 * The x position of the dragging mouse cursor in actual coordinate space.
 		 */
-		int				dragX;
+		int			dragX;
 		/**
 		 * The relative x position at which the tab was grabbed, as a proportion of its width (0.0 = left side, 0.5 = middle, 1.0 = right side). This way if the
 		 * tab width changes while it's being dragged, the layout manager can still give it a reasonable position relative to the mouse cursor.
 		 */
-		double			grabX;
+		double		grabX;
 	}
 	
 	private int							overlap						= 13;
@@ -417,6 +436,8 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		tabbedPane.addContainerListener( handler );
 		tabbedPane.getModel( ).addChangeListener( handler );
 		tabbedPane.addPropertyChangeListener( handler );
+		
+		installKeyboardActions( );
 	}
 	
 	private void updateNewTabButtonVisible( )
@@ -1239,6 +1260,8 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		checkEDT( );
 		
 		animTimer.stop( );
+		
+		uninstallKeyboardActions( );
 		
 		tabbedPane.remove( tabLayeredPane );
 		mouseOverManager.uninstall( tabbedPane );
@@ -2083,6 +2106,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		Icon icon = tabbedPane.getIconAt( vIndex );
 		Component content = tabbedPane.getComponentAt( vIndex );
 		Component tabComponent = tabbedPane.getTabComponentAt( vIndex );
+		int mnemonic = tabbedPane.getMnemonicAt( vIndex );
 		
 		TabInfo info = contentMap.get( content );
 		if( info != null )
@@ -2090,6 +2114,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			info.tab.setTitle( title );
 			info.tab.setIcon( icon );
 			info.tab.setTabComponent( tabComponent );
+			info.tab.setMnemonic( mnemonic );
 			if( tabs.indexOf( info ) != vIndex )
 			{
 				moveTabInternal( info.tab , vIndex );
@@ -2099,6 +2124,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		{
 			Tab tab = tabFactory.createTab( title );
 			tab.setIcon( icon );
+			tab.setMnemonic( mnemonic );
 			tab.setContent( content );
 			addTabInternal( vIndex , tab );
 		}
@@ -2118,6 +2144,11 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			if( "indexForTabComponent".equals( evt.getPropertyName( ) ) )
 			{
 				updateTabs( );
+			}
+			else if( "mnemonicAt".equals( evt.getPropertyName( ) ) )
+			{
+				updateTabs( );
+				updateMnemonics( );
 			}
 			else if( "indexForTitle".equals( evt.getPropertyName( ) ) )
 			{
@@ -2177,5 +2208,250 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	public void addTab( Tab tab )
 	{
 		addTab( getTabCount( ) , tab , true );
+	}
+	
+	private Hashtable<Integer, Integer>	mnemonicToIndexMap;
+	
+	/**
+	 * InputMap used for mnemonics. Only non-null if the JTabbedPane has mnemonics associated with it. Lazily created in initMnemonics.
+	 */
+	private InputMap					mnemonicInputMap;
+	
+	protected void installKeyboardActions( )
+	{
+		InputMap km = getInputMap( JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT );
+		
+		SwingUtilities.replaceUIInputMap( tabbedPane , JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT , km );
+		km = getInputMap( JComponent.WHEN_FOCUSED );
+		SwingUtilities.replaceUIInputMap( tabbedPane , JComponent.WHEN_FOCUSED , km );
+		SwingUtilities.replaceUIActionMap( tabbedPane , loadActionMap( ) );
+		updateMnemonics( );
+	}
+	
+	InputMap getInputMap( int condition )
+	{
+		if( condition == JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT )
+		{
+			return ( InputMap ) DefaultLookup.get( tabbedPane , this , "TabbedPane.ancestorInputMap" );
+		}
+		else if( condition == JComponent.WHEN_FOCUSED )
+		{
+			return ( InputMap ) DefaultLookup.get( tabbedPane , this , "TabbedPane.focusInputMap" );
+		}
+		return null;
+	}
+	
+	protected void uninstallKeyboardActions( )
+	{
+		SwingUtilities.replaceUIActionMap( tabbedPane , null );
+		SwingUtilities.replaceUIInputMap( tabbedPane , JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT , null );
+		SwingUtilities.replaceUIInputMap( tabbedPane , JComponent.WHEN_FOCUSED , null );
+		SwingUtilities.replaceUIInputMap( tabbedPane , JComponent.WHEN_IN_FOCUSED_WINDOW , null );
+		mnemonicToIndexMap = null;
+		mnemonicInputMap = null;
+	}
+	
+	/**
+	 * Reloads the mnemonics. This should be invoked when a memonic changes, when the title of a mnemonic changes, or when tabs are added/removed.
+	 */
+	private void updateMnemonics( )
+	{
+		resetMnemonics( );
+		for( int counter = tabbedPane.getTabCount( ) - 1 ; counter >= 0 ; counter-- )
+		{
+			int mnemonic = tabbedPane.getMnemonicAt( counter );
+			
+			if( mnemonic > 0 )
+			{
+				addMnemonic( counter , mnemonic );
+			}
+		}
+	}
+	
+	/**
+	 * Resets the mnemonics bindings to an empty state.
+	 */
+	private void resetMnemonics( )
+	{
+		if( mnemonicToIndexMap != null )
+		{
+			mnemonicToIndexMap.clear( );
+			mnemonicInputMap.clear( );
+		}
+	}
+	
+	/**
+	 * Adds the specified mnemonic at the specified index.
+	 */
+	private void addMnemonic( int index , int mnemonic )
+	{
+		if( mnemonicToIndexMap == null )
+		{
+			initMnemonics( );
+		}
+		mnemonicInputMap.put( KeyStroke.getKeyStroke( mnemonic , ActionEvent.ALT_MASK ) , "setSelectedIndex" );
+		mnemonicToIndexMap.put( Integer.valueOf( mnemonic ) , Integer.valueOf( index ) );
+	}
+	
+	/**
+	 * Installs the state needed for mnemonics.
+	 */
+	private void initMnemonics( )
+	{
+		mnemonicToIndexMap = new Hashtable<Integer, Integer>( );
+		mnemonicInputMap = new ComponentInputMapUIResource( tabbedPane );
+		mnemonicInputMap.setParent( SwingUtilities.getUIInputMap( tabbedPane , JComponent.WHEN_IN_FOCUSED_WINDOW ) );
+		SwingUtilities.replaceUIInputMap( tabbedPane , JComponent.WHEN_IN_FOCUSED_WINDOW , mnemonicInputMap );
+	}
+	
+	ActionMap loadActionMap( )
+	{
+		ActionMap map = new ActionMap( );
+		put( map , new Actions( Actions.NEXT ) );
+		put( map , new Actions( Actions.PREVIOUS ) );
+		put( map , new Actions( Actions.RIGHT ) );
+		put( map , new Actions( Actions.LEFT ) );
+		put( map , new Actions( Actions.UP ) );
+		put( map , new Actions( Actions.DOWN ) );
+		put( map , new Actions( Actions.PAGE_UP ) );
+		put( map , new Actions( Actions.PAGE_DOWN ) );
+		put( map , new Actions( Actions.REQUEST_FOCUS ) );
+		put( map , new Actions( Actions.REQUEST_FOCUS_FOR_VISIBLE ) );
+		put( map , new Actions( Actions.SET_SELECTED ) );
+		put( map , new Actions( Actions.SELECT_FOCUSED ) );
+		put( map , new Actions( Actions.SCROLL_FORWARD ) );
+		put( map , new Actions( Actions.SCROLL_BACKWARD ) );
+		return map;
+	}
+	
+	private static void put( ActionMap map , Action action )
+	{
+		map.put( action.getValue( Action.NAME ) , action );
+	}
+	
+	private class Actions extends UIAction
+	{
+		final static String	NEXT						= "navigateNext";
+		final static String	PREVIOUS					= "navigatePrevious";
+		final static String	RIGHT						= "navigateRight";
+		final static String	LEFT						= "navigateLeft";
+		final static String	UP							= "navigateUp";
+		final static String	DOWN						= "navigateDown";
+		final static String	PAGE_UP						= "navigatePageUp";
+		final static String	PAGE_DOWN					= "navigatePageDown";
+		final static String	REQUEST_FOCUS				= "requestFocus";
+		final static String	REQUEST_FOCUS_FOR_VISIBLE	= "requestFocusForVisibleComponent";
+		final static String	SET_SELECTED				= "setSelectedIndex";
+		final static String	SELECT_FOCUSED				= "selectTabWithFocus";
+		final static String	SCROLL_FORWARD				= "scrollTabsForwardAction";
+		final static String	SCROLL_BACKWARD				= "scrollTabsBackwardAction";
+		
+		Actions( String key )
+		{
+			super( key );
+		}
+		
+		public void actionPerformed( ActionEvent e )
+		{
+			String key = getName( );
+			JTabbedPane pane = ( JTabbedPane ) e.getSource( );
+			
+			if( key == NEXT )
+			{
+//				navigateSelectedTab( SwingConstants.NEXT );
+			}
+			else if( key == PREVIOUS )
+			{
+//				navigateSelectedTab( SwingConstants.PREVIOUS );
+			}
+			else if( key == RIGHT )
+			{
+//				navigateSelectedTab( SwingConstants.EAST );
+			}
+			else if( key == LEFT )
+			{
+//				navigateSelectedTab( SwingConstants.WEST );
+			}
+			else if( key == UP )
+			{
+//				navigateSelectedTab( SwingConstants.NORTH );
+			}
+			else if( key == DOWN )
+			{
+//				navigateSelectedTab( SwingConstants.SOUTH );
+			}
+			else if( key == PAGE_UP )
+			{
+//				int tabPlacement = pane.getTabPlacement( );
+//				if( tabPlacement == TOP || tabPlacement == BOTTOM )
+//				{
+//					navigateSelectedTab( SwingConstants.WEST );
+//				}
+//				else
+//				{
+//					navigateSelectedTab( SwingConstants.NORTH );
+//				}
+			}
+			else if( key == PAGE_DOWN )
+			{
+//				int tabPlacement = pane.getTabPlacement( );
+//				if( tabPlacement == TOP || tabPlacement == BOTTOM )
+//				{
+//					navigateSelectedTab( SwingConstants.EAST );
+//				}
+//				else
+//				{
+//					navigateSelectedTab( SwingConstants.SOUTH );
+//				}
+			}
+			else if( key == REQUEST_FOCUS )
+			{
+				pane.requestFocus( );
+			}
+			else if( key == REQUEST_FOCUS_FOR_VISIBLE )
+			{
+//				requestFocusForVisibleComponent( );
+			}
+			else if( key == SET_SELECTED )
+			{
+				String command = e.getActionCommand( );
+				
+				if( command != null && command.length( ) > 0 )
+				{
+					int mnemonic = ( int ) e.getActionCommand( ).charAt( 0 );
+					if( mnemonic >= 'a' && mnemonic <= 'z' )
+					{
+						mnemonic -= ( 'a' - 'A' );
+					}
+					Integer index = mnemonicToIndexMap.get( Integer.valueOf( mnemonic ) );
+					if( index != null && pane.isEnabledAt( index.intValue( ) ) )
+					{
+						pane.setSelectedIndex( index.intValue( ) );
+					}
+				}
+			}
+			else if( key == SELECT_FOCUSED )
+			{
+//				int focusIndex = getFocusIndex( );
+//				if( focusIndex != -1 )
+//				{
+//					pane.setSelectedIndex( focusIndex );
+//				}
+			}
+			else if( key == SCROLL_FORWARD )
+			{
+				// if( scrollableTabLayoutEnabled( ) )
+				// {
+				// tabScroller.scrollForward( pane.getTabPlacement( ) );
+				// }
+			}
+			else if( key == SCROLL_BACKWARD )
+			{
+				// if( scrollableTabLayoutEnabled( ) )
+				// {
+				// tabScroller.scrollBackward( pane.getTabPlacement( ) );
+				// }
+			}
+		}
 	}
 }

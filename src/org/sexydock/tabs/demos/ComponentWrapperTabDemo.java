@@ -36,7 +36,7 @@ import javax.swing.border.LineBorder;
 import org.sexydock.tabs.ComponentWrapperTab;
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneWindow;
-import org.sexydock.tabs.JhromeTabbedPaneUI;
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class ComponentWrapperTabDemo implements ISexyTabsDemo
 {

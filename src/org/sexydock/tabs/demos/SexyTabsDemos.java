@@ -23,6 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,13 +41,14 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneDnDPolicy;
 import org.sexydock.tabs.ITabbedPaneWindow;
-import org.sexydock.tabs.JhromeTabbedPaneUI;
 import org.sexydock.tabs.Tab;
 import org.sexydock.tabs.jhrome.JhromeTabUI;
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class SexyTabsDemos implements ISexyTabsDemo
 {
@@ -121,6 +123,8 @@ public class SexyTabsDemos implements ISexyTabsDemo
 				JhromeTabbedPaneUI tabbedPaneUI = ( JhromeTabbedPaneUI ) window.getTabbedPane( ).getUI( );
 				tabbedPaneUI.addTab( demoSelectorTab );
 				tabbedPaneUI.setSelectedTab( demoSelectorTab );
+				
+				window.getTabbedPane( ).setMnemonicAt( 0 , KeyEvent.VK_S );
 				tabbedPaneUI.setDnDPolicy( new ITabbedPaneDnDPolicy( )
 				{
 					@Override

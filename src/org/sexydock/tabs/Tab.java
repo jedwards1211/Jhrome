@@ -18,6 +18,7 @@ public class Tab extends JComponent
 	private String				title;
 	private Icon				icon;
 	private Component			tabComponent;
+	private int					mnemonic;
 	private boolean				rollover;
 	private boolean				selected;
 	
@@ -121,6 +122,21 @@ public class Tab extends JComponent
 			Icon oldValue = this.icon;
 			this.icon = icon;
 			firePropertyChange( "icon" , oldValue , icon );
+		}
+	}
+	
+	public int getMnemonic( )
+	{
+		return mnemonic;
+	}
+	
+	public void setMnemonic( int mnemonic )
+	{
+		if( this.mnemonic != mnemonic )
+		{
+			int oldValue = this.mnemonic;
+			this.mnemonic = mnemonic;
+			firePropertyChange( "mnemonic" , oldValue , mnemonic );
 		}
 	}
 	

@@ -28,6 +28,8 @@ import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
+
 /**
  * The default implementation of {@link ITabbedPaneWindow}.
  * 

@@ -31,8 +31,8 @@ import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import org.sexydock.tabs.BasicTabUI;
-import org.sexydock.tabs.JhromeTabbedPaneUI;
 import org.sexydock.tabs.Tab;
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class JhromeTest
 {
