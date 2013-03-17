@@ -1,5 +1,6 @@
 Things necessary for first release:
 -check what other core functionality needs to be supported; mnemonics, keyboard navigation, etc.
+-add support for tab enablings and global enabling
 -Add getters/setters for some more properties in JhromeTabbedPane
 -add installDefaults() to JhromeTabbedPaneUI, BasicTabUI, JhromeTabUI
 	-animation

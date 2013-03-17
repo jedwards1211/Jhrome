@@ -1,0 +1,9 @@
+<project name="SexyDock" default="copy-examples" basedir="..">
+	<target name="copy-examples">
+		<copy todir="bin">
+			<fileset dir="src/main/java">
+				<include name="org/sexydock/tabs/demos/*.java" />
+			</fileset>
+		</copy>
+	</target>
+</project>
