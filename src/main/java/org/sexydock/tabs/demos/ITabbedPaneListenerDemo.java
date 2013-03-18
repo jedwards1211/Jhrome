@@ -63,7 +63,7 @@ public class ITabbedPaneListenerDemo implements ISexyTabsDemo
 		};
 		tabbedPaneWindow.getTabbedPane( ).addTabbedPaneListener( listener );
 		final DefaultTab listenerTab = new DefaultTab( "Listener" , messageScroller );
-		listenerTab.getCloseButton( ).setVisible( false );
+		listenerTab.getNewTabButton( ).setVisible( false );
 		tabbedPaneWindow.getTabbedPane( ).addTab( listenerTab );
 		tabbedPaneWindow.getTabbedPane( ).setSelectedTab( listenerTab );
 		tabbedPaneWindow.getTabbedPane( ).setDnDPolicy( new ITabbedPaneDnDPolicy( )

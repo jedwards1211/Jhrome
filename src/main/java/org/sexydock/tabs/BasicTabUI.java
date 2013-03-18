@@ -206,7 +206,8 @@ public class BasicTabUI extends TabUI
 			}
 			
 		}
-		if( tab.isSelected( ) && JhromeTabbedPaneUI.getJTabbedPaneAncestor( tab ).hasFocus( ) )
+		JTabbedPane tabbedPane = JhromeTabbedPaneUI.getJTabbedPaneAncestor( tab );
+		if( tab.isSelected( ) && tabbedPane != null && tabbedPane.hasFocus( ) )
 		{
 			label.setBorder( new LineBorder( label.getForeground( ) ) );
 		}

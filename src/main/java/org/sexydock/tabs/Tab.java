@@ -11,7 +11,7 @@ import org.sexydock.tabs.jhrome.JhromeTabUI;
 
 public class Tab extends JComponent
 {
-	private static final String	uiClassId			= TabUI.class.getName( );
+	private static final String	uiClassId			= "TabUI";
 	
 	private static final long	serialVersionUID	= 5209596149902613716L;
 	

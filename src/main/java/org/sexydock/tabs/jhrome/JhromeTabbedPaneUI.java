@@ -359,6 +359,11 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		}
 	}
 	
+	public static JhromeTabbedPaneUI createUI( JComponent c )
+	{
+		return new JhromeTabbedPaneUI( );
+	}
+	
 	@Override
 	public void installUI( JComponent c )
 	{
@@ -400,6 +405,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		layout = new TabLayoutManager( );
 		tabbedPane.setLayout( layout );
 		tabLayeredPane = new TabLayeredPane( );
+		tabLayeredPane.setName( "Tab Layered Pane" );
 		tabLayeredPane.setLayout( null );
 		tabbedPane.add( tabLayeredPane );
 		
@@ -1490,6 +1496,8 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 					targetTabHeight = Math.max( targetTabHeight , info.prefSize.height );
 				}
 				vCurrentTabZoneWidth += info.vCurrentWidth;
+				
+				info.tab.getContent( ).setVisible( tabbedPane.getSelectedIndex( ) == virtualizeIndex( i ) );
 			}
 			
 			TabInfo lastInfo = tabs.isEmpty( ) ? null : tabs.get( tabs.size( ) - 1 );
@@ -2132,6 +2140,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		Component content = tabbedPane.getComponentAt( vIndex );
 		Component tabComponent = tabbedPane.getTabComponentAt( vIndex );
 		int mnemonic = tabbedPane.getMnemonicAt( vIndex );
+		boolean selected = tabbedPane.getSelectedIndex( ) == vIndex;
 		
 		TabInfo info = contentMap.get( content );
 		if( info != null )
@@ -2140,6 +2149,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			info.tab.setIcon( icon );
 			info.tab.setTabComponent( tabComponent );
 			info.tab.setMnemonic( mnemonic );
+			info.tab.setSelected( selected );
 			if( tabs.indexOf( info ) != vIndex )
 			{
 				moveTabInternal( info.tab , vIndex );
@@ -2151,6 +2161,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			tab.setIcon( icon );
 			tab.setMnemonic( mnemonic );
 			tab.setContent( content );
+			tab.setSelected( selected );
 			addTabInternal( vIndex , tab );
 		}
 	}
