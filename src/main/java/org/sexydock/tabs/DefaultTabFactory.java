@@ -34,16 +34,19 @@ public class DefaultTabFactory implements ITabFactory
 {
 	private static int	tabCounter	= 1;
 	
-	@Override
 	public Tab createTab( )
 	{
-		return createTab( "Tab " + ( tabCounter++ ) );
+		return new Tab( );
 	}
 	
 	@Override
-	public Tab createTab( String title )
+	public Tab createTabWithContent( )
 	{
-		return new Tab( title , createTabContent( title ) );
+		Tab tab = new Tab( );
+		String title = "Tab " + ( tabCounter++ );
+		tab.setTitle( title );
+		tab.setContent( createTabContent( title ) );
+		return tab;
 	}
 	
 	private static Component createTabContent( String title )

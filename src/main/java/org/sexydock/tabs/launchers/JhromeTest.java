@@ -52,7 +52,7 @@ public class JhromeTest
 				
 				for( int i = 0 ; i < 2 ; i++ )
 				{
-					Tab tab = tabbedPaneUI.getTabFactory( ).createTab( "Tab " + i );
+					Tab tab = tabbedPaneUI.getTabFactory( ).createTabWithContent( );
 					tabbedPane.addTab( tab.getTitle( ) , tab.getContent( ) );
 				}
 				

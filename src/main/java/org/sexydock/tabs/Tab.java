@@ -31,6 +31,11 @@ public class Tab extends JComponent
 		UIManager.getDefaults( ).put( uiClassId , JhromeTabUI.class.getName( ) );
 	}
 	
+	public Tab( )
+	{
+		this( null , null );
+	}
+	
 	public Tab( String title )
 	{
 		this( title , null );

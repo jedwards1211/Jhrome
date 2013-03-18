@@ -42,9 +42,4 @@ public interface ITabbedPaneWindow
 	 * @return the {@code Window} containing the tabbed pane.
 	 */
 	Window getWindow( );
-	
-	/**
-	 * Disposes the window, tabbed pane, and any other associated resources.
-	 */
-	void disposeWindow( );
 }

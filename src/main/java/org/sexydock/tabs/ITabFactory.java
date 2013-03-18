@@ -32,8 +32,5 @@ public interface ITabFactory
 	 */
 	Tab createTab( );
 	
-	/**
-	 * @return a new {IJhromeTab} with the given title.
-	 */
-	Tab createTab( String title );
+	Tab createTabWithContent( );
 }

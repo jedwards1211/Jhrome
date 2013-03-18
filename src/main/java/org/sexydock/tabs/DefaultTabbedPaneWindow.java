@@ -98,10 +98,4 @@ public class DefaultTabbedPaneWindow extends JFrame implements ITabbedPaneWindow
 	{
 		return this;
 	}
-	
-	@Override
-	public void disposeWindow( )
-	{
-		dispose( );
-	}
 }

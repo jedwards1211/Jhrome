@@ -1,7 +1,9 @@
 Things necessary for first release:
--check what other core functionality needs to be supported; mnemonics, keyboard navigation, etc.
--add support for tab enablings and global enabling
+-add feature to disable DnD image
+-check what other core functionality needs to be supported; tab enablings, mnemonics, keyboard navigation, etc.
+-Rename client properties to have "jhrome." prefix
 -Add getters/setters for some more properties in JhromeTabbedPane
+	-add client properties for these
 -add installDefaults() to JhromeTabbedPaneUI, BasicTabUI, JhromeTabUI
 	-animation
 	-overlaps
@@ -10,16 +12,16 @@ Things necessary for first release:
 	-strokes
 	-etc
 -create examples of default workflow to set up UI defaults to use Jhrome
--create a look and feel that doesn't look like Chrome
 -investigate JhromeTabbedPaneUI extensibility
 -Remove auto window & tab numbers from factories; allow those to be pre-set
 -ensure there will be no backward-compatibility problems in the future
 -Javadoc!
+-investigate DnD image issues on other versions of Java/other systems
 
 Things that would be nice:
 -add support for more tab row positions
 -Create less coupled DnD system
--Make build.xml & JAR
+-Add JAR tasks to build.xml
 -Make animation customizable
--Add skins?
+-create a look and feel that doesn't look like Chrome
 -Make it possible to customize drag image

@@ -116,7 +116,6 @@ import org.sexydock.tabs.event.TabSelectedEvent;
 import org.sexydock.tabs.event.TabbedPaneEvent;
 import org.sexydock.tabs.event.TabsClearedEvent;
 
-import sun.awt.RepaintArea;
 import sun.swing.DefaultLookup;
 import sun.swing.SwingUtilities2;
 import sun.swing.UIAction;
@@ -427,7 +426,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 				{
 					return;
 				}
-				Tab newTab = tabFactory.createTab( );
+				Tab newTab = tabFactory.createTabWithContent( );
 				tabbedPane.addTab( newTab.getTitle( ) , newTab.getContent( ) );
 				tabbedPane.setSelectedComponent( newTab.getContent( ) );
 			}
@@ -1351,6 +1350,10 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		return newValue;
 	}
 	
+	private static final int	MINIMUM		= 0;
+	private static final int	PREFERRED	= 1;
+	private static final int	MAXIMUM		= 2;
+	
 	private class TabLayoutManager implements LayoutManager
 	{
 		/**
@@ -1412,13 +1415,61 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		@Override
 		public Dimension preferredLayoutSize( Container parent )
 		{
-			return null;
+			return layoutSize(parent, PREFERRED);
 		}
 		
 		@Override
 		public Dimension minimumLayoutSize( Container parent )
 		{
-			return null;
+			return layoutSize(parent, MINIMUM);
+		}
+		
+		private Dimension layoutSize( Container parent , int sizeType )
+		{
+			int contentWidth = 0;
+			int contentHeight = 0;
+			for( int i = 0 ; i < tabbedPane.getTabCount( ) ; i++ )
+			{
+				Component content = tabbedPane.getComponentAt( i );
+				Dimension size = getSize( content , sizeType );
+				contentWidth = Math.max( contentWidth , size.width );
+				contentHeight = Math.max( contentHeight , size.height );
+			}
+			
+			int tabsHeight = 0;
+			
+			for( TabInfo info : tabs )
+			{
+				info.prefSize = info.tab.getPreferredSize( );
+				tabsHeight = Math.max( tabsHeight , info.prefSize.height );
+			}
+			
+			Insets insets = tabbedPane.getInsets( );
+			int width = insets.left + insets.right + contentWidth;
+			int height = insets.top + insets.bottom + tabsHeight + contentHeight;
+			if( contentPanelBorder != null )
+			{
+				Insets contentInsets = contentPanelBorder.getBorderInsets( tabbedPane );
+				width += contentInsets.left + contentInsets.right;
+				height += contentInsets.top + contentInsets.bottom;
+			}
+			
+			return new Dimension( width , height );
+		}
+		
+		private Dimension getSize( Component comp , int sizeType )
+		{
+			switch( sizeType )
+			{
+				case MINIMUM:
+					return comp.getMinimumSize( );
+				case PREFERRED:
+					return comp.getPreferredSize( );
+				case MAXIMUM:
+					return comp.getMaximumSize( );
+				default:
+					return null;
+			}
 		}
 		
 		@Override
@@ -2157,7 +2208,8 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		}
 		else if( createIfNecessary )
 		{
-			Tab tab = tabFactory.createTab( title );
+			Tab tab = tabFactory.createTab( );
+			tab.setTitle( title );
 			tab.setIcon( icon );
 			tab.setMnemonic( mnemonic );
 			tab.setContent( content );
