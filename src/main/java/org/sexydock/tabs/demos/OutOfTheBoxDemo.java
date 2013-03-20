@@ -36,7 +36,7 @@ public class OutOfTheBoxDemo implements ISexyTabsDemo
 		Window window = tabbedPaneWindow.getWindow( );
 		
 		JhromeTabbedPaneUI ui = ( JhromeTabbedPaneUI ) tabbedPaneWindow.getTabbedPane( ).getUI( );
-		Tab tab1 = ui.getTabFactory( ).createTab( "Tab 1" );
+		Tab tab1 = ui.getTabFactory( ).createTabWithContent( );
 		ui.addTab( tab1 );
 		ui.setSelectedTab( tab1 );
 		

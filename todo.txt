@@ -11,6 +11,7 @@ Things necessary for first release:
 	-sizes
 	-strokes
 	-etc
+-get rid of auto window closing when the last tab is dragged out
 -create examples of default workflow to set up UI defaults to use Jhrome
 -investigate JhromeTabbedPaneUI extensibility
 -Remove auto window & tab numbers from factories; allow those to be pre-set

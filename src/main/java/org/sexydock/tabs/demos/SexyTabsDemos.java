@@ -81,6 +81,7 @@ public class SexyTabsDemos implements ISexyTabsDemo
 				{
 					demoListModel.addElement( new DemoItem( SexyTabsDemos.this , "SexyTabsDemos (This Program)" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( SexyTabsDemos.class ) ) ) ) );
 					demoListModel.addElement( new DemoItem( new OutOfTheBoxDemo( ) , "Out of the Box Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( OutOfTheBoxDemo.class ) ) ) ) );
+					demoListModel.addElement( new DemoItem( new NotepadDemo( ) , "Notepad Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( NotepadDemo.class ) ) ) ) );
 					// demoListModel.addElement( new DemoItem( new LabelReplacementDemo( ) , "Label Replacement Demo" , read( getClass( ).getClassLoader(
 					// ).getResource( getSourcePath( LabelReplacementDemo.class ) ) ) ) );
 					demoListModel.addElement( new DemoItem( new ColoredTabDemo( ) , "Colored Tab Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( ColoredTabDemo.class ) ) ) ) );

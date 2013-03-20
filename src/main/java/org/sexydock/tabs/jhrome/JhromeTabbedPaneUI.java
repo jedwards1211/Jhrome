@@ -452,7 +452,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		
 		handler = new Handler( );
 		tabbedPane.addContainerListener( handler );
-		tabbedPane.getModel( ).addChangeListener( handler );
+		tabbedPane.addChangeListener( handler );
 		tabbedPane.addPropertyChangeListener( handler );
 		tabbedPane.addFocusListener( handler );
 		
@@ -1297,7 +1297,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		mouseOverManager.removeExcludedComponent( tabLayeredPane );
 		
 		tabbedPane.removeContainerListener( handler );
-		tabbedPane.getModel( ).removeChangeListener( handler );
+		tabbedPane.removeChangeListener( handler );
 		tabbedPane.removePropertyChangeListener( handler );
 		tabbedPane.removeFocusListener( handler );
 		
