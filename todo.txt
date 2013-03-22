@@ -1,5 +1,8 @@
 Things necessary for first release:
 -add feature to disable DnD image
+-add default tab close button handler
+-add tab move policy
+-add tab right click menus
 -check what other core functionality needs to be supported; tab enablings, mnemonics, keyboard navigation, etc.
 -Rename client properties to have "jhrome." prefix
 -Add getters/setters for some more properties in JhromeTabbedPane

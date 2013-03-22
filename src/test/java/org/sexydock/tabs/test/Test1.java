@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -27,6 +28,7 @@ public class Test1
 {
 	private JFrame				window;
 	private JTabbedPane			tabbedPane;
+	private JhromeTabbedPaneUI	tabbedPaneUI;
 	private FrameFixture		framefix;
 	private SDTabbedPaneFixture	tpfix;
 	
@@ -43,6 +45,7 @@ public class Test1
 				window = new JFrame( );
 				tabbedPane = new JTabbedPane( );
 				tabbedPane.setBorder( new EmptyBorder( 5 , 5 , 5 , 5 ) );
+				tabbedPaneUI = ( JhromeTabbedPaneUI ) tabbedPane.getUI( );
 				System.out.println( UIManager.getUI( tabbedPane ) );
 				window.getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
 				
@@ -109,13 +112,13 @@ public class Test1
 		tpfix.sanityCheck( );
 		tpfix.requireTabCount( 2 );
 		tpfix.finishAnimation( );
-		tpfix.tab( 0 ).closeButton( ).click( );
+		tpfix.tabAt( 0 ).closeButton( ).click( );
 		tpfix.requireTabCount( 1 );
 		tpfix.sanityCheck( );
 	}
 	
 	@Test
-	public void testChangeTabAttributesInCode( )
+	public void testChangeTabAttributesInCode( ) throws TimeoutException, InterruptedException
 	{
 		DoSwing.doSwing( new Runnable( )
 		{
@@ -133,6 +136,7 @@ public class Test1
 				tabbedPane.setIconAt( 0 , icon );
 			}
 		} );
+		tabbedPaneUI.waitForUpdate( 100 );
 		DoSwing.doSwing( new Runnable( )
 		{
 			@Override
@@ -148,6 +152,14 @@ public class Test1
 				tpfix.sanityCheck( );
 				
 				tabbedPane.setEnabledAt( 0 , false );
+			}
+		} );
+		tabbedPaneUI.waitForUpdate( 100 );
+		DoSwing.doSwing( new Runnable( )
+		{
+			@Override
+			public void run( )
+			{
 				tpfix.sanityCheck( );
 			}
 		} );

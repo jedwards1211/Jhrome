@@ -19,7 +19,7 @@ public class SDTabbedPaneFixture extends JTabbedPaneFixture
 		super( robot , target );
 	}
 	
-	public TabFixture tab( final int index )
+	public TabFixture tabAt( final int index )
 	{
 		class R implements Runnable
 		{
@@ -40,7 +40,7 @@ public class SDTabbedPaneFixture extends JTabbedPaneFixture
 		return r.result;
 	}
 	
-	public TabFixture tab( final String title )
+	public TabFixture tabTitled( final String title )
 	{
 		class R implements Runnable
 		{
@@ -58,6 +58,34 @@ public class SDTabbedPaneFixture extends JTabbedPaneFixture
 					}
 				}
 				throw new ComponentLookupException( "Couldn't find a tab titled '" + title + "'" );
+			}
+		}
+		;
+		
+		R r = new R( );
+		DoSwing.doSwing( r );
+		
+		return r.result;
+	}
+	
+	public TabFixture tabNamed( final String name )
+	{
+		class R implements Runnable
+		{
+			TabFixture	result	= null;
+			
+			@Override
+			public void run( )
+			{
+				JhromeTabbedPaneUI ui = ( JhromeTabbedPaneUI ) target.getUI( );
+				for( Tab tab : ui.getTabs( ) )
+				{
+					if( name.equals( tab.getName( ) ) )
+					{
+						result = new TabFixture( robot , tab );
+					}
+				}
+				throw new ComponentLookupException( "Couldn't find a tab titled '" + name + "'" );
 			}
 		}
 		;
@@ -129,6 +157,12 @@ public class SDTabbedPaneFixture extends JTabbedPaneFixture
 		DoSwing.doSwing( r );
 		
 		return r.result;
+	}
+	
+	public void waitForAnimationToFinish( ) throws InterruptedException
+	{
+		JhromeTabbedPaneUI ui = ( JhromeTabbedPaneUI ) target.getUI( );
+		ui.waitForAnimationToFinish( );
 	}
 	
 	public void finishAnimation( )

@@ -73,6 +73,7 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -230,6 +231,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	private double						animFactor					= 0.7;
 	
 	private javax.swing.Timer			animTimer;
+	private final Object				animLock					= new Object( );
 	
 	private TabLayoutManager			layout;
 	
@@ -280,6 +282,8 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	private List<ITabbedPaneListener>	tabListeners				= new ArrayList<ITabbedPaneListener>( );
 	
 	private Handler						handler						= new Handler( );
+	
+	private final Object				updateLock					= new Object( );
 	
 	private class MouseManager extends RecursiveListener
 	{
@@ -389,18 +393,21 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	private void init( )
 	{
-		animTimer = new Timer( 15 , new ActionListener( )
+		synchronized( animLock )
 		{
-			@Override
-			public void actionPerformed( ActionEvent e )
+			animTimer = new Timer( 15 , new ActionListener( )
 			{
-				if( tabbedPane != null )
+				@Override
+				public void actionPerformed( ActionEvent e )
 				{
-					tabbedPane.invalidate( );
-					tabbedPane.validate( );
+					if( tabbedPane != null )
+					{
+						tabbedPane.invalidate( );
+						tabbedPane.validate( );
+					}
 				}
-			}
-		} );
+			} );
+		}
 		layout = new TabLayoutManager( );
 		tabbedPane.setLayout( layout );
 		tabLayeredPane = new TabLayeredPane( );
@@ -1235,6 +1242,19 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		tabbedPane.validate( );
 	}
 	
+	public void waitForAnimationToFinish( ) throws InterruptedException
+	{
+		checkNotEDT( );
+		
+		synchronized( animLock )
+		{
+			while( animTimer != null && animTimer.isRunning( ) )
+			{
+				animLock.wait( );
+			}
+		}
+	}
+	
 	private void setDragState( Tab draggedTab , double grabX , int dragX )
 	{
 		checkEDT( );
@@ -1288,7 +1308,11 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	{
 		checkEDT( );
 		
-		animTimer.stop( );
+		synchronized( animLock )
+		{
+			animTimer.stop( );
+			animLock.notifyAll( );
+		}
 		
 		uninstallKeyboardActions( );
 		
@@ -1318,7 +1342,10 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		handler = null;
 		mouseOverManager = null;
 		layout = null;
-		animTimer = null;
+		synchronized( animLock )
+		{
+			animTimer = null;
+		}
 		tabLayeredPane = null;
 		tabbedPane = null;
 	}
@@ -1415,13 +1442,13 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		@Override
 		public Dimension preferredLayoutSize( Container parent )
 		{
-			return layoutSize(parent, PREFERRED);
+			return layoutSize( parent , PREFERRED );
 		}
 		
 		@Override
 		public Dimension minimumLayoutSize( Container parent )
 		{
-			return layoutSize(parent, MINIMUM);
+			return layoutSize( parent , MINIMUM );
 		}
 		
 		private Dimension layoutSize( Container parent , int sizeType )
@@ -1692,13 +1719,20 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			
 			tabLayeredPane.repaint( );
 			
-			if( animNeeded.value )
+			synchronized( animLock )
 			{
-				animTimer.start( );
-			}
-			else
-			{
-				animTimer.stop( );
+				if( animTimer != null )
+				{
+					if( animNeeded.value )
+					{
+						animTimer.start( );
+					}
+					else
+					{
+						animTimer.stop( );
+					}
+					animLock.notifyAll( );
+				}
 			}
 		}
 	}
@@ -2081,6 +2115,14 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		}
 	}
 	
+	private static void checkNotEDT( )
+	{
+		if( SwingUtilities.isEventDispatchThread( ) )
+		{
+			throw new IllegalArgumentException( "Must not be called on the AWT Event Dispatch Thread!" );
+		}
+	}
+	
 	public static JhromeTabbedPaneUI getTabbedPaneAncestorUI( Component c )
 	{
 		while( c != null )
@@ -2141,6 +2183,21 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	{
 		updateTabs( );
 		super.update( g , c );
+		
+		synchronized( updateLock )
+		{
+			updateLock.notifyAll( );
+		}
+	}
+	
+	public void waitForUpdate( long timeout ) throws TimeoutException , InterruptedException
+	{
+		checkNotEDT( );
+		
+		synchronized( updateLock )
+		{
+			updateLock.wait( timeout );
+		}
 	}
 	
 	public int tabForCoordinate( JTabbedPane pane , int x , int y )
@@ -2192,29 +2249,40 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		Component tabComponent = tabbedPane.getTabComponentAt( vIndex );
 		int mnemonic = tabbedPane.getMnemonicAt( vIndex );
 		boolean selected = tabbedPane.getSelectedIndex( ) == vIndex;
+		boolean enabled = tabbedPane.isEnabledAt( vIndex );
 		
+		Tab tab = null;
 		TabInfo info = contentMap.get( content );
 		if( info != null )
 		{
-			info.tab.setTitle( title );
-			info.tab.setIcon( icon );
-			info.tab.setTabComponent( tabComponent );
-			info.tab.setMnemonic( mnemonic );
-			info.tab.setSelected( selected );
-			if( tabs.indexOf( info ) != vIndex )
-			{
-				moveTabInternal( info.tab , vIndex );
-			}
+			tab = info.tab;
 		}
 		else if( createIfNecessary )
 		{
-			Tab tab = tabFactory.createTab( );
+			tab = tabFactory.createTab( );
+		}
+		
+		if( tab != null )
+		{
 			tab.setTitle( title );
 			tab.setIcon( icon );
 			tab.setMnemonic( mnemonic );
 			tab.setContent( content );
+			tab.setTabComponent( tabComponent );
 			tab.setSelected( selected );
-			addTabInternal( vIndex , tab );
+			tab.setEnabled( enabled );
+			
+			if( info != null )
+			{
+				if( tabs.indexOf( info ) != vIndex )
+				{
+					moveTabInternal( info.tab , vIndex );
+				}
+			}
+			else if( createIfNecessary )
+			{
+				addTabInternal( vIndex , tab );
+			}
 		}
 	}
 	
