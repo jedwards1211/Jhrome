@@ -59,10 +59,15 @@ public class DefaultTabDropFailureHandler implements ITabDropFailureHandler
 		}
 		else
 		{
-			tabbedPane.addTab( draggedTab.getTitle( ) , draggedTab.getIcon( ) , draggedTab.getContent( ) , draggedTab.getToolTipText( ) );
-			tabbedPane.setTabComponentAt( tabbedPane.getTabCount( ) - 1 , draggedTab.getTabComponent( ) );
+			JhromeTabbedPaneUI.insertTab( tabbedPane , tabbedPane.getTabCount( ) , draggedTab );
 		}
-		tabbedPane.setSelectedIndex( tabbedPane.getTabCount( ) - 1 );
+		if( draggedTab.isEnabled( ) )
+		{
+			tabbedPane.setSelectedIndex( tabbedPane.getTabCount( ) - 1 );
+		}
+		else {
+			tabbedPane.setSelectedIndex( -1 );
+		}
 		
 		if( dragSourceWindowSize != null )
 		{

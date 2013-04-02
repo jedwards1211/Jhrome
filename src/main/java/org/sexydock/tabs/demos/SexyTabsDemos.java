@@ -41,7 +41,6 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.basic.BasicTabbedPaneUI;
 
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneDnDPolicy;
@@ -114,7 +113,7 @@ public class SexyTabsDemos implements ISexyTabsDemo
 				final DefaultTabbedPaneWindowFactory windowFactory = new DefaultTabbedPaneWindowFactory( );
 				final ITabbedPaneWindow window = windowFactory.createWindow( );
 				
-				window.getTabbedPane( ).putClientProperty( "newTabButtonVisible" , null );
+				window.getTabbedPane( ).putClientProperty( "newTabButtonVisible" , true );
 				
 				final Tab demoSelectorTab = new Tab( "SexyTabs Demos" , demoListPanel );
 				JhromeTabUI demoSelectorTabUI = (JhromeTabUI) demoSelectorTab.getUI( );
@@ -124,10 +123,10 @@ public class SexyTabsDemos implements ISexyTabsDemo
 				JhromeTabbedPaneUI tabbedPaneUI = ( JhromeTabbedPaneUI ) window.getTabbedPane( ).getUI( );
 				tabbedPaneUI.addTab( demoSelectorTab );
 				tabbedPaneUI.setSelectedTab( demoSelectorTab );
-				window.getTabbedPane( ).setEnabledAt( 0 , false );
+				
+				window.getTabbedPane( ).setTabPlacement( JTabbedPane.BOTTOM );
 				
 				window.getTabbedPane( ).setMnemonicAt( 0 , KeyEvent.VK_S );
-//				window.getTabbedPane( ).setUI( new BasicTabbedPaneUI( ) );
 				tabbedPaneUI.setDnDPolicy( new ITabbedPaneDnDPolicy( )
 				{
 					@Override

@@ -33,6 +33,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 
@@ -40,6 +41,7 @@ import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JTabbedPane;
 import javax.swing.plaf.basic.BasicButtonUI;
 
 import org.sexydock.tabs.jhrome.JhromeNewTabButtonBorder.Attributes;
@@ -112,7 +114,7 @@ public class JhromeNewTabButtonUI extends BasicButtonUI
 	public void paint( Graphics g , JComponent c )
 	{
 		button = ( AbstractButton ) c;
-		updateBorder( ( AbstractButton ) c );
+		update( ( AbstractButton ) c );
 		paintFill( g , c );
 		super.paint( g , c );
 	}
@@ -135,8 +137,13 @@ public class JhromeNewTabButtonUI extends BasicButtonUI
 		return current;
 	}
 	
-	protected void updateBorder( AbstractButton button )
+	protected void update( AbstractButton button )
 	{
+		JTabbedPane tabbedPane = JhromeTabbedPaneUI.getJTabbedPaneAncestor( button );
+		if( tabbedPane != null )
+		{
+			border.flip = tabbedPane.getTabPlacement( ) == JTabbedPane.BOTTOM || tabbedPane.getTabPlacement( ) == JTabbedPane.RIGHT;
+		}
 		if( button.getModel( ).isPressed( ) )
 		{
 			border.attrs.copy( JhromeNewTabButtonBorder.PRESSED_ATTRIBUTES );

@@ -90,7 +90,7 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 		JMenuItem openItem = new JMenuItem( new OpenAction( ) );
 		JMenuItem saveItem = new JMenuItem( saveAction );
 		JMenuItem saveAsItem = new JMenuItem( new SaveAsAction( ) );
-		JMenu fileMenu = new JMenu( "File" );
+		final JMenu fileMenu = new JMenu( "File" );
 		fileMenu.add( openItem );
 		fileMenu.add( saveItem );
 		fileMenu.add( saveAsItem );
@@ -105,6 +105,8 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 			{
 				updateTitle( );
 				saveAction.update( );
+				
+				fileMenu.setEnabled( tabbedPane.getSelectedComponent( ) instanceof NotepadPane );
 			}
 		} );
 		
@@ -195,7 +197,7 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 			if( dirty != newDirty )
 			{
 				dirty = newDirty;
-				updateNotepadDemoTitle( );
+				updateTabTitle( );
 				NotepadDemo notepadDemo = getNotepadDemo( );
 				if( notepadDemo != null )
 				{
@@ -226,7 +228,7 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 				savedText = textArea.getText( );
 				this.file = file;
 				updateDirty( );
-				updateNotepadDemoTitle( );
+				updateTabTitle( );
 			}
 			finally
 			{
@@ -255,7 +257,7 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 			file = destFile;
 			savedText = textArea.getText( );
 			updateDirty( );
-			updateNotepadDemoTitle( );
+			updateTabTitle( );
 		}
 		
 		public void save( ) throws IOException
@@ -268,15 +270,15 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 			return textArea;
 		}
 		
-		private void updateNotepadDemoTitle( )
+		private void updateTabTitle( )
 		{
-			NotepadDemo notepadDemo = getNotepadDemo( );
-			if( notepadDemo != null )
+			JTabbedPane tabbedPane = getTabbedPane( );
+			if( tabbedPane != null )
 			{
-				int index = notepadDemo.tabbedPane.indexOfComponent( this );
+				int index = tabbedPane.indexOfComponent( this );
 				if( index >= 0 )
 				{
-					notepadDemo.tabbedPane.setTitleAt( index , getTitle( ) );
+					tabbedPane.setTitleAt( index , getTitle( ) );
 				}
 			}
 		}
@@ -284,6 +286,20 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 		public String getTitle( )
 		{
 			return ( isDirty( ) ? "*" : "" ) + ( file == null ? "Untitled" : file.getName( ) );
+		}
+		
+		private JTabbedPane getTabbedPane( )
+		{
+			Component c = getParent( );
+			while( c != null )
+			{
+				if( c instanceof JTabbedPane )
+				{
+					return ( JTabbedPane ) c;
+				}
+				c = c.getParent( );
+			}
+			return null;
 		}
 		
 		private NotepadDemo getNotepadDemo( )
@@ -357,8 +373,11 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 		
 		public void update( )
 		{
-			NotepadPane currentPane = ( NotepadPane ) tabbedPane.getSelectedComponent( );
-			setEnabled( currentPane != null && currentPane.getFile( ) != null && currentPane.isDirty( ) );
+			if( tabbedPane.getSelectedComponent( ) instanceof NotepadPane )
+			{
+				NotepadPane currentPane = ( NotepadPane ) tabbedPane.getSelectedComponent( );
+				setEnabled( currentPane != null && currentPane.getFile( ) != null && currentPane.isDirty( ) );
+			}
 		}
 		
 		@Override

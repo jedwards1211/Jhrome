@@ -20,6 +20,7 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 package org.sexydock.tabs.jhrome;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -860,10 +861,13 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		
 		int index = actualizeIndex( vIndex );
 		
+		boolean transpose = tabbedPane.getTabPlacement( ) == JTabbedPane.LEFT || tabbedPane.getTabPlacement( ) == JTabbedPane.RIGHT;
+		
 		TabInfo info = new TabInfo( );
 		info.tab = tab;
 		info.prefSize = tab.getPreferredSize( );
-		info.vCurrentWidth = expand ? 0 : info.prefSize.width;
+		int prefWidth = transpose ? info.prefSize.height : info.prefSize.width;
+		info.vCurrentWidth = expand ? 0 : prefWidth;
 		info.isBeingRemoved = false;
 		
 		if( index > 0 )
@@ -888,14 +892,24 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		handler.disable = true;
 		try
 		{
-			tabbedPane.insertTab( tab.getTitle( ) , tab.getIcon( ) , tab.getContent( ) , tab.getToolTipText( ) , vIndex );
-			tabbedPane.setTabComponentAt( vIndex , tab.getTabComponent( ) );
+			insertTab( tabbedPane , vIndex , tab );
 		}
 		finally
 		{
 			handler.disable = false;
 		}
 		setSelectedIndexInternal( tabbedPane.getSelectedIndex( ) );
+	}
+	
+	public static void insertTab( JTabbedPane tabbedPane , int index , Tab tab )
+	{
+		tabbedPane.insertTab( tab.getTitle( ) , tab.getIcon( ) , tab.getContent( ) , tab.getToolTipText( ) , index );
+		tabbedPane.setTabComponentAt( index , tab.getTabComponent( ) );
+		tabbedPane.setEnabledAt( index , tab.isEnabled( ) );
+		tabbedPane.setMnemonicAt( index , tab.getMnemonic( ) );
+		tabbedPane.setDisplayedMnemonicIndexAt( index , tab.getDisplayedMnemonicIndex( ) );
+		tabbedPane.setBackgroundAt( index , tab.getBackground( ) );
+		tabbedPane.setForegroundAt( index , tab.getForeground( ) );
 	}
 	
 	/**
@@ -970,7 +984,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			if( index >= 0 )
 			{
 				tabbedPane.removeTabAt( index );
-				tabbedPane.insertTab( info.tab.getTitle( ) , info.tab.getIcon( ) , info.tab.getContent( ) , info.tab.getToolTipText( ) , actualizeIndex( vNewIndex ) );
+				insertTab( tabbedPane , vNewIndex , info.tab );
 			}
 		}
 		finally
@@ -1453,6 +1467,8 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		
 		private Dimension layoutSize( Container parent , int sizeType )
 		{
+			boolean transpose = tabbedPane.getTabPlacement( ) == JTabbedPane.LEFT || tabbedPane.getTabPlacement( ) == JTabbedPane.RIGHT;
+			
 			int contentWidth = 0;
 			int contentHeight = 0;
 			for( int i = 0 ; i < tabbedPane.getTabCount( ) ; i++ )
@@ -1468,12 +1484,21 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			for( TabInfo info : tabs )
 			{
 				info.prefSize = info.tab.getPreferredSize( );
-				tabsHeight = Math.max( tabsHeight , info.prefSize.height );
+				tabsHeight = Math.max( tabsHeight , transpose ? info.prefSize.height : info.prefSize.width );
 			}
 			
 			Insets insets = tabbedPane.getInsets( );
 			int width = insets.left + insets.right + contentWidth;
-			int height = insets.top + insets.bottom + tabsHeight + contentHeight;
+			int height = insets.top + insets.bottom + contentHeight;
+			
+			if( transpose )
+			{
+				width += tabsHeight;
+			}
+			else
+			{
+				height += tabsHeight;
+			}
 			if( contentPanelBorder != null )
 			{
 				Insets contentInsets = contentPanelBorder.getBorderInsets( tabbedPane );
@@ -1509,6 +1534,8 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			
 			double animFactor = reset ? 0.0 : JhromeTabbedPaneUI.this.animFactor;
 			
+			boolean transpose = tabbedPane.getTabPlacement( ) == JTabbedPane.LEFT || tabbedPane.getTabPlacement( ) == JTabbedPane.RIGHT;
+			
 			int parentWidth = parent.getWidth( );
 			int parentHeight = parent.getHeight( );
 			
@@ -1517,9 +1544,9 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			Dimension rightButtonsPanelPrefSize = rightButtonsPanel.getPreferredSize( );
 			
 			int availWidth = parentWidth - insets.left - insets.right;
-			int availTopZoneWidth = availWidth - tabMargin * 2;
-			int availTabZoneWidth = availTopZoneWidth - rightButtonsPanelPrefSize.width;
 			int availHeight = parentHeight - insets.top - insets.bottom;
+			int availTopZoneWidth = ( transpose ? availHeight : availWidth ) - tabMargin * 2;
+			int availTabZoneWidth = availTopZoneWidth - rightButtonsPanelPrefSize.width;
 			
 			/**
 			 * Whether another animation step is needed after this one.
@@ -1613,30 +1640,75 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 				Dimension minSize = info.tab.getMinimumSize( );
 				if( minSize != null && info.vCurrentWidth >= minSize.width )
 				{
-					int targetWidth = useUniformWidth ? maxUniformWidth : info.prefSize.width;
+					int prefWidth = transpose ? info.prefSize.height : info.prefSize.width;
+					int targetWidth = useUniformWidth ? maxUniformWidth : prefWidth;
 					adjWidthScale = Math.max( adjWidthScale , minSize.width / ( double ) targetWidth );
 				}
 			}
 			widthScale = adjWidthScale;
 			
-			int currentTabHeight = targetTabHeight;
-			if( tabZone.height > 0 )
+			int currentTabHeight = transpose ? tabZone.width : tabZone.height;
+			int newTabHeight = targetTabHeight;
+			if( currentTabHeight > 0 )
 			{
-				currentTabHeight = animate( tabZone.height , targetTabHeight , animFactor , animNeeded );
+				newTabHeight = animate( currentTabHeight , targetTabHeight , animFactor , animNeeded );
 			}
-			topZone.setFrame( insets.left + tabMargin , insets.top , availTopZoneWidth , currentTabHeight );
-			tabZone.setFrame( insets.left + tabMargin , insets.top , availTabZoneWidth , topZone.height );
-			dropZone.setFrame( insets.left + tabMargin , insets.top , availTopZoneWidth , Math.min( availHeight , tabZone.height + extraDropZoneSpace ) );
+			if( transpose )
+			{
+				topZone.setFrame( insets.left , insets.top + tabMargin , newTabHeight , availTopZoneWidth );
+				tabZone.setFrame( insets.left , insets.top + tabMargin , topZone.height , availTabZoneWidth );
+				dropZone.setFrame( insets.left , insets.top + tabMargin , Math.min( availWidth , currentTabHeight + extraDropZoneSpace ) , availTopZoneWidth );
+				
+				if( tabbedPane.getTabPlacement( ) == JTabbedPane.RIGHT )
+				{
+					topZone.x = insets.left + availWidth - topZone.width - 1;
+					tabZone.x = insets.left + availWidth - tabZone.width - 1;
+					dropZone.x = insets.left + availWidth - dropZone.width - 1;
+					tabLayeredPane.setBounds( tabZone.x , 0 , tabZone.width + insets.right , tabbedPane.getHeight( ) );
+					contentPanelBounds.setBounds( insets.left , insets.top , availWidth - tabZone.width + contentPanelOverlap , availHeight );
+				}
+				else
+				{
+					tabLayeredPane.setBounds( 0 , 0 , tabZone.width + insets.left , tabbedPane.getHeight( ) );
+					contentPanelBounds.setBounds( tabZone.x + tabZone.width - contentPanelOverlap , insets.top , availWidth - tabZone.width + contentPanelOverlap , availHeight );
+				}
+			}
+			else
+			{
+				topZone.setFrame( insets.left + tabMargin , insets.top , availTopZoneWidth , newTabHeight );
+				tabZone.setFrame( insets.left + tabMargin , insets.top , availTabZoneWidth , topZone.height );
+				dropZone.setFrame( insets.left + tabMargin , insets.top , availTopZoneWidth , Math.min( availHeight , tabZone.height + extraDropZoneSpace ) );
+				
+				if( tabbedPane.getTabPlacement( ) == JTabbedPane.BOTTOM )
+				{
+					topZone.y = insets.top + availHeight - topZone.height - 1;
+					tabZone.y = insets.top + availHeight - tabZone.height - 1;
+					dropZone.y = insets.top + availHeight - dropZone.height - 1;
+					tabLayeredPane.setBounds( 0 , tabZone.y , tabbedPane.getWidth( ) , tabZone.height + insets.bottom );
+					contentPanelBounds.setBounds( insets.left , insets.top , availWidth , availHeight - tabZone.height + contentPanelOverlap );
+				}
+				else
+				{
+					tabLayeredPane.setBounds( 0 , 0 , tabbedPane.getWidth( ) , tabZone.height + insets.top );
+					contentPanelBounds.setBounds( insets.left , tabZone.y + tabZone.height - contentPanelOverlap , availWidth , availHeight - tabZone.height + contentPanelOverlap );
+				}
+			}
 			
-			tabLayeredPane.setBounds( 0 , 0 , tabbedPane.getWidth( ) , tabZone.y + tabZone.height );
+			int tabZoneX = transpose ? tabZone.y : tabZone.x;
+			int topZoneX = transpose ? topZone.y : topZone.x;
+			int topZoneY = transpose ? topZone.x : topZone.y;
+			int topZoneWidth = transpose ? topZone.height : topZone.width;
+			int topZoneHeight = transpose ? topZone.width : topZone.height;
+			int tabZoneHeight = transpose ? tabZone.width : tabZone.height;
+			int tabLayeredPaneY = transpose ? tabLayeredPane.getX( ) : tabLayeredPane.getY( );
 			
 			// now, lay out the tabs
 			for( int i = 0 ; i < tabs.size( ) ; i++ )
 			{
 				TabInfo info = tabs.get( i );
 				
-				int x = topZone.x + ( int ) ( info.vCurrentX * widthScale );
-				int targetX = topZone.x + ( int ) ( info.vTargetX * widthScale );
+				int x = topZoneX + ( int ) ( info.vCurrentX * widthScale );
+				int targetX = topZoneX + ( int ) ( info.vTargetX * widthScale );
 				int width = ( int ) ( info.vCurrentWidth * widthScale ) + overlap;
 				int targetWidth = ( int ) ( info.vTargetWidth * widthScale ) + overlap;
 				
@@ -1647,15 +1719,14 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 					// {
 					// x = x / 2 + targetX / 2;
 					// }
-					x = Math.max( topZone.x , Math.min( topZone.x + topZone.width - width , x ) );
-					info.vCurrentX = ( int ) ( ( x - topZone.x ) / widthScale );
+					x = Math.max( topZoneX , Math.min( topZoneX + topZoneWidth - width , x ) );
+					info.vCurrentX = ( int ) ( ( x - topZoneX ) / widthScale );
 				}
-				info.tab.setBounds( x , topZone.y , width , tabZone.height );
-				info.targetBounds.setFrame( targetX , topZone.y , targetWidth , tabZone.height );
+				info.tab.setBounds( x , topZoneY - tabLayeredPaneY , width , tabZoneHeight );
+				info.targetBounds.setFrame( targetX , topZoneY , targetWidth , tabZoneHeight );
 			}
 			
 			// lay out the content panel and right button panel
-			contentPanelBounds.setBounds( insets.left , tabZone.y + tabZone.height - contentPanelOverlap , availWidth , availHeight - tabZone.height + contentPanelOverlap );
 			Insets contentInsets = contentPanelBorder.getBorderInsets( tabbedPane );
 			
 			int contentX = contentPanelBounds.x + contentInsets.left;
@@ -1673,13 +1744,13 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			
 			// animate the right buttons panel x position. If it must increase to reach the target, do it immediately, without animation;
 			// If it must decrease, do it with animation.
-			int vCurrentRightButtonsPanelX = ( int ) ( ( rightButtonsPanel.getX( ) - overlap / 2 - tabZone.x ) / widthScale );
+			int vCurrentRightButtonsPanelX = ( int ) ( ( rightButtonsPanel.getX( ) - overlap / 2 - tabZoneX ) / widthScale );
 			vCurrentRightButtonsPanelX = animateShrinkingOnly( vCurrentRightButtonsPanelX , vTargetRightButtonsPanelX , animFactor , animNeeded );
-			int rightButtonsPanelX = tabZone.x + ( int ) ( vCurrentRightButtonsPanelX * widthScale ) + overlap / 2;
+			int rightButtonsPanelX = tabZoneX + ( int ) ( vCurrentRightButtonsPanelX * widthScale ) + overlap / 2;
 			
 			// keep right buttons panel from getting pushed off the edge of the tabbed pane when minimum tab width is reached
-			rightButtonsPanelX = Math.min( rightButtonsPanelX , topZone.x + topZone.width - rightButtonsPanelPrefSize.width );
-			rightButtonsPanel.setBounds( rightButtonsPanelX , topZone.y , rightButtonsPanelPrefSize.width , topZone.height );
+			rightButtonsPanelX = Math.min( rightButtonsPanelX , topZoneX + topZoneWidth - rightButtonsPanelPrefSize.width );
+			rightButtonsPanel.setBounds( rightButtonsPanelX , topZoneY - tabLayeredPaneY , rightButtonsPanelPrefSize.width , topZoneHeight );
 			
 			for( int i = tabs.size( ) - 1 ; i >= 0 ; i-- )
 			{
@@ -1942,6 +2013,8 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	private static IFloatingTabHandler	dragFloatingTabHandler	= null;
 	
+	private static Point				grabPoint				= null;
+	
 	private static double				grabX					= 0;
 	
 	private static Tab					draggedTab				= null;
@@ -2006,6 +2079,8 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			JhromeTabbedPaneUI tabbedPaneUI = getTabbedPaneAncestorUI( dtde.getDropTargetContext( ).getComponent( ) );
 			
 			Point p = dtde.getLocation( );
+			grabPoint = SwingUtilities.convertPoint( dtde.getDropTargetContext( ).getComponent( ) , p , tabbedPaneUI.tabbedPane );
+			
 			if( !Utils.contains( tabbedPaneUI.dropZone , p ) )
 			{
 				dragOut( dtde.getDropTargetContext( ).getComponent( ) );
@@ -2041,7 +2116,10 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 				
 				int newIndex = tabbedPaneUI.layout.getInsertIndex( draggedTab , grabX , dragX );
 				tabbedPaneUI.addTab( newIndex , draggedTab , false );
-				tabbedPaneUI.tabbedPane.setSelectedIndex( newIndex );
+				if( draggedTab.isEnabled( ) )
+				{
+					tabbedPaneUI.tabbedPane.setSelectedIndex( newIndex );
+				}
 				
 				tabbedPaneUI.setDragState( draggedTab , grabX , dragX );
 			}
@@ -2056,21 +2134,29 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 					int newIndex = tabbedPaneUI.layout.getInsertIndex( draggedTab , grabX , dragX );
 					int currentIndex = tabbedPaneUI.getInfoIndex( draggedTab );
 					tabbedPaneUI.moveTab( currentIndex , newIndex );
-					tabbedPaneUI.tabbedPane.setSelectedComponent( draggedTab.getContent( ) );
+					if( draggedTab.isEnabled( ) )
+					{
+						tabbedPaneUI.tabbedPane.setSelectedComponent( draggedTab.getContent( ) );
+					}
 				}
 			}
 		}
+	}
+	
+	public Point getImageGrabPoint( )
+	{
+		return grabPoint == null ? null : new Point( grabPoint.x * 3 / 4 , grabPoint.y * 3 / 4 );
 	}
 	
 	public Image createDragImage( Tab tab )
 	{
 		Component rend = tab;
 		
-		int width = rend.getWidth( );
-		int height = rend.getHeight( );
+		// int width = rend.getWidth( );
+		// int height = rend.getHeight( );
 		
-		width = Math.max( width , contentPanelBounds.width );
-		height += contentPanelBounds.height - contentPanelOverlap;
+		int width = tabbedPane.getWidth( );
+		int height = tabbedPane.getHeight( );
 		
 		if( width == 0 || height == 0 )
 		{
@@ -2083,17 +2169,20 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		
 		AffineTransform origXform = g2.getTransform( );
 		
-		g2.translate( 0 , rend.getHeight( ) - contentPanelOverlap );
-		contentPanelBorder.paintBorder( tabbedPane , g2 , 0 , 0 , contentPanelBounds.width , contentPanelBounds.height );
+		contentPanelBorder.paintBorder( tabbedPane , g2 , contentPanelBounds.x , contentPanelBounds.y , contentPanelBounds.width , contentPanelBounds.height );
 		if( tab.getContent( ) != null )
 		{
 			Insets contentInsets = contentPanelBorder.getBorderInsets( tabbedPane );
-			g2.translate( contentInsets.left , contentInsets.top );
+			g2.translate( contentPanelBounds.x + contentInsets.left , contentPanelBounds.y + contentInsets.top );
 			tab.getContent( ).paint( g2 );
 		}
 		
 		g2.setTransform( origXform );
-		g2.translate( tabMargin , 0 );
+		
+		int tabX = tabLayeredPane.getX( ) + tab.getX( );
+		int tabY = tabLayeredPane.getY( ) + tab.getY( );
+		
+		g2.translate( tabX , tabY );
 		rend.paint( g2 );
 		
 		BufferedImage rescaled = new BufferedImage( width * 3 / 4 , height * 3 / 4 , BufferedImage.TYPE_INT_ARGB );
@@ -2248,6 +2337,9 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		Component content = tabbedPane.getComponentAt( vIndex );
 		Component tabComponent = tabbedPane.getTabComponentAt( vIndex );
 		int mnemonic = tabbedPane.getMnemonicAt( vIndex );
+		int displayedMnemonicIndex = tabbedPane.getDisplayedMnemonicIndexAt( vIndex );
+		Color background = tabbedPane.getBackgroundAt( vIndex );
+		Color foreground = tabbedPane.getForegroundAt( vIndex );
 		boolean selected = tabbedPane.getSelectedIndex( ) == vIndex;
 		boolean enabled = tabbedPane.isEnabledAt( vIndex );
 		
@@ -2267,10 +2359,13 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			tab.setTitle( title );
 			tab.setIcon( icon );
 			tab.setMnemonic( mnemonic );
+			tab.setDisplayedMnemonicIndex( displayedMnemonicIndex );
 			tab.setContent( content );
 			tab.setTabComponent( tabComponent );
 			tab.setSelected( selected );
 			tab.setEnabled( enabled );
+			tab.setBackground( background );
+			tab.setForeground( foreground );
 			
 			if( info != null )
 			{
@@ -2526,51 +2621,51 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			
 			if( key == NEXT )
 			{
-				navigateSelectedTab( SwingConstants.NEXT );
+				// navigateSelectedTab( SwingConstants.NEXT );
 			}
 			else if( key == PREVIOUS )
 			{
-				navigateSelectedTab( SwingConstants.PREVIOUS );
+				// navigateSelectedTab( SwingConstants.PREVIOUS );
 			}
 			else if( key == RIGHT )
 			{
-				navigateSelectedTab( SwingConstants.EAST );
+				// navigateSelectedTab( SwingConstants.EAST );
 			}
 			else if( key == LEFT )
 			{
-				navigateSelectedTab( SwingConstants.WEST );
+				// navigateSelectedTab( SwingConstants.WEST );
 			}
 			else if( key == UP )
 			{
-				navigateSelectedTab( SwingConstants.NORTH );
+				// navigateSelectedTab( SwingConstants.NORTH );
 			}
 			else if( key == DOWN )
 			{
-				navigateSelectedTab( SwingConstants.SOUTH );
+				// navigateSelectedTab( SwingConstants.SOUTH );
 			}
 			else if( key == PAGE_UP )
 			{
-				int tabPlacement = pane.getTabPlacement( );
-				if( tabPlacement == JTabbedPane.TOP || tabPlacement == JTabbedPane.BOTTOM )
-				{
-					navigateSelectedTab( SwingConstants.WEST );
-				}
-				else
-				{
-					navigateSelectedTab( SwingConstants.NORTH );
-				}
+				// int tabPlacement = pane.getTabPlacement( );
+				// if( tabPlacement == JTabbedPane.TOP || tabPlacement == JTabbedPane.BOTTOM )
+				// {
+				// navigateSelectedTab( SwingConstants.WEST );
+				// }
+				// else
+				// {
+				// navigateSelectedTab( SwingConstants.NORTH );
+				// }
 			}
 			else if( key == PAGE_DOWN )
 			{
-				int tabPlacement = pane.getTabPlacement( );
-				if( tabPlacement == JTabbedPane.TOP || tabPlacement == JTabbedPane.BOTTOM )
-				{
-					navigateSelectedTab( SwingConstants.EAST );
-				}
-				else
-				{
-					navigateSelectedTab( SwingConstants.SOUTH );
-				}
+				// int tabPlacement = pane.getTabPlacement( );
+				// if( tabPlacement == JTabbedPane.TOP || tabPlacement == JTabbedPane.BOTTOM )
+				// {
+				// navigateSelectedTab( SwingConstants.EAST );
+				// }
+				// else
+				// {
+				// navigateSelectedTab( SwingConstants.SOUTH );
+				// }
 			}
 			else if( key == REQUEST_FOCUS )
 			{

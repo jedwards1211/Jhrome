@@ -22,6 +22,7 @@ package org.sexydock.tabs.jhrome;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,6 +32,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JTabbedPane;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
@@ -127,6 +129,11 @@ public class JhromeTabUI extends BasicTabUI
 		getTab( ).addPropertyChangeListener( propertyChangeHandler );
 	}
 	
+	public void update( Graphics g , JComponent c )
+	{
+		paint( g , c );
+	}
+	
 	@Override
 	public void uninstallUI( JComponent c )
 	{
@@ -149,6 +156,12 @@ public class JhromeTabUI extends BasicTabUI
 		super.update( );
 		
 		Tab tab = getTab( );
+		JTabbedPane tabbedPane = JhromeTabbedPaneUI.getJTabbedPaneAncestor( tab );
+		
+		if( tabbedPane != null )
+		{
+			outerBorder.setFlip( tabbedPane.getTabPlacement( ) == JTabbedPane.BOTTOM || tabbedPane.getTabPlacement( ) == JTabbedPane.RIGHT );
+		}
 		
 		if( tab.isSelected( ) )
 		{

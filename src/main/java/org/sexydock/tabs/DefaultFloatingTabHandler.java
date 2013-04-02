@@ -26,6 +26,8 @@ import java.awt.Point;
 import java.awt.Window;
 import java.awt.dnd.DragSourceDragEvent;
 
+import javax.swing.JTabbedPane;
+
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 import com.sun.awt.AWTUtilities;
@@ -35,13 +37,36 @@ public class DefaultFloatingTabHandler implements IFloatingTabHandler
 	private Window	dragImageWindow	= null;
 	private Image	dragImage		= null;
 	
+	private int		xOffs;
+	private int		yOffs;
+	
 	public void initialize( Tab draggedTab )
 	{
+		JTabbedPane tabbedPane = JhromeTabbedPaneUI.getJTabbedPaneAncestor( draggedTab );
 		JhromeTabbedPaneUI tabbedPaneUI = JhromeTabbedPaneUI.getTabbedPaneAncestorUI( draggedTab );
 		
 		if( tabbedPaneUI != null )
 		{
 			dragImage = tabbedPaneUI.createDragImage( draggedTab );
+			Point grabPoint = tabbedPaneUI.getImageGrabPoint( );
+			switch(tabbedPane.getTabPlacement( )) {
+				case JTabbedPane.TOP:
+					xOffs = -grabPoint.x;
+					yOffs = 10;
+					break;
+				case JTabbedPane.BOTTOM:
+					xOffs = -grabPoint.x;
+					yOffs = -dragImage.getHeight( null ) - 10;
+					break;
+				case JTabbedPane.LEFT:
+					xOffs = 10;
+					yOffs = -grabPoint.y;
+					break;
+				case JTabbedPane.RIGHT:
+					xOffs = -dragImage.getWidth( null ) - 10;
+					yOffs = -grabPoint.y;
+					break;
+			}
 		}
 	}
 	
@@ -82,7 +107,7 @@ public class DefaultFloatingTabHandler implements IFloatingTabHandler
 	{
 		if( dragImageWindow != null )
 		{
-			Point p = new Point( dsde.getX( ) - ( int ) ( grabX * draggedTab.getRenderer( ).getWidth( ) ) , dsde.getY( ) + 10 );
+			Point p = new Point( dsde.getX( ) + xOffs, dsde.getY( ) + yOffs );
 			dragImageWindow.setLocation( p );
 			dragImageWindow.setVisible( true );
 		}

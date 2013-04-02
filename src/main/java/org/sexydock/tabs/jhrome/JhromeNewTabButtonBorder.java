@@ -27,6 +27,7 @@ import java.awt.Insets;
 import java.awt.Paint;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 
 import javax.swing.border.Border;
@@ -87,6 +88,8 @@ public class JhromeNewTabButtonBorder implements Border
 	
 	public final Attributes			attrs					= new Attributes( );
 	
+	public boolean					flip;
+	
 	public void paint( Component c , Graphics g , int x , int y , int width , int height , boolean paintBorder , boolean paintBackground )
 	{
 		Path2D path = new Path2D.Float( );
@@ -95,6 +98,11 @@ public class JhromeNewTabButtonBorder implements Border
 		path.curveTo( x + width - 1 - attrs.slant , y , x + width - 1 - attrs.slant , y , x + width - 1 , y + height - 1 );
 		path.lineTo( x + attrs.slant * 2 , y + height - 1 );
 		path.curveTo( x + attrs.slant , y + height - 1 , x + attrs.slant , y + height - 1 , x , y );
+		
+		if( flip )
+		{
+			path.transform( new AffineTransform( 1 , 0 , 0 , -1 , 0 , height - 1 ) );
+		}
 		
 		Graphics2D g2 = ( Graphics2D ) g;
 		
@@ -141,4 +149,5 @@ public class JhromeNewTabButtonBorder implements Border
 	{
 		return false;
 	}
+	
 }

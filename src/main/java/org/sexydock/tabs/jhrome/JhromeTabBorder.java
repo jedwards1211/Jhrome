@@ -28,6 +28,7 @@ import java.awt.Paint;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 
 import javax.swing.border.Border;
@@ -44,6 +45,18 @@ public class JhromeTabBorder implements Border
 	private Path2D							openPath;
 	private Path2D							closedPath;
 	
+	private boolean							flip;
+	
+	public boolean isFlip( )
+	{
+		return flip;
+	}
+	
+	public void setFlip( boolean flip )
+	{
+		this.flip = flip;
+	}
+	
 	private void updatePaths( int x , int y , int width , int height )
 	{
 		if( width < attrs.insets.left + attrs.insets.right )
@@ -57,6 +70,11 @@ public class JhromeTabBorder implements Border
 		openPath.curveTo( x + attrs.insets.left / 2 , y + height - attrs.insets.bottom , x + attrs.insets.left / 2 , y + attrs.insets.top , x + attrs.insets.left , y + attrs.insets.top );
 		openPath.lineTo( x + width - attrs.insets.right , y + attrs.insets.top );
 		openPath.curveTo( x + width - attrs.insets.right / 2 , y + attrs.insets.top , x + width - attrs.insets.right / 2 , y + height - attrs.insets.bottom , x + width , y + height - attrs.insets.bottom );
+		
+		if( flip )
+		{
+			openPath.transform( new AffineTransform( 1, 0, 0, -1, 0, height ) );
+		}
 		
 		closedPath = ( Path2D ) openPath.clone( );
 		closedPath.closePath( );
@@ -96,7 +114,7 @@ public class JhromeTabBorder implements Border
 			g2.draw( openPath );
 		}
 		
-		g2.setPaint( new GradientPaint( 0 , y , attrs.topColor , 0 , y + height - 1 , attrs.bottomColor ) );
+		g2.setPaint( new GradientPaint( 0 , flip ? y + height - 1 : y , attrs.topColor , 0 , flip ? y : y + height - 1 , attrs.bottomColor ) );
 		g2.fill( closedPath );
 		
 		if( attrs.outlineVisible )

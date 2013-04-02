@@ -39,7 +39,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
 
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
@@ -61,8 +60,15 @@ public class BasicTabUI extends TabUI
 	Component					displayedTabComponent;
 	JButton						closeButton;
 	
-	Color						selectedLabelColor		= Color.BLACK;
-	Color						unselectedLabelColor	= new Color( 80 , 80 , 80 );
+	Color						disabledForeground		= Color.GRAY;
+	Color						rolloverForeground		= new Color( 80 , 80 , 80 );
+	Color						unselectedForeground	= new Color( 80 , 80 , 80 );
+	Color						selectedForeground		= Color.BLACK;
+	
+	Color						disabledBackground		= new Color( 191 , 191 , 202 );
+	Color						rolloverBackground		= Color.RED; //new Color( 231 , 231 , 239 );
+	Color						unselectedBackground	= new Color( 211 , 211 , 222 );
+	Color						selectedBackground		= new Color( 248 , 248 , 248 );
 	
 	PropertyChangeHandler		propertyChangeHandler	= new PropertyChangeHandler( );
 	
@@ -74,7 +80,8 @@ public class BasicTabUI extends TabUI
 		closeButton = new JButton( "X" );
 		
 		label.setFont( label.getFont( ).deriveFont( Font.PLAIN ) );
-		label.setForeground( unselectedLabelColor );
+		label.setForeground( unselectedForeground );
+		label.setOpaque( false );
 		
 		closeButton.addActionListener( new ActionListener( )
 		{
@@ -171,6 +178,7 @@ public class BasicTabUI extends TabUI
 		label.setText( tab.getTitle( ) );
 		label.setIcon( tab.getIcon( ) );
 		label.setDisplayedMnemonic( tab.getMnemonic( ) );
+		label.setDisplayedMnemonicIndex( tab.getDisplayedMnemonicIndex( ) );
 		
 		updateCloseButtonVisible( );
 		
@@ -194,26 +202,21 @@ public class BasicTabUI extends TabUI
 			}
 		}
 		
-		if( tab.isEnabled( ) )
+		if( !tab.isEnabled( ) )
 		{
-			if( tab.isSelected( ) )
-			{
-				label.setForeground( selectedLabelColor );
-			}
-			else
-			{
-				label.setForeground( unselectedLabelColor );
-			}
-			
+			label.setForeground( getDisabledForeground( ) );
 		}
-		JTabbedPane tabbedPane = JhromeTabbedPaneUI.getJTabbedPaneAncestor( tab );
-		if( tab.isSelected( ) && tabbedPane != null && tabbedPane.hasFocus( ) )
+		else if( tab.isSelected( ) )
 		{
-			label.setBorder( new LineBorder( label.getForeground( ) ) );
+			label.setForeground( getSelectedForeground( ) );
+		}
+		else if( tab.isRollover( ) )
+		{
+			label.setForeground( getRolloverForeground( ) );
 		}
 		else
 		{
-			label.setBorder( null );
+			label.setForeground( getUnselectedForeground( ) );
 		}
 	}
 	
@@ -280,24 +283,14 @@ public class BasicTabUI extends TabUI
 		return bounds.contains( p );
 	}
 	
-	public Color getSelectedLabelColor( )
-	{
-		return selectedLabelColor;
-	}
-	
-	public void setSelectedLabelColor( Color selectedLabelColor )
-	{
-		this.selectedLabelColor = selectedLabelColor;
-	}
-	
 	public Color getUnselectedLabelColor( )
 	{
-		return unselectedLabelColor;
+		return unselectedForeground;
 	}
 	
 	public void setUnselectedLabelColor( Color unselectedLabelColor )
 	{
-		this.unselectedLabelColor = unselectedLabelColor;
+		this.unselectedForeground = unselectedLabelColor;
 	}
 	
 	public JButton getCloseButton( )
@@ -317,5 +310,45 @@ public class BasicTabUI extends TabUI
 		{
 			update( );
 		}
+	}
+	
+	public Color getDisabledForeground( )
+	{
+		return disabledForeground != null ? disabledForeground : getUnselectedForeground( );
+	}
+	
+	public Color getRolloverForeground( )
+	{
+		return rolloverForeground != null ? rolloverForeground : getSelectedForeground( );
+	}
+	
+	public Color getUnselectedForeground( )
+	{
+		return unselectedForeground != null ? unselectedForeground : getSelectedForeground( );
+	}
+	
+	public Color getSelectedForeground( )
+	{
+		return selectedForeground;
+	}
+	
+	public Color getDisabledBackground( )
+	{
+		return disabledBackground != null ? disabledBackground : getUnselectedBackground( );
+	}
+	
+	public Color getRolloverBackground( )
+	{
+		return rolloverBackground != null ? rolloverBackground : getSelectedBackground( );
+	}
+	
+	public Color getUnselectedBackground( )
+	{
+		return unselectedBackground != null ? unselectedBackground : getSelectedBackground( );
+	}
+	
+	public Color getSelectedBackground( )
+	{
+		return selectedBackground;
 	}
 }

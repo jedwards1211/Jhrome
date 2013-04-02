@@ -1,5 +1,6 @@
 package org.sexydock.tabs;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 
@@ -11,18 +12,17 @@ import org.sexydock.tabs.jhrome.JhromeTabUI;
 
 public class Tab extends JComponent
 {
-	private static final String	uiClassId			= "TabUI";
+	private static final String	uiClassId				= "TabUI";
 	
-	private static final long	serialVersionUID	= 5209596149902613716L;
+	private static final long	serialVersionUID		= 5209596149902613716L;
 	
 	private String				title;
 	private Icon				icon;
 	private Component			tabComponent;
-	private int					mnemonic;
+	private int					mnemonic				= '\0';
+	private int					displayedMnemonicIndex	= -1;
 	private boolean				rollover;
 	private boolean				selected;
-	private boolean				focused;
-	private boolean				enabled;
 	
 	private Component			content;
 	
@@ -147,18 +147,18 @@ public class Tab extends JComponent
 		}
 	}
 	
-	public boolean isFocused( )
+	public int getDisplayedMnemonicIndex( )
 	{
-		return focused;
+		return displayedMnemonicIndex;
 	}
 	
-	public void setFocused( boolean focused )
+	public void setDisplayedMnemonicIndex( int displayedMnemonic )
 	{
-		if( this.focused != focused )
+		if( this.displayedMnemonicIndex != displayedMnemonic )
 		{
-			boolean oldValue = this.focused;
-			this.focused = focused;
-			firePropertyChange( "focused" , oldValue , focused );
+			int oldValue = this.displayedMnemonicIndex;
+			this.displayedMnemonicIndex = displayedMnemonic;
+			firePropertyChange( "displayedMnemonic" , oldValue , displayedMnemonic );
 		}
 	}
 	
