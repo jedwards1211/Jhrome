@@ -19,11 +19,12 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
 package org.sexydock.tabs;
 
+import java.awt.Point;
 import java.awt.dnd.DragSourceDragEvent;
 
 public interface IFloatingTabHandler
 {
-	void onFloatingBegin( Tab draggedTab );
+	void onFloatingBegin( Tab draggedTab , Point grabPoint );
 	
 	void onFloatingTabDragged( DragSourceDragEvent dsde , Tab draggedTab , double grabX );
 	

@@ -9,7 +9,7 @@ import org.fest.swing.core.Robot;
 import org.fest.swing.exception.ComponentLookupException;
 import org.fest.swing.fixture.JButtonFixture;
 import org.fest.swing.fixture.JTabbedPaneFixture;
-import org.sexydock.tabs.SwingUtils;
+import org.sexydock.SwingUtils;
 import org.sexydock.tabs.Tab;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 

@@ -40,6 +40,8 @@ import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
+import org.sexydock.SwingUtils;
+
 
 /**
  * The UI for a {@link Tab}.

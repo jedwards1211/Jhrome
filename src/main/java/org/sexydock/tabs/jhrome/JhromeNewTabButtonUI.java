@@ -44,7 +44,7 @@ import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.plaf.basic.BasicButtonUI;
 
-import org.sexydock.tabs.SwingUtils;
+import org.sexydock.SwingUtils;
 import org.sexydock.tabs.jhrome.JhromeNewTabButtonBorder.Attributes;
 
 public class JhromeNewTabButtonUI extends BasicButtonUI

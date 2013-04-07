@@ -36,7 +36,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Window;
-import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DnDConstants;
@@ -99,6 +98,8 @@ import javax.swing.plaf.TabbedPaneUI;
 import javax.swing.plaf.UIResource;
 
 import org.omg.CORBA.BooleanHolder;
+import org.sexydock.InternalTransferableStore;
+import org.sexydock.SwingUtils;
 import org.sexydock.tabs.DefaultFloatingTabHandler;
 import org.sexydock.tabs.DefaultTabDropFailureHandler;
 import org.sexydock.tabs.DefaultTabFactory;
@@ -108,8 +109,8 @@ import org.sexydock.tabs.ITabFactory;
 import org.sexydock.tabs.ITabbedPaneDnDPolicy;
 import org.sexydock.tabs.ITabbedPaneWindowFactory;
 import org.sexydock.tabs.RecursiveListener;
-import org.sexydock.tabs.SwingUtils;
 import org.sexydock.tabs.Tab;
+import org.sexydock.tabs.TabDragInfo;
 import org.sexydock.tabs.Utils;
 import org.sexydock.tabs.event.ITabbedPaneListener;
 import org.sexydock.tabs.event.TabAddedEvent;
@@ -270,6 +271,8 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	private ITabDropFailureHandler		tabDropFailureHandler		= new DefaultTabDropFailureHandler( );
 	
 	private IFloatingTabHandler			floatingTabHandler			= new DefaultFloatingTabHandler( );
+	
+	private InternalTransferableStore	transferableStore			= InternalTransferableStore.getDefaultInstance( );
 	
 	private ITabFactory					tabFactory					= new DefaultTabFactory( );
 	
@@ -1809,27 +1812,6 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		}
 	}
 	
-	private static class DummyTransferable implements Transferable
-	{
-		@Override
-		public DataFlavor[ ] getTransferDataFlavors( )
-		{
-			return new DataFlavor[ 0 ];
-		}
-		
-		@Override
-		public boolean isDataFlavorSupported( DataFlavor flavor )
-		{
-			return false;
-		}
-		
-		@Override
-		public Object getTransferData( DataFlavor flavor ) throws UnsupportedFlavorException , IOException
-		{
-			throw new UnsupportedFlavorException( flavor );
-		}
-	}
-	
 	private class DragHandler implements DragSourceListener , DragSourceMotionListener , DragGestureListener
 	{
 		DragSource				source;
@@ -1837,6 +1819,8 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		DragGestureRecognizer	dragGestureRecognizer;
 		
 		Point					dragOrigin;
+		
+		TabDragInfo				dragInfo;
 		
 		public DragHandler( Component comp , int actions )
 		{
@@ -1858,20 +1842,20 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		{
 			dragOrigin = dge.getDragOrigin( );
 			
-			draggedTab = getDraggableTabAt( dragOrigin );
+			Tab draggedTab = getDraggableTabAt( dragOrigin );
 			if( draggedTab != null )
 			{
-				dragFloatingTabHandler = floatingTabHandler;
-				
 				Window window = SwingUtilities.getWindowAncestor( tabbedPane );
+				Dimension sourceWindowSize = null;
 				if( window != null )
 				{
-					dragSourceWindowSize = window.getSize( );
+					sourceWindowSize = window.getSize( );
 				}
 				Point p = SwingUtilities.convertPoint( tabbedPane , dragOrigin , draggedTab );
-				grabX = p.x / ( double ) draggedTab.getWidth( );
-				Transferable t = new DummyTransferable( );
-				source.startDrag( dge , Cursor.getPredefinedCursor( Cursor.DEFAULT_CURSOR ) , t , this );
+				double grabX = p.x / ( double ) draggedTab.getWidth( );
+				
+				dragInfo = new TabDragInfo( draggedTab , dragOrigin , grabX , floatingTabHandler , sourceWindowSize );
+				source.startDrag( dge , Cursor.getPredefinedCursor( Cursor.DEFAULT_CURSOR ) , transferableStore.createTransferable( dragInfo ) , this );
 			}
 		}
 		
@@ -1893,22 +1877,22 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		@Override
 		public void dragMouseMoved( DragSourceDragEvent dsde )
 		{
-			if( draggedTab != null )
+			if( dragInfo != null )
 			{
-				JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( draggedTab );
+				JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( dragInfo.tab );
 				if( draggedParent != null )
 				{
 					Point p = dsde.getLocation( );
 					SwingUtilities.convertPointFromScreen( p , draggedParent.tabbedPane );
 					if( !Utils.contains( draggedParent.dropZone , p ) )
 					{
-						dragOut( dsde.getDragSourceContext( ).getComponent( ) );
+						dragOut( dsde.getDragSourceContext( ).getComponent( ) , dragInfo );
 					}
 				}
 				
-				if( dragFloatingTabHandler != null )
+				if( dragInfo.floatingTabHandler != null )
 				{
-					dragFloatingTabHandler.onFloatingTabDragged( dsde , draggedTab , grabX );
+					dragInfo.floatingTabHandler.onFloatingTabDragged( dsde , dragInfo.tab , dragInfo.grabX );
 				}
 			}
 		}
@@ -1921,46 +1905,47 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		@Override
 		public void dragDropEnd( final DragSourceDropEvent dsde )
 		{
-			if( dragFloatingTabHandler != null )
+			if( dragInfo != null )
 			{
-				dragFloatingTabHandler.onFloatingEnd( );
-			}
-			dragFloatingTabHandler = null;
-			
-			JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( draggedTab );
-			
-			if( draggedTab != null && draggedParent == null && tabDropFailureHandler != null )
-			{
-				tabDropFailureHandler.onDropFailure( dsde , draggedTab , dragSourceWindowSize );
-			}
-			
-			if( draggedParent != null )
-			{
-				draggedParent.setDragState( null , 0 , 0 );
-			}
-			
-			draggedTab = null;
-			draggedParent = null;
-			
-			for( final Window window : deadWindows )
-			{
-				SwingUtilities.invokeLater( new Runnable( )
+				if( dragInfo.floatingTabHandler != null )
 				{
-					@Override
-					public void run( )
-					{
-						window.dispose( );
-					}
-				} );
+					dragInfo.floatingTabHandler.onFloatingEnd( );
+				}
+				
+				JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( dragInfo.tab );
+				
+				if( dragInfo.tab != null && draggedParent == null && tabDropFailureHandler != null )
+				{
+					tabDropFailureHandler.onDropFailure( dsde , dragInfo.tab , dragInfo.sourceWindowSize );
+				}
+				
+				if( draggedParent != null )
+				{
+					draggedParent.setDragState( null , 0 , 0 );
+				}
+				
+				// for( final Window window : dragInfo.deadWindows )
+				// {
+				// SwingUtilities.invokeLater( new Runnable( )
+				// {
+				// @Override
+				// public void run( )
+				// {
+				// window.dispose( );
+				// }
+				// } );
+				// }
+				
+				dragInfo = null;
 			}
-			
-			deadWindows.clear( );
-			
+			transferableStore.cleanUp( dsde.getDragSourceContext( ).getTransferable( ) );
 		}
 	}
 	
 	private class DropHandler implements DropTargetListener
 	{
+		private TabDragInfo	dragInfo	= null;
+		
 		public DropHandler( Component comp )
 		{
 			new DropTarget( comp , this );
@@ -1973,6 +1958,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		@Override
 		public void dragEnter( DropTargetDragEvent dtde )
 		{
+			dragInfo = getDragInfo( dtde.getTransferable( ) );
 			handleDrag( dtde );
 		}
 		
@@ -1980,13 +1966,14 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		public void dragOver( DropTargetDragEvent dtde )
 		{
 			handleDrag( dtde );
-			JhromeTabbedPaneUI.dragOver( dtde );
+			JhromeTabbedPaneUI.this.dragOver( dtde );
 		}
 		
 		@Override
 		public void dragExit( DropTargetEvent dte )
 		{
-			JhromeTabbedPaneUI.dragOut( dte.getDropTargetContext( ).getComponent( ) );
+			dragOut( dte.getDropTargetContext( ).getComponent( ) , dragInfo );
+			dragInfo = null;
 		}
 		
 		@Override
@@ -2000,29 +1987,48 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		{
 			setDragState( null , 0 , 0 );
 			
-			if( draggedTab != null && Utils.contains( dropZone , dtde.getLocation( ) ) && isSnapInAllowed( draggedTab ) )
+			TabDragInfo dragInfo = getDragInfo( dtde.getTransferable( ) );
+			if( dragInfo != null )
 			{
-				dtde.acceptDrop( dtde.getDropAction( ) );
+				if( dragInfo.tab != null && Utils.contains( dropZone , dtde.getLocation( ) ) && isSnapInAllowed( dragInfo.tab ) )
+				{
+					dtde.acceptDrop( dtde.getDropAction( ) );
+				}
+				else
+				{
+					dtde.rejectDrop( );
+				}
 			}
 			else
 			{
 				dtde.rejectDrop( );
 			}
+			
 			dtde.dropComplete( true );
 		}
 	}
 	
-	private static IFloatingTabHandler	dragFloatingTabHandler	= null;
-	
-	private static Point				grabPoint				= null;
-	
-	private static double				grabX					= 0;
-	
-	private static Tab					draggedTab				= null;
-	
-	private static List<Window>			deadWindows				= new ArrayList<Window>( );
-	
-	private static Dimension			dragSourceWindowSize	= null;
+	private TabDragInfo getDragInfo( Transferable t )
+	{
+		Object it = null;
+		try
+		{
+			it = transferableStore.getTransferableData( t );
+		}
+		catch( UnsupportedFlavorException e )
+		{
+			log( e );
+		}
+		catch( IOException e )
+		{
+			log( e );
+		}
+		if( it instanceof TabDragInfo )
+		{
+			return ( TabDragInfo ) it;
+		}
+		return null;
+	}
 	
 	private boolean isTearAwayAllowed( Tab tab )
 	{
@@ -2034,75 +2040,78 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		return dndPolicy == null || dndPolicy.isSnapInAllowed( tabbedPane , tab );
 	}
 	
-	private static void dragOut( Component dragOutComponent )
+	private void dragOut( Component dragComponent , TabDragInfo dragInfo )
 	{
-		if( draggedTab != null )
+		if( dragInfo != null )
 		{
-			JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( draggedTab );
-			if( draggedParent != null && dragOutComponent == draggedParent.tabbedPane && draggedParent.isTearAwayAllowed( draggedTab ) )
+			JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( dragInfo.tab );
+			if( draggedParent != null && dragComponent == draggedParent.tabbedPane && draggedParent.isTearAwayAllowed( dragInfo.tab ) )
 			{
-				if( dragFloatingTabHandler != null )
+				if( dragInfo.floatingTabHandler != null )
 				{
-					dragFloatingTabHandler.onFloatingBegin( draggedTab );
+					dragInfo.floatingTabHandler.onFloatingBegin( dragInfo.tab , dragInfo.getGrabPoint( ) );
 				}
-				removeDraggedTabFromParent( );
+				removeDraggedTabFromParent( dragInfo );
 				// draggedParent.mouseOverTopZone = false;
 			}
 		}
 	}
 	
-	private static void removeDraggedTabFromParent( )
+	private void removeDraggedTabFromParent( TabDragInfo dragInfo )
 	{
-		JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( draggedTab );
-		draggedParent.setDragState( null , 0 , 0 );
-		Component draggedTabComponent = draggedTab.getTabComponent( );
-		draggedParent.removeTabImmediatelyInternal( draggedTab );
-		int tabIndex = draggedParent.tabbedPane.indexOfComponent( draggedTab.getContent( ) );
-		if( tabIndex < 0 )
+		JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( dragInfo.tab );
+		if( draggedParent != null )
 		{
-			return;
+			draggedParent.setDragState( null , 0 , 0 );
+			Component draggedTabComponent = dragInfo.tab.getTabComponent( );
+			draggedParent.removeTabImmediatelyInternal( dragInfo.tab );
+			int tabIndex = draggedParent.tabbedPane.indexOfComponent( dragInfo.tab.getContent( ) );
+			if( tabIndex < 0 )
+			{
+				return;
+			}
+			draggedParent.tabbedPane.removeTabAt( tabIndex );
+			dragInfo.tab.setTabComponent( draggedTabComponent );
+			// if( draggedParent.getTabCount( ) == 0 )
+			// {
+			// Window window = SwingUtilities.getWindowAncestor( draggedParent.tabbedPane );
+			// window.setVisible( false );
+			// dragInfo.deadWindows.add( window );
+			// }
 		}
-		draggedParent.tabbedPane.removeTabAt( tabIndex );
-		draggedTab.setTabComponent( draggedTabComponent );
-		if( draggedParent.getTabCount( ) == 0 )
-		{
-			Window window = SwingUtilities.getWindowAncestor( draggedParent.tabbedPane );
-			window.setVisible( false );
-			deadWindows.add( window );
-		}
-		draggedParent = null;
 	}
 	
-	private static void dragOver( DropTargetDragEvent dtde )
+	private void dragOver( DropTargetDragEvent dtde )
 	{
-		if( draggedTab != null )
+		TabDragInfo dragInfo = getDragInfo( dtde.getTransferable( ) );
+		if( dragInfo != null )
 		{
 			JhromeTabbedPaneUI tabbedPaneUI = SwingUtils.getJTabbedPaneAncestorUI( dtde.getDropTargetContext( ).getComponent( ) );
 			
 			Point p = dtde.getLocation( );
-			grabPoint = SwingUtilities.convertPoint( dtde.getDropTargetContext( ).getComponent( ) , p , tabbedPaneUI.tabbedPane );
+			dragInfo.setGrabPoint( SwingUtilities.convertPoint( dtde.getDropTargetContext( ).getComponent( ) , p , tabbedPaneUI.tabbedPane ) );
 			
 			if( !Utils.contains( tabbedPaneUI.dropZone , p ) )
 			{
-				dragOut( dtde.getDropTargetContext( ).getComponent( ) );
+				dragOut( dtde.getDropTargetContext( ).getComponent( ) , dragInfo );
 				return;
 			}
 			
-			JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( draggedTab );
+			JhromeTabbedPaneUI sourceUI = SwingUtils.getJTabbedPaneAncestorUI( dragInfo.tab );
 			
-			if( draggedParent != tabbedPaneUI && ( draggedParent == null || draggedParent.isTearAwayAllowed( draggedTab ) ) && tabbedPaneUI.isSnapInAllowed( draggedTab ) )
+			if( sourceUI != tabbedPaneUI && ( sourceUI == null || sourceUI.isTearAwayAllowed( dragInfo.tab ) ) && tabbedPaneUI.isSnapInAllowed( dragInfo.tab ) )
 			{
-				if( dragFloatingTabHandler != null )
+				if( dragInfo.floatingTabHandler != null )
 				{
-					dragFloatingTabHandler.onFloatingEnd( );
+					dragInfo.floatingTabHandler.onFloatingEnd( );
 				}
 				
-				if( draggedParent != null )
+				if( sourceUI != null )
 				{
-					removeDraggedTabFromParent( );
+					removeDraggedTabFromParent( dragInfo );
 				}
 				
-				draggedParent = tabbedPaneUI;
+				sourceUI = tabbedPaneUI;
 				
 				// tabbedPane.mouseOverTopZone = true;
 				
@@ -2115,38 +2124,33 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 				
 				int dragX = dtde.getLocation( ).x;
 				
-				int newIndex = tabbedPaneUI.layout.getInsertIndex( draggedTab , grabX , dragX );
-				tabbedPaneUI.addTab( newIndex , draggedTab , false );
-				if( draggedTab.isEnabled( ) )
+				int newIndex = tabbedPaneUI.layout.getInsertIndex( dragInfo.tab , dragInfo.grabX , dragX );
+				tabbedPaneUI.addTab( newIndex , dragInfo.tab , false );
+				if( dragInfo.tab.isEnabled( ) )
 				{
 					tabbedPaneUI.tabbedPane.setSelectedIndex( newIndex );
 				}
 				
-				tabbedPaneUI.setDragState( draggedTab , grabX , dragX );
+				tabbedPaneUI.setDragState( dragInfo.tab , dragInfo.grabX , dragX );
 			}
 			else
 			{
-				TabInfo info = tabbedPaneUI.getInfo( draggedTab );
+				TabInfo info = tabbedPaneUI.getInfo( dragInfo.tab );
 				if( info != null )
 				{
 					int dragX = dtde.getLocation( ).x;
-					tabbedPaneUI.setDragState( draggedTab , grabX , dragX );
+					tabbedPaneUI.setDragState( dragInfo.tab , dragInfo.grabX , dragX );
 					
-					int newIndex = tabbedPaneUI.layout.getInsertIndex( draggedTab , grabX , dragX );
-					int currentIndex = tabbedPaneUI.getInfoIndex( draggedTab );
+					int newIndex = tabbedPaneUI.layout.getInsertIndex( dragInfo.tab , dragInfo.grabX , dragX );
+					int currentIndex = tabbedPaneUI.getInfoIndex( dragInfo.tab );
 					tabbedPaneUI.moveTab( currentIndex , newIndex );
-					if( draggedTab.isEnabled( ) )
+					if( dragInfo.tab.isEnabled( ) )
 					{
-						tabbedPaneUI.tabbedPane.setSelectedComponent( draggedTab.getContent( ) );
+						tabbedPaneUI.tabbedPane.setSelectedComponent( dragInfo.tab.getContent( ) );
 					}
 				}
 			}
 		}
-	}
-	
-	public Point getImageGrabPoint( )
-	{
-		return grabPoint == null ? null : new Point( grabPoint.x * 3 / 4 , grabPoint.y * 3 / 4 );
 	}
 	
 	public Image createDragImage( Tab tab )
@@ -2723,6 +2727,16 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 					tabbedPane.setSelectedIndex( currentIndex - 1 );
 				}
 				break;
+		}
+	}
+	
+	private static boolean	LOG_EXCEPTIONS	= true;
+	
+	private static void log( Exception e )
+	{
+		if( LOG_EXCEPTIONS )
+		{
+			e.printStackTrace( );
 		}
 	}
 }

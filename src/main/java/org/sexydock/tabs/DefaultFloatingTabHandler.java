@@ -28,6 +28,7 @@ import java.awt.dnd.DragSourceDragEvent;
 
 import javax.swing.JTabbedPane;
 
+import org.sexydock.SwingUtils;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 import com.sun.awt.AWTUtilities;
@@ -40,7 +41,7 @@ public class DefaultFloatingTabHandler implements IFloatingTabHandler
 	private int		xOffs;
 	private int		yOffs;
 	
-	public void initialize( Tab draggedTab )
+	public void initialize( Tab draggedTab , Point grabPoint )
 	{
 		JTabbedPane tabbedPane = SwingUtils.getJTabbedPaneAncestor( draggedTab );
 		JhromeTabbedPaneUI tabbedPaneUI = SwingUtils.getJTabbedPaneAncestorUI( draggedTab );
@@ -48,8 +49,8 @@ public class DefaultFloatingTabHandler implements IFloatingTabHandler
 		if( tabbedPaneUI != null )
 		{
 			dragImage = tabbedPaneUI.createDragImage( draggedTab );
-			Point grabPoint = tabbedPaneUI.getImageGrabPoint( );
-			switch(tabbedPane.getTabPlacement( )) {
+			switch( tabbedPane.getTabPlacement( ) )
+			{
 				case JTabbedPane.TOP:
 					xOffs = -grabPoint.x;
 					yOffs = 10;
@@ -72,9 +73,9 @@ public class DefaultFloatingTabHandler implements IFloatingTabHandler
 	
 	@SuppressWarnings( "serial" )
 	@Override
-	public void onFloatingBegin( Tab draggedTab )
+	public void onFloatingBegin( Tab draggedTab , Point grabPoint )
 	{
-		initialize( draggedTab );
+		initialize( draggedTab , grabPoint );
 		
 		if( dragImage != null )
 		{
@@ -107,7 +108,7 @@ public class DefaultFloatingTabHandler implements IFloatingTabHandler
 	{
 		if( dragImageWindow != null )
 		{
-			Point p = new Point( dsde.getX( ) + xOffs, dsde.getY( ) + yOffs );
+			Point p = new Point( dsde.getX( ) + xOffs , dsde.getY( ) + yOffs );
 			dragImageWindow.setLocation( p );
 			dragImageWindow.setVisible( true );
 		}

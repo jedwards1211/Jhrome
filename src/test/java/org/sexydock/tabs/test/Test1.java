@@ -19,7 +19,7 @@ import org.fest.swing.fixture.FrameFixture;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.sexydock.tabs.SwingUtils;
+import org.sexydock.SwingUtils;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class Test1

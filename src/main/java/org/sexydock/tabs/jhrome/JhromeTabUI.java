@@ -37,8 +37,8 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
 
+import org.sexydock.SwingUtils;
 import org.sexydock.tabs.BasicTabUI;
-import org.sexydock.tabs.SwingUtils;
 import org.sexydock.tabs.Tab;
 
 /**

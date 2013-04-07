@@ -1,4 +1,4 @@
-package org.sexydock.tabs;
+package org.sexydock;
 
 import java.awt.Component;
 import java.lang.reflect.InvocationTargetException;

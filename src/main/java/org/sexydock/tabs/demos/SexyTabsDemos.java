@@ -42,10 +42,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.sexydock.SwingUtils;
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneDnDPolicy;
 import org.sexydock.tabs.ITabbedPaneWindow;
-import org.sexydock.tabs.SwingUtils;
 import org.sexydock.tabs.Tab;
 import org.sexydock.tabs.jhrome.JhromeTabUI;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;

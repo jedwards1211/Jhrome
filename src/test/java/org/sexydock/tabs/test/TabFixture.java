@@ -8,8 +8,8 @@ import org.fest.swing.core.MouseButton;
 import org.fest.swing.core.Robot;
 import org.fest.swing.fixture.ComponentFixture;
 import org.fest.swing.fixture.JButtonFixture;
+import org.sexydock.SwingUtils;
 import org.sexydock.tabs.BasicTabUI;
-import org.sexydock.tabs.SwingUtils;
 import org.sexydock.tabs.Tab;
 
 public class TabFixture extends ComponentFixture<Tab>
