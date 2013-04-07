@@ -1512,7 +1512,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			for( TabInfo info : tabs )
 			{
 				info.prefSize = info.tab.getPreferredSize( );
-				tabsHeight = Math.max( tabsHeight , transpose ? info.prefSize.height : info.prefSize.width );
+				tabsHeight = Math.max( tabsHeight , transpose ? info.prefSize.width : info.prefSize.height );
 			}
 			
 			Insets insets = tabbedPane.getInsets( );

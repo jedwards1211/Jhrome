@@ -164,7 +164,7 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 			textArea = new JTextArea( );
 			textArea.setLineWrap( true );
 			textScrollPane = new JScrollPane( textArea );
-			textScrollPane.setPreferredSize( new Dimension( 640 , 480 ) );
+			textScrollPane.setPreferredSize( new Dimension( 800, 600 ) );
 			
 			setLayout( new BorderLayout( ) );
 			add( textScrollPane , BorderLayout.CENTER );
