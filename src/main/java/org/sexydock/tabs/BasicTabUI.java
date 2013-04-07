@@ -41,7 +41,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import org.sexydock.SwingUtils;
-
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 /**
  * The UI for a {@link Tab}.
@@ -67,7 +67,7 @@ public class BasicTabUI extends TabUI
 	Color						selectedForeground		= Color.BLACK;
 	
 	Color						disabledBackground		= new Color( 191 , 191 , 202 );
-	Color						rolloverBackground		= Color.RED; //new Color( 231 , 231 , 239 );
+	Color						rolloverBackground		= Color.RED;					// new Color( 231 , 231 , 239 );
 	Color						unselectedBackground	= new Color( 211 , 211 , 222 );
 	Color						selectedBackground		= new Color( 248 , 248 , 248 );
 	
@@ -90,10 +90,28 @@ public class BasicTabUI extends TabUI
 			public void actionPerformed( ActionEvent e )
 			{
 				JTabbedPane tabbedPane = SwingUtils.getJTabbedPaneAncestor( tab );
-				int index = tabbedPane.indexOfComponent( tab.getContent( ) );
-				if( index >= 0 )
+				if( tabbedPane != null )
 				{
-					tabbedPane.removeTabAt( index );
+					ITabCloseButtonListener closeButtonListener = ( ITabCloseButtonListener ) tab.getClientProperty( "closeButtonListener" );
+					if( closeButtonListener == null )
+					{
+						if( tabbedPane.getUI( ) instanceof JhromeTabbedPaneUI )
+						{
+							closeButtonListener = ( ( JhromeTabbedPaneUI ) tabbedPane.getUI( ) ).getTabCloseButtonListener( );
+						}
+						else
+						{
+							closeButtonListener = ( ITabCloseButtonListener ) tabbedPane.getClientProperty( "tabCloseButtonListener" );
+						}
+					}
+					if( closeButtonListener != null )
+					{
+						int index = tabbedPane.indexOfComponent( tab.getContent( ) );
+						if( index >= 0 )
+						{
+							closeButtonListener.tabCloseButtonPressed( tabbedPane , index );
+						}
+					}
 				}
 			}
 		} );

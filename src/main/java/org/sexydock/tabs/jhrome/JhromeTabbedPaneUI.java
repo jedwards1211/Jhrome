@@ -101,9 +101,11 @@ import org.omg.CORBA.BooleanHolder;
 import org.sexydock.InternalTransferableStore;
 import org.sexydock.SwingUtils;
 import org.sexydock.tabs.DefaultFloatingTabHandler;
+import org.sexydock.tabs.DefaultTabCloseButtonListener;
 import org.sexydock.tabs.DefaultTabDropFailureHandler;
 import org.sexydock.tabs.DefaultTabFactory;
 import org.sexydock.tabs.IFloatingTabHandler;
+import org.sexydock.tabs.ITabCloseButtonListener;
 import org.sexydock.tabs.ITabDropFailureHandler;
 import org.sexydock.tabs.ITabFactory;
 import org.sexydock.tabs.ITabbedPaneDnDPolicy;
@@ -271,6 +273,8 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	private ITabDropFailureHandler		tabDropFailureHandler		= new DefaultTabDropFailureHandler( );
 	
 	private IFloatingTabHandler			floatingTabHandler			= new DefaultFloatingTabHandler( );
+	
+	private ITabCloseButtonListener		tabCloseButtonListener		= new DefaultTabCloseButtonListener( );
 	
 	private InternalTransferableStore	transferableStore			= InternalTransferableStore.getDefaultInstance( );
 	
@@ -548,6 +552,26 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		this.dndPolicy = dndPolicy;
 	}
 	
+	public IFloatingTabHandler getFloatingTabHandler( )
+	{
+		return floatingTabHandler;
+	}
+
+	public void setFloatingTabHandler( IFloatingTabHandler floatingTabHandler )
+	{
+		this.floatingTabHandler = floatingTabHandler;
+	}
+
+	public ITabCloseButtonListener getTabCloseButtonListener( )
+	{
+		return tabCloseButtonListener;
+	}
+
+	public void setTabCloseButtonListener( ITabCloseButtonListener tabCloseButtonListener )
+	{
+		this.tabCloseButtonListener = tabCloseButtonListener;
+	}
+
 	/**
 	 * @return whether to make all tabs the same width. If uniform width is not used, the tabs' preferred widths will be used.
 	 */

@@ -48,17 +48,6 @@ public class DefaultTabbedPaneWindowFactory implements ITabbedPaneWindowFactory
 			ui.setWindowFactory( this );
 		}
 		frame.setDefaultCloseOperation( DefaultTabbedPaneWindow.DISPOSE_ON_CLOSE );
-		frame.getTabbedPane( ).addContainerListener( new ContainerAdapter( )
-		{
-			@Override
-			public void componentRemoved( ContainerEvent e )
-			{
-				if( frame.getTabbedPane( ).getTabCount( ) == 0 )
-				{
-					frame.dispose( );
-				}
-			}
-		} );
 		return frame;
 	}
 }

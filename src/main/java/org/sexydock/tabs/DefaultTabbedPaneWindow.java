@@ -23,6 +23,8 @@ import java.awt.BorderLayout;
 import java.awt.GraphicsConfiguration;
 import java.awt.HeadlessException;
 import java.awt.Window;
+import java.awt.event.ContainerAdapter;
+import java.awt.event.ContainerEvent;
 
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
@@ -80,6 +82,18 @@ public class DefaultTabbedPaneWindow extends JFrame implements ITabbedPaneWindow
 		tabbedPane.putClientProperty( "tabCloseButtonsVisible" , true );
 		tabbedPane.putClientProperty( "newTabButtonVisible" , true );
 		getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
+		
+		tabbedPane.addContainerListener( new ContainerAdapter( )
+		{
+			@Override
+			public void componentRemoved( ContainerEvent e )
+			{
+				if( tabbedPane.getTabCount( ) == 0 )
+				{
+					dispose( );
+				}
+			}
+		} );
 	}
 	
 	/*
