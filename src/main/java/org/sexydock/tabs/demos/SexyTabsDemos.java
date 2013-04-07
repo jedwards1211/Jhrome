@@ -81,6 +81,7 @@ public class SexyTabsDemos implements ISexyTabsDemo
 				{
 					demoListModel.addElement( new DemoItem( SexyTabsDemos.this , "SexyTabsDemos (This Program)" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( SexyTabsDemos.class ) ) ) ) );
 					demoListModel.addElement( new DemoItem( new OutOfTheBoxDemo( ) , "Out of the Box Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( OutOfTheBoxDemo.class ) ) ) ) );
+					demoListModel.addElement( new DemoItem( new BottomTabPlacementDemo( ) , "Bottom Tab Placement Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( BottomTabPlacementDemo.class ) ) ) ) );
 					demoListModel.addElement( new DemoItem( new NotepadDemo( ) , "Notepad Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( NotepadDemo.class ) ) ) ) );
 					demoListModel.addElement( new DemoItem( new LabelReplacementDemo( ) , "Label Replacement Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( LabelReplacementDemo.class ) ) ) ) );
 					demoListModel.addElement( new DemoItem( new ColoredTabDemo( ) , "Colored Tab Demo" , read( getClass( ).getClassLoader( ).getResource( getSourcePath( ColoredTabDemo.class ) ) ) ) );
@@ -113,8 +114,6 @@ public class SexyTabsDemos implements ISexyTabsDemo
 				JhromeTabbedPaneUI tabbedPaneUI = ( JhromeTabbedPaneUI ) window.getTabbedPane( ).getUI( );
 				tabbedPaneUI.addTab( demoSelectorTab );
 				tabbedPaneUI.setSelectedTab( demoSelectorTab );
-				
-				window.getTabbedPane( ).setTabPlacement( JTabbedPane.BOTTOM );
 				
 				window.getTabbedPane( ).setMnemonicAt( 0 , KeyEvent.VK_S );
 				tabbedPaneUI.setDnDPolicy( new ITabbedPaneDnDPolicy( )

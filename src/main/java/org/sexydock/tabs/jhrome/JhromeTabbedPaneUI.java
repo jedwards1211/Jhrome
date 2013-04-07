@@ -556,22 +556,22 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	{
 		return floatingTabHandler;
 	}
-
+	
 	public void setFloatingTabHandler( IFloatingTabHandler floatingTabHandler )
 	{
 		this.floatingTabHandler = floatingTabHandler;
 	}
-
+	
 	public ITabCloseButtonListener getTabCloseButtonListener( )
 	{
 		return tabCloseButtonListener;
 	}
-
+	
 	public void setTabCloseButtonListener( ITabCloseButtonListener tabCloseButtonListener )
 	{
 		this.tabCloseButtonListener = tabCloseButtonListener;
 	}
-
+	
 	/**
 	 * @return whether to make all tabs the same width. If uniform width is not used, the tabs' preferred widths will be used.
 	 */

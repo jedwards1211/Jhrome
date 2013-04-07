@@ -17,8 +17,8 @@ Things necessary for first release:
 	-sizes
 	-strokes
 	-etc
--get rid of auto window closing when the last tab is dragged out
--create examples of default workflow to set up UI defaults to use Jhrome
+-create examples of default workflow
+-set up UI defaults to use Jhrome
 -investigate JhromeTabbedPaneUI extensibility
 -Remove auto window & tab numbers from factories; allow those to be pre-set
 -ensure there will be no backward-compatibility problems in the future
@@ -26,9 +26,7 @@ Things necessary for first release:
 -investigate DnD image issues on other versions of Java/other systems
 
 Things that would be nice:
--add support for more tab row positions
--Create less coupled DnD system
+-add support for more tab row positions (done for bottom, half-done for left & right)
 -Add JAR tasks to build.xml
 -Make animation customizable
 -create a look and feel that doesn't look like Chrome
--Make it possible to customize drag image

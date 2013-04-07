@@ -52,20 +52,20 @@ public class DefaultFloatingTabHandler implements IFloatingTabHandler
 			switch( tabbedPane.getTabPlacement( ) )
 			{
 				case JTabbedPane.TOP:
-					xOffs = -grabPoint.x;
+					xOffs = -grabPoint.x * 3 / 4;
 					yOffs = 10;
 					break;
 				case JTabbedPane.BOTTOM:
-					xOffs = -grabPoint.x;
+					xOffs = -grabPoint.x * 3 / 4;
 					yOffs = -dragImage.getHeight( null ) - 10;
 					break;
 				case JTabbedPane.LEFT:
 					xOffs = 10;
-					yOffs = -grabPoint.y;
+					yOffs = -grabPoint.y * 3 / 4;
 					break;
 				case JTabbedPane.RIGHT:
 					xOffs = -dragImage.getWidth( null ) - 10;
-					yOffs = -grabPoint.y;
+					yOffs = -grabPoint.y * 3 / 4;
 					break;
 			}
 		}
