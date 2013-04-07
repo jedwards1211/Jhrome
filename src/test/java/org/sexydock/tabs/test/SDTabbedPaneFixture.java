@@ -9,6 +9,7 @@ import org.fest.swing.core.Robot;
 import org.fest.swing.exception.ComponentLookupException;
 import org.fest.swing.fixture.JButtonFixture;
 import org.fest.swing.fixture.JTabbedPaneFixture;
+import org.sexydock.tabs.SwingUtils;
 import org.sexydock.tabs.Tab;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
@@ -35,7 +36,7 @@ public class SDTabbedPaneFixture extends JTabbedPaneFixture
 		;
 		
 		R r = new R( );
-		DoSwing.doSwing( r );
+		SwingUtils.doSwing( r );
 		
 		return r.result;
 	}
@@ -63,7 +64,7 @@ public class SDTabbedPaneFixture extends JTabbedPaneFixture
 		;
 		
 		R r = new R( );
-		DoSwing.doSwing( r );
+		SwingUtils.doSwing( r );
 		
 		return r.result;
 	}
@@ -91,7 +92,7 @@ public class SDTabbedPaneFixture extends JTabbedPaneFixture
 		;
 		
 		R r = new R( );
-		DoSwing.doSwing( r );
+		SwingUtils.doSwing( r );
 		
 		return r.result;
 	}
@@ -122,12 +123,12 @@ public class SDTabbedPaneFixture extends JTabbedPaneFixture
 			}
 		};
 		
-		DoSwing.doSwing( tester );
+		SwingUtils.doSwing( tester );
 	}
 	
 	public void requireTabCount( final int expected )
 	{
-		DoSwing.doSwing( new Runnable( )
+		SwingUtils.doSwing( new Runnable( )
 		{
 			@Override
 			public void run( )
@@ -154,7 +155,7 @@ public class SDTabbedPaneFixture extends JTabbedPaneFixture
 		}
 		
 		R r = new R( );
-		DoSwing.doSwing( r );
+		SwingUtils.doSwing( r );
 		
 		return r.result;
 	}
@@ -167,7 +168,7 @@ public class SDTabbedPaneFixture extends JTabbedPaneFixture
 	
 	public void finishAnimation( )
 	{
-		DoSwing.doSwing( new Runnable( )
+		SwingUtils.doSwing( new Runnable( )
 		{
 			@Override
 			public void run( )

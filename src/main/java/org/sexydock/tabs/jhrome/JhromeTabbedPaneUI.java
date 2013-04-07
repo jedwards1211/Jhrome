@@ -108,6 +108,7 @@ import org.sexydock.tabs.ITabFactory;
 import org.sexydock.tabs.ITabbedPaneDnDPolicy;
 import org.sexydock.tabs.ITabbedPaneWindowFactory;
 import org.sexydock.tabs.RecursiveListener;
+import org.sexydock.tabs.SwingUtils;
 import org.sexydock.tabs.Tab;
 import org.sexydock.tabs.Utils;
 import org.sexydock.tabs.event.ITabbedPaneListener;
@@ -981,7 +982,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		try
 		{
 			int index = tabbedPane.indexOfComponent( info.tab.getContent( ) );
-			if( index >= 0 )
+			if( index >= 0 && index != vNewIndex )
 			{
 				tabbedPane.removeTabAt( index );
 				insertTab( tabbedPane , vNewIndex , info.tab );
@@ -1894,7 +1895,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		{
 			if( draggedTab != null )
 			{
-				JhromeTabbedPaneUI draggedParent = getTabbedPaneAncestorUI( draggedTab );
+				JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( draggedTab );
 				if( draggedParent != null )
 				{
 					Point p = dsde.getLocation( );
@@ -1926,7 +1927,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			}
 			dragFloatingTabHandler = null;
 			
-			JhromeTabbedPaneUI draggedParent = getTabbedPaneAncestorUI( draggedTab );
+			JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( draggedTab );
 			
 			if( draggedTab != null && draggedParent == null && tabDropFailureHandler != null )
 			{
@@ -2037,7 +2038,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	{
 		if( draggedTab != null )
 		{
-			JhromeTabbedPaneUI draggedParent = getTabbedPaneAncestorUI( draggedTab );
+			JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( draggedTab );
 			if( draggedParent != null && dragOutComponent == draggedParent.tabbedPane && draggedParent.isTearAwayAllowed( draggedTab ) )
 			{
 				if( dragFloatingTabHandler != null )
@@ -2052,7 +2053,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	private static void removeDraggedTabFromParent( )
 	{
-		JhromeTabbedPaneUI draggedParent = getTabbedPaneAncestorUI( draggedTab );
+		JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( draggedTab );
 		draggedParent.setDragState( null , 0 , 0 );
 		Component draggedTabComponent = draggedTab.getTabComponent( );
 		draggedParent.removeTabImmediatelyInternal( draggedTab );
@@ -2076,7 +2077,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	{
 		if( draggedTab != null )
 		{
-			JhromeTabbedPaneUI tabbedPaneUI = getTabbedPaneAncestorUI( dtde.getDropTargetContext( ).getComponent( ) );
+			JhromeTabbedPaneUI tabbedPaneUI = SwingUtils.getJTabbedPaneAncestorUI( dtde.getDropTargetContext( ).getComponent( ) );
 			
 			Point p = dtde.getLocation( );
 			grabPoint = SwingUtilities.convertPoint( dtde.getDropTargetContext( ).getComponent( ) , p , tabbedPaneUI.tabbedPane );
@@ -2087,7 +2088,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 				return;
 			}
 			
-			JhromeTabbedPaneUI draggedParent = getTabbedPaneAncestorUI( draggedTab );
+			JhromeTabbedPaneUI draggedParent = SwingUtils.getJTabbedPaneAncestorUI( draggedTab );
 			
 			if( draggedParent != tabbedPaneUI && ( draggedParent == null || draggedParent.isTearAwayAllowed( draggedTab ) ) && tabbedPaneUI.isSnapInAllowed( draggedTab ) )
 			{
@@ -2210,32 +2211,6 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		{
 			throw new IllegalArgumentException( "Must not be called on the AWT Event Dispatch Thread!" );
 		}
-	}
-	
-	public static JhromeTabbedPaneUI getTabbedPaneAncestorUI( Component c )
-	{
-		while( c != null )
-		{
-			if( c instanceof JTabbedPane )
-			{
-				return ( JhromeTabbedPaneUI ) ( ( JTabbedPane ) c ).getUI( );
-			}
-			c = c.getParent( );
-		}
-		return null;
-	}
-	
-	public static JTabbedPane getJTabbedPaneAncestor( Component c )
-	{
-		while( c != null )
-		{
-			if( c instanceof JTabbedPane )
-			{
-				return ( JTabbedPane ) c;
-			}
-			c = c.getParent( );
-		}
-		return null;
 	}
 	
 	private void notifyTabbedPaneListeners( TabbedPaneEvent event )

@@ -21,10 +21,14 @@ package org.sexydock.tabs.demos;
 
 import java.awt.Window;
 
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneDnDPolicy;
 import org.sexydock.tabs.ITabbedPaneWindow;
 import org.sexydock.tabs.Tab;
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class NoSnapInDemo implements ISexyTabsDemo
 {
@@ -35,20 +39,22 @@ public class NoSnapInDemo implements ISexyTabsDemo
 		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
 		Window window = tabbedPaneWindow.getWindow( );
 		
-		final Tab tab1 = tabbedPaneWindow.getTabbedPane( ).getTabFactory( ).createTab( "Try to snap tabs in!" );
-		tabbedPaneWindow.getTabbedPane( ).addTab( tab1 );
-		tabbedPaneWindow.getTabbedPane( ).setSelectedTab( tab1 );
+		final JPanel mainPanel = new JPanel();
 		
-		tabbedPaneWindow.getTabbedPane( ).setDnDPolicy( new ITabbedPaneDnDPolicy( )
+		tabbedPaneWindow.getTabbedPane( ).addTab( "Try to snap tabs in!" , mainPanel );
+		tabbedPaneWindow.getTabbedPane( ).setSelectedIndex( 0 );
+		
+		JhromeTabbedPaneUI ui = (JhromeTabbedPaneUI) tabbedPaneWindow.getTabbedPane( ).getUI( );
+		ui.setDnDPolicy( new ITabbedPaneDnDPolicy( )
 		{
 			@Override
-			public boolean isTearAwayAllowed( TabbedPane tabbedPane , ITab tab )
+			public boolean isTearAwayAllowed( JTabbedPane tabbedPane , Tab tab )
 			{
-				return tab != tab1;
+				return tab.getContent( ) != mainPanel;
 			}
 			
 			@Override
-			public boolean isSnapInAllowed( TabbedPane tabbedPane , ITab tab )
+			public boolean isSnapInAllowed( JTabbedPane tabbedPane , Tab tab )
 			{
 				return false;
 			}

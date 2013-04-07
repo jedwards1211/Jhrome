@@ -21,9 +21,11 @@ package org.sexydock.tabs.demos;
 
 import java.awt.Window;
 
+import javax.swing.JPanel;
+
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
-import org.sexydock.tabs.ITab;
 import org.sexydock.tabs.ITabbedPaneWindow;
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class NonUniformTabWidthDemo implements ISexyTabsDemo
 {
@@ -36,16 +38,17 @@ public class NonUniformTabWidthDemo implements ISexyTabsDemo
 			public ITabbedPaneWindow createWindow( )
 			{
 				ITabbedPaneWindow window = super.createWindow( );
-				window.getTabbedPane( ).setUseUniformWidth( false );
+				JhromeTabbedPaneUI ui = ( JhromeTabbedPaneUI ) window.getTabbedPane( ).getUI( );
+				ui.setUseUniformWidth( false );
 				return window;
 			}
 		};
 		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
 		Window window = tabbedPaneWindow.getWindow( );
 		
-		ITab tab1 = tabbedPaneWindow.getTabbedPane( ).getTabFactory( ).createTab( "Tab 1" );
-		tabbedPaneWindow.getTabbedPane( ).addTab( tab1 );
-		tabbedPaneWindow.getTabbedPane( ).setSelectedTab( tab1 );
+		tabbedPaneWindow.getTabbedPane( ).addTab( "Short" , new JPanel( ) );
+		tabbedPaneWindow.getTabbedPane( ).addTab( "Loooooooooooooooooooooooooooooooooooooong" , new JPanel( ) );
+		tabbedPaneWindow.getTabbedPane( ).setSelectedIndex( 0 );
 		
 		window.setSize( 800 , 600 );
 		window.setLocationRelativeTo( null );

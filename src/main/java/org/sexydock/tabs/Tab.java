@@ -1,6 +1,5 @@
 package org.sexydock.tabs;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
 
@@ -175,7 +174,6 @@ public class Tab extends JComponent
 	public void setContent( Component tabContent )
 	{
 		this.content = tabContent;
-		// TODO update tabbed pane if necessary
 	}
 	
 	/**

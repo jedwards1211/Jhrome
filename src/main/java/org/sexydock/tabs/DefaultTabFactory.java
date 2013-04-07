@@ -42,10 +42,8 @@ public class DefaultTabFactory implements ITabFactory
 	@Override
 	public Tab createTabWithContent( )
 	{
-		Tab tab = new Tab( );
 		String title = "Tab " + ( tabCounter++ );
-		tab.setTitle( title );
-		tab.setContent( createTabContent( title ) );
+		Tab tab = new Tab( title , createTabContent( title ) );
 		return tab;
 	}
 	

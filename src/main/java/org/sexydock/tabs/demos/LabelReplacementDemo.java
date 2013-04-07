@@ -25,8 +25,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
-import org.sexydock.tabs.DefaultTab;
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneWindow;
 
@@ -39,9 +39,7 @@ public class LabelReplacementDemo implements ISexyTabsDemo
 		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
 		final Window window = tabbedPaneWindow.getWindow( );
 		
-		DefaultTab tab1 = new DefaultTab( "Tab 1" );
 		JButton button = new JButton( "Click Me!" );
-		tab1.setOverrideLabel( button );
 		button.addActionListener( new ActionListener( )
 		{
 			@Override
@@ -50,9 +48,8 @@ public class LabelReplacementDemo implements ISexyTabsDemo
 				JOptionPane.showMessageDialog( window , "Pretty cool huh?" );
 			}
 		} );
-		
-		tabbedPaneWindow.getTabbedPane( ).addTab( tab1 );
-		tabbedPaneWindow.getTabbedPane( ).setSelectedTab( tab1 );
+		tabbedPaneWindow.getTabbedPane( ).addTab("Test", new JPanel());
+		tabbedPaneWindow.getTabbedPane( ).setTabComponentAt( 0 , button );
 		
 		window.setSize( 800 , 600 );
 		window.setLocationRelativeTo( null );

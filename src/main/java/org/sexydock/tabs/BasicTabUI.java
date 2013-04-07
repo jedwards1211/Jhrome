@@ -40,7 +40,6 @@ import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
-import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 /**
  * The UI for a {@link Tab}.
@@ -88,7 +87,7 @@ public class BasicTabUI extends TabUI
 			@Override
 			public void actionPerformed( ActionEvent e )
 			{
-				JTabbedPane tabbedPane = JhromeTabbedPaneUI.getJTabbedPaneAncestor( tab );
+				JTabbedPane tabbedPane = SwingUtils.getJTabbedPaneAncestor( tab );
 				int index = tabbedPane.indexOfComponent( tab.getContent( ) );
 				if( index >= 0 )
 				{
@@ -230,7 +229,7 @@ public class BasicTabUI extends TabUI
 		}
 		else
 		{
-			JTabbedPane tabbedPane = JhromeTabbedPaneUI.getJTabbedPaneAncestor( tab );
+			JTabbedPane tabbedPane = SwingUtils.getJTabbedPaneAncestor( tab );
 			if( tabbedPane != null )
 			{
 				cbvProp = tabbedPane.getClientProperty( "tabCloseButtonsVisible" );

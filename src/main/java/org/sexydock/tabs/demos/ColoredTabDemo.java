@@ -38,12 +38,12 @@ public class ColoredTabDemo implements ISexyTabsDemo
 		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
 		final Window window = tabbedPaneWindow.getWindow( );
 		
-		Tab tab1 = new Tab( "Tab 1" );
+		JhromeTabbedPaneUI tabbedPaneUI = ( JhromeTabbedPaneUI ) tabbedPaneWindow.getTabbedPane( ).getUI( );
+		Tab tab1 = tabbedPaneUI.getTabFactory( ).createTabWithContent( );
 		JhromeTabUI ui = new JhromeTabUI( );
 		ui.getSelectedAttributes( ).topColor = Color.RED;
 		ui.getRolloverAttributes( ).topColor = Color.BLUE;
 		tab1.setUI( ui );
-		JhromeTabbedPaneUI tabbedPaneUI = ( JhromeTabbedPaneUI ) tabbedPaneWindow.getTabbedPane( ).getUI( );
 		tabbedPaneUI.addTab( 0 , tab1 , false );
 		tabbedPaneWindow.getTabbedPane( ).setSelectedIndex( 0 );
 		

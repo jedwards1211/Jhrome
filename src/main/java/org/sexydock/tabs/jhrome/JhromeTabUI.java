@@ -38,6 +38,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicButtonUI;
 
 import org.sexydock.tabs.BasicTabUI;
+import org.sexydock.tabs.SwingUtils;
 import org.sexydock.tabs.Tab;
 
 /**
@@ -156,7 +157,7 @@ public class JhromeTabUI extends BasicTabUI
 		super.update( );
 		
 		Tab tab = getTab( );
-		JTabbedPane tabbedPane = JhromeTabbedPaneUI.getJTabbedPaneAncestor( tab );
+		JTabbedPane tabbedPane = SwingUtils.getJTabbedPaneAncestor( tab );
 		
 		if( tabbedPane != null )
 		{

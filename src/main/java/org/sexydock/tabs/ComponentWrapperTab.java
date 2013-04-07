@@ -19,6 +19,7 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
 package org.sexydock.tabs;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Point;
 
@@ -35,6 +36,9 @@ public class ComponentWrapperTab extends Tab
 		super( "" );
 		this.renderer = renderer;
 		this.content = content;
+		setUI( null );
+		setLayout( new BorderLayout( ) );
+		add( renderer , BorderLayout.CENTER );
 	}
 	
 	Component	renderer;

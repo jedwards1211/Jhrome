@@ -19,6 +19,9 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
 package org.sexydock.tabs;
 
+import java.awt.event.ContainerAdapter;
+import java.awt.event.ContainerEvent;
+
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 /**
@@ -28,7 +31,7 @@ import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
  */
 public class DefaultTabbedPaneWindowFactory implements ITabbedPaneWindowFactory
 {
-	private static int	windowCounter		= 1;
+	private static int	windowCounter	= 1;
 	
 	/*
 	 * (non-Javadoc)
@@ -38,13 +41,24 @@ public class DefaultTabbedPaneWindowFactory implements ITabbedPaneWindowFactory
 	@Override
 	public ITabbedPaneWindow createWindow( )
 	{
-		DefaultTabbedPaneWindow frame = new DefaultTabbedPaneWindow( "Jhrome! " + ( windowCounter++ ) );
+		final DefaultTabbedPaneWindow frame = new DefaultTabbedPaneWindow( "Jhrome! " + ( windowCounter++ ) );
 		if( frame.getTabbedPane( ).getUI( ) instanceof JhromeTabbedPaneUI )
 		{
 			JhromeTabbedPaneUI ui = ( JhromeTabbedPaneUI ) frame.getTabbedPane( ).getUI( );
 			ui.setWindowFactory( this );
 		}
 		frame.setDefaultCloseOperation( DefaultTabbedPaneWindow.DISPOSE_ON_CLOSE );
+		frame.getTabbedPane( ).addContainerListener( new ContainerAdapter( )
+		{
+			@Override
+			public void componentRemoved( ContainerEvent e )
+			{
+				if( frame.getTabbedPane( ).getTabCount( ) == 0 )
+				{
+					frame.dispose( );
+				}
+			}
+		} );
 		return frame;
 	}
 }

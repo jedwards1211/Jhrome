@@ -9,6 +9,7 @@ import org.fest.swing.core.Robot;
 import org.fest.swing.fixture.ComponentFixture;
 import org.fest.swing.fixture.JButtonFixture;
 import org.sexydock.tabs.BasicTabUI;
+import org.sexydock.tabs.SwingUtils;
 import org.sexydock.tabs.Tab;
 
 public class TabFixture extends ComponentFixture<Tab>
@@ -56,7 +57,7 @@ public class TabFixture extends ComponentFixture<Tab>
 		}
 		
 		R r = new R( );
-		DoSwing.doSwing( r );
+		SwingUtils.doSwing( r );
 		
 		return r.result;
 	}
@@ -76,7 +77,7 @@ public class TabFixture extends ComponentFixture<Tab>
 		}
 		
 		R r = new R( );
-		DoSwing.doSwing( r );
+		SwingUtils.doSwing( r );
 		
 		return r.result;
 	}

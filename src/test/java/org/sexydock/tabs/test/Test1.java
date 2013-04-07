@@ -3,7 +3,6 @@ package org.sexydock.tabs.test;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.TimeoutException;
 
 import javax.swing.Icon;
@@ -11,17 +10,16 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 import junit.framework.Assert;
 
 import org.fest.swing.fixture.FrameFixture;
-import org.fest.swing.fixture.JButtonFixture;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.sexydock.tabs.SwingUtils;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class Test1
@@ -35,7 +33,7 @@ public class Test1
 	@Before
 	public void setUp( )
 	{
-		doSwing( new Runnable( )
+		SwingUtils.doSwing( new Runnable( )
 		{
 			@Override
 			public void run( )
@@ -71,7 +69,7 @@ public class Test1
 	@Test
 	public void testSetUp( )
 	{
-		doSwing( new Runnable( )
+		SwingUtils.doSwing( new Runnable( )
 		{
 			@Override
 			public void run( )
@@ -84,7 +82,7 @@ public class Test1
 	@Test
 	public void testAddTabInCode( )
 	{
-		doSwing( new Runnable( )
+		SwingUtils.doSwing( new Runnable( )
 		{
 			@Override
 			public void run( )
@@ -93,7 +91,7 @@ public class Test1
 			}
 		} );
 		framefix.tabbedPane( ).selectTab( "Tab 2" );
-		doSwing( new Runnable( )
+		SwingUtils.doSwing( new Runnable( )
 		{
 			@Override
 			public void run( )
@@ -120,7 +118,7 @@ public class Test1
 	@Test
 	public void testChangeTabAttributesInCode( ) throws TimeoutException, InterruptedException
 	{
-		DoSwing.doSwing( new Runnable( )
+		SwingUtils.doSwing( new Runnable( )
 		{
 			@Override
 			public void run( )
@@ -137,7 +135,7 @@ public class Test1
 			}
 		} );
 		tabbedPaneUI.waitForUpdate( 100 );
-		DoSwing.doSwing( new Runnable( )
+		SwingUtils.doSwing( new Runnable( )
 		{
 			@Override
 			public void run( )
@@ -155,7 +153,7 @@ public class Test1
 			}
 		} );
 		tabbedPaneUI.waitForUpdate( 100 );
-		DoSwing.doSwing( new Runnable( )
+		SwingUtils.doSwing( new Runnable( )
 		{
 			@Override
 			public void run( )
@@ -168,7 +166,7 @@ public class Test1
 	@After
 	public void tearDown( )
 	{
-		doSwing( new Runnable( )
+		SwingUtils.doSwing( new Runnable( )
 		{
 			@Override
 			public void run( )
@@ -177,17 +175,5 @@ public class Test1
 				framefix.cleanUp( );
 			}
 		} );
-	}
-	
-	private void doSwing( Runnable r )
-	{
-		try
-		{
-			SwingUtilities.invokeAndWait( r );
-		}
-		catch( InvocationTargetException | InterruptedException e )
-		{
-			throw new RuntimeException( e );
-		}
 	}
 }

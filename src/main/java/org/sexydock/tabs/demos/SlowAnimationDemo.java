@@ -21,9 +21,11 @@ package org.sexydock.tabs.demos;
 
 import java.awt.Window;
 
+import javax.swing.JPanel;
+
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
-import org.sexydock.tabs.ITab;
 import org.sexydock.tabs.ITabbedPaneWindow;
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class SlowAnimationDemo implements ISexyTabsDemo
 {
@@ -36,16 +38,16 @@ public class SlowAnimationDemo implements ISexyTabsDemo
 			public ITabbedPaneWindow createWindow( )
 			{
 				ITabbedPaneWindow window = super.createWindow( );
-				window.getTabbedPane( ).setAnimationFactor( 0.95f );
+				JhromeTabbedPaneUI ui = ( JhromeTabbedPaneUI ) window.getTabbedPane( ).getUI( );
+				ui.setAnimationFactor( 0.95f );
 				return window;
 			}
 		};
 		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
 		Window window = tabbedPaneWindow.getWindow( );
 		
-		ITab tab1 = tabbedPaneWindow.getTabbedPane( ).getTabFactory( ).createTab( );
-		tabbedPaneWindow.getTabbedPane( ).addTab( tab1 );
-		tabbedPaneWindow.getTabbedPane( ).setSelectedTab( tab1 );
+		tabbedPaneWindow.getTabbedPane( ).addTab( "Tab 1" , new JPanel( ) );
+		tabbedPaneWindow.getTabbedPane( ).setSelectedIndex( 0 );
 		
 		window.setSize( 800 , 600 );
 		window.setLocationRelativeTo( null );

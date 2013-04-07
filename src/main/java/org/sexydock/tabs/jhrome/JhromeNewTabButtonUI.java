@@ -44,6 +44,7 @@ import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.plaf.basic.BasicButtonUI;
 
+import org.sexydock.tabs.SwingUtils;
 import org.sexydock.tabs.jhrome.JhromeNewTabButtonBorder.Attributes;
 
 public class JhromeNewTabButtonUI extends BasicButtonUI
@@ -139,7 +140,7 @@ public class JhromeNewTabButtonUI extends BasicButtonUI
 	
 	protected void update( AbstractButton button )
 	{
-		JTabbedPane tabbedPane = JhromeTabbedPaneUI.getJTabbedPaneAncestor( button );
+		JTabbedPane tabbedPane = SwingUtils.getJTabbedPaneAncestor( button );
 		if( tabbedPane != null )
 		{
 			border.flip = tabbedPane.getTabPlacement( ) == JTabbedPane.BOTTOM || tabbedPane.getTabPlacement( ) == JTabbedPane.RIGHT;

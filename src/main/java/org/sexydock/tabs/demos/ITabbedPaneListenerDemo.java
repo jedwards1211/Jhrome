@@ -22,14 +22,13 @@ package org.sexydock.tabs.demos;
 import java.awt.Window;
 
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
-import org.sexydock.tabs.DefaultTab;
 import org.sexydock.tabs.DefaultTabbedPaneWindow;
-import org.sexydock.tabs.ITab;
 import org.sexydock.tabs.ITabbedPaneDnDPolicy;
 import org.sexydock.tabs.ITabbedPaneWindow;
-import org.sexydock.tabs.TabbedPane;
+import org.sexydock.tabs.Tab;
 import org.sexydock.tabs.event.ITabbedPaneListener;
 import org.sexydock.tabs.event.TabAddedEvent;
 import org.sexydock.tabs.event.TabMovedEvent;
@@ -37,6 +36,7 @@ import org.sexydock.tabs.event.TabRemovedEvent;
 import org.sexydock.tabs.event.TabSelectedEvent;
 import org.sexydock.tabs.event.TabbedPaneEvent;
 import org.sexydock.tabs.event.TabsClearedEvent;
+import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class ITabbedPaneListenerDemo implements ISexyTabsDemo
 {
@@ -61,21 +61,22 @@ public class ITabbedPaneListenerDemo implements ISexyTabsDemo
 				messageScroller.getVerticalScrollBar( ).setValue( messageScroller.getVerticalScrollBar( ).getMaximum( ) );
 			}
 		};
-		tabbedPaneWindow.getTabbedPane( ).addTabbedPaneListener( listener );
-		final DefaultTab listenerTab = new DefaultTab( "Listener" , messageScroller );
-		listenerTab.getNewTabButton( ).setVisible( false );
-		tabbedPaneWindow.getTabbedPane( ).addTab( listenerTab );
-		tabbedPaneWindow.getTabbedPane( ).setSelectedTab( listenerTab );
-		tabbedPaneWindow.getTabbedPane( ).setDnDPolicy( new ITabbedPaneDnDPolicy( )
+		JhromeTabbedPaneUI ui = (JhromeTabbedPaneUI) tabbedPaneWindow.getTabbedPane( ).getUI( );
+		ui.addTabbedPaneListener( listener );
+		tabbedPaneWindow.getTabbedPane( ).addTab( "Listener", messageScroller );
+		tabbedPaneWindow.getTabbedPane( ).setSelectedComponent( messageScroller );
+		final Tab listenerTab = ui.getTabAt( 0 );
+		listenerTab.putClientProperty( "closeButtonVisible", false );
+		ui.setDnDPolicy( new ITabbedPaneDnDPolicy( )
 		{
 			@Override
-			public boolean isTearAwayAllowed( TabbedPane tabbedPane , ITab tab )
+			public boolean isTearAwayAllowed( JTabbedPane tabbedPane , Tab tab )
 			{
 				return tab != listenerTab;
 			}
 			
 			@Override
-			public boolean isSnapInAllowed( TabbedPane tabbedPane , ITab tab )
+			public boolean isSnapInAllowed( JTabbedPane tabbedPane , Tab tab )
 			{
 				return true;
 			}
@@ -115,12 +116,12 @@ public class ITabbedPaneListenerDemo implements ISexyTabsDemo
 		return "";
 	}
 	
-	private static String getTabTitle( ITab tab )
+	private static String getTabTitle( Tab tab )
 	{
 		if( tab == null )
 		{
 			return "none";
 		}
-		return ( ( DefaultTab ) tab ).getLabel( ).getText( );
+		return tab.getTitle( );
 	}
 }

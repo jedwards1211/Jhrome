@@ -65,8 +65,8 @@ public class ComponentWrapperTabDemo implements ISexyTabsDemo
 		renderer.add( button );
 		renderer.add( textField );
 		
-		ComponentWrapperTab tab1 = new ComponentWrapperTab( renderer , null );
 		JhromeTabbedPaneUI tabbedPaneUI = ( JhromeTabbedPaneUI ) tabbedPaneWindow.getTabbedPane( ).getUI( );
+		ComponentWrapperTab tab1 = new ComponentWrapperTab( renderer , new JPanel( ) );
 		tabbedPaneUI.addTab( 0 , tab1 , false );
 		tabbedPaneWindow.getTabbedPane( ).setSelectedIndex( 0 );
 		
