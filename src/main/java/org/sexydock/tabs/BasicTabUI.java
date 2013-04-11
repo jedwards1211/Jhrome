@@ -50,6 +50,10 @@ import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
  */
 public class BasicTabUI extends TabUI
 {
+	public static final String	CLOSE_BUTTON_LISTENER	= "sexydock.closeButtonListener";
+	
+	public static final String	CLOSE_BUTTON_VISIBLE	= "sexydock.closeButtonVisible";
+
 	public BasicTabUI( )
 	{
 		init( );
@@ -67,13 +71,11 @@ public class BasicTabUI extends TabUI
 	Color						selectedForeground		= Color.BLACK;
 	
 	Color						disabledBackground		= new Color( 191 , 191 , 202 );
-	Color						rolloverBackground		= Color.RED;					// new Color( 231 , 231 , 239 );
+	Color						rolloverBackground		= Color.RED;						// new Color( 231 , 231 , 239 );
 	Color						unselectedBackground	= new Color( 211 , 211 , 222 );
 	Color						selectedBackground		= new Color( 248 , 248 , 248 );
 	
 	PropertyChangeHandler		propertyChangeHandler	= new PropertyChangeHandler( );
-	
-	public static final String	CLOSE_BUTTON_VISIBLE	= "closeButtonVisible";
 	
 	private void init( )
 	{
@@ -90,27 +92,13 @@ public class BasicTabUI extends TabUI
 			public void actionPerformed( ActionEvent e )
 			{
 				JTabbedPane tabbedPane = SwingUtils.getJTabbedPaneAncestor( tab );
-				if( tabbedPane != null )
+				ITabCloseButtonListener closeButtonListener = PropertyGetter.get( ITabCloseButtonListener.class , tab , CLOSE_BUTTON_LISTENER , JTabbedPane.class , JhromeTabbedPaneUI.TAB_CLOSE_BUTTON_LISTENER );
+				if( closeButtonListener != null )
 				{
-					ITabCloseButtonListener closeButtonListener = ( ITabCloseButtonListener ) tab.getClientProperty( "closeButtonListener" );
-					if( closeButtonListener == null )
+					int index = tabbedPane.indexOfComponent( tab.getContent( ) );
+					if( index >= 0 )
 					{
-						if( tabbedPane.getUI( ) instanceof JhromeTabbedPaneUI )
-						{
-							closeButtonListener = ( ( JhromeTabbedPaneUI ) tabbedPane.getUI( ) ).getTabCloseButtonListener( );
-						}
-						else
-						{
-							closeButtonListener = ( ITabCloseButtonListener ) tabbedPane.getClientProperty( "tabCloseButtonListener" );
-						}
-					}
-					if( closeButtonListener != null )
-					{
-						int index = tabbedPane.indexOfComponent( tab.getContent( ) );
-						if( index >= 0 )
-						{
-							closeButtonListener.tabCloseButtonPressed( tabbedPane , index );
-						}
+						closeButtonListener.tabCloseButtonPressed( tabbedPane , index );
 					}
 				}
 			}
@@ -199,7 +187,7 @@ public class BasicTabUI extends TabUI
 		label.setDisplayedMnemonic( tab.getMnemonic( ) );
 		label.setDisplayedMnemonicIndex( tab.getDisplayedMnemonicIndex( ) );
 		
-		updateCloseButtonVisible( );
+		closeButton.setVisible( PropertyGetter.get( Boolean.class , tab , CLOSE_BUTTON_VISIBLE , JTabbedPane.class , JhromeTabbedPaneUI.TAB_CLOSE_BUTTONS_VISIBLE , false ) );
 		
 		if( tab.getTabComponent( ) != displayedTabComponent )
 		{
@@ -237,30 +225,6 @@ public class BasicTabUI extends TabUI
 		{
 			label.setForeground( getUnselectedForeground( ) );
 		}
-	}
-	
-	private void updateCloseButtonVisible( )
-	{
-		boolean closeButtonVisible = false;
-		Object cbvProp = tab.getClientProperty( "closeButtonVisible" );
-		if( cbvProp != null && cbvProp instanceof Boolean )
-		{
-			closeButtonVisible = ( Boolean ) cbvProp;
-		}
-		else
-		{
-			JTabbedPane tabbedPane = SwingUtils.getJTabbedPaneAncestor( tab );
-			if( tabbedPane != null )
-			{
-				cbvProp = tabbedPane.getClientProperty( "tabCloseButtonsVisible" );
-				if( cbvProp != null && cbvProp instanceof Boolean )
-				{
-					closeButtonVisible = ( Boolean ) cbvProp;
-				}
-			}
-		}
-		
-		closeButton.setVisible( closeButtonVisible );
 	}
 	
 	/*

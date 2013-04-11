@@ -28,13 +28,17 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.sexydock.tabs.DefaultFloatingTabHandler;
+import org.sexydock.tabs.DefaultTabDropFailureHandler;
 import org.sexydock.tabs.ITabFactory;
+import org.sexydock.tabs.ITabbedPaneDndPolicy;
 import org.sexydock.tabs.ITabbedPaneWindow;
 import org.sexydock.tabs.ITabbedPaneWindowFactory;
 import org.sexydock.tabs.Tab;
@@ -50,6 +54,7 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 			@Override
 			public void run( )
 			{
+				UIManager.getDefaults( ).put( "TabbedPaneUI" , JhromeTabbedPaneUI.class.getName( ) );
 				new NotepadDemo( ).start( );
 			}
 		} );
@@ -65,22 +70,26 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 		setTitle( "Notepad" );
 		
 		tabbedPane = new JTabbedPane( );
-		tabbedPane.putClientProperty( "newTabButtonVisible" , true );
-		tabbedPane.putClientProperty( "tabCloseButtonsVisible" , true );
-		
-		JhromeTabbedPaneUI tabbedPaneUI = null;
-		if( tabbedPane.getUI( ) instanceof JhromeTabbedPaneUI )
+		tabbedPane.putClientProperty( JhromeTabbedPaneUI.NEW_TAB_BUTTON_VISIBLE , true );
+		tabbedPane.putClientProperty( JhromeTabbedPaneUI.TAB_CLOSE_BUTTONS_VISIBLE , true );
+		tabbedPane.putClientProperty( JhromeTabbedPaneUI.TAB_DROP_FAILURE_HANDLER , new DefaultTabDropFailureHandler( this ) );
+		tabbedPane.putClientProperty( JhromeTabbedPaneUI.TAB_FACTORY , this );
+		tabbedPane.putClientProperty( JhromeTabbedPaneUI.FLOATING_TAB_HANDLER , new DefaultFloatingTabHandler( ) );
+		tabbedPane.putClientProperty( JhromeTabbedPaneUI.TAB_CLOSE_BUTTONS_VISIBLE , true );
+		tabbedPane.putClientProperty( JhromeTabbedPaneUI.DND_POLICY , new ITabbedPaneDndPolicy( )
 		{
-			tabbedPaneUI = ( JhromeTabbedPaneUI ) tabbedPane.getUI( );
-		}
-		else
-		{
-			tabbedPaneUI = new JhromeTabbedPaneUI( );
-			tabbedPane.setUI( tabbedPaneUI );
-		}
-		
-		tabbedPaneUI.setWindowFactory( this );
-		tabbedPaneUI.setTabFactory( this );
+			@Override
+			public boolean isTearAwayAllowed( JTabbedPane tabbedPane , Tab tab )
+			{
+				return true;
+			}
+			
+			@Override
+			public boolean isSnapInAllowed( JTabbedPane tabbedPane , Tab tab )
+			{
+				return tab.getContent( ) instanceof NotepadPane;
+			}
+		});
 		
 		getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
 		
@@ -164,7 +173,7 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 			textArea = new JTextArea( );
 			textArea.setLineWrap( true );
 			textScrollPane = new JScrollPane( textArea );
-			textScrollPane.setPreferredSize( new Dimension( 800, 600 ) );
+			textScrollPane.setPreferredSize( new Dimension( 800 , 600 ) );
 			
 			setLayout( new BorderLayout( ) );
 			add( textScrollPane , BorderLayout.CENTER );

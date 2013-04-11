@@ -25,7 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
-import org.sexydock.tabs.ITabbedPaneDnDPolicy;
+import org.sexydock.tabs.ITabbedPaneDndPolicy;
 import org.sexydock.tabs.ITabbedPaneWindow;
 import org.sexydock.tabs.Tab;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
@@ -43,7 +43,7 @@ public class NoTearAwayDemo implements ISexyTabsDemo
 		tabbedPaneWindow.getTabbedPane( ).setSelectedIndex( 0 );
 		
 		JhromeTabbedPaneUI ui = (JhromeTabbedPaneUI) tabbedPaneWindow.getTabbedPane( ).getUI( );
-		ui.setDnDPolicy( new ITabbedPaneDnDPolicy( )
+		ui.setDndPolicy( new ITabbedPaneDndPolicy( )
 		{
 			@Override
 			public boolean isTearAwayAllowed( JTabbedPane tabbedPane , Tab tab )

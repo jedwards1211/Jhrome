@@ -22,7 +22,27 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
      _________________
 ____/ Getting Started \____________________________________________________
 
-To get started, run org.sexydock.tabs.demos.SexyTabsDemos.  The program
+1. To turn on Google Chrome-style tabs for all JTabbedPanes in an existing
+   application, simply put the following code in your application startup:
+
+		UIManager.getDefaults( ).put( "TabbedPaneUI" , 
+			JhromeTabbedPaneUI.class.getName( ) );
+		
+   Or, just set a JTabbedPane's UI directly:
+  		
+  		tabbedPane.setUI( new JhromeTabbedPaneUI( ) ); 
+   		
+2. To turn on the tab close buttons, set the tabCloseButtonsVisible client
+   property on a tabbedPane:
+   
+   		tabbedPane.putClientProperty( "tabCloseButtonsVisible", true );
+   		
+3. To turn on the new tab button, set the newTabButtonVisible client
+   property on a tabbedPane:
+   
+   		tabbedPane.putClientProperty( "newTabButtonVisible", true );
+				
+For more examples, run org.sexydock.tabs.demos.SexyTabsDemos.  The program
 displays source code for various examples and allows you to launch them.
 This source code should be a good first introduction.  If you have other
 questions, check the Javadocs in org.sexydock.tabs.TabbedPane, or send me

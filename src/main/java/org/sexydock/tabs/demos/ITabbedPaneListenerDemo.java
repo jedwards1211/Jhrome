@@ -26,7 +26,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
 import org.sexydock.tabs.DefaultTabbedPaneWindow;
-import org.sexydock.tabs.ITabbedPaneDnDPolicy;
+import org.sexydock.tabs.ITabbedPaneDndPolicy;
 import org.sexydock.tabs.ITabbedPaneWindow;
 import org.sexydock.tabs.Tab;
 import org.sexydock.tabs.event.ITabbedPaneListener;
@@ -67,7 +67,7 @@ public class ITabbedPaneListenerDemo implements ISexyTabsDemo
 		tabbedPaneWindow.getTabbedPane( ).setSelectedComponent( messageScroller );
 		final Tab listenerTab = ui.getTabAt( 0 );
 		listenerTab.putClientProperty( "closeButtonVisible", false );
-		ui.setDnDPolicy( new ITabbedPaneDnDPolicy( )
+		ui.setDndPolicy( new ITabbedPaneDndPolicy( )
 		{
 			@Override
 			public boolean isTearAwayAllowed( JTabbedPane tabbedPane , Tab tab )

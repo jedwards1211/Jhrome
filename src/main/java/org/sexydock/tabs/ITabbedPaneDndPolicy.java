@@ -27,7 +27,7 @@ import javax.swing.JTabbedPane;
  * @author andy.edwards
  * 
  */
-public interface ITabbedPaneDnDPolicy
+public interface ITabbedPaneDndPolicy
 {
 	/**
 	 * Controls whether a jhromeTab may be "torn away" from a {@code JhromeTabbedPane} (if it can be removed by being dragged out of the tabbed pane).

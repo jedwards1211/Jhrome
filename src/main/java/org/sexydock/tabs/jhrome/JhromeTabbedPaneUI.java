@@ -108,8 +108,9 @@ import org.sexydock.tabs.IFloatingTabHandler;
 import org.sexydock.tabs.ITabCloseButtonListener;
 import org.sexydock.tabs.ITabDropFailureHandler;
 import org.sexydock.tabs.ITabFactory;
-import org.sexydock.tabs.ITabbedPaneDnDPolicy;
+import org.sexydock.tabs.ITabbedPaneDndPolicy;
 import org.sexydock.tabs.ITabbedPaneWindowFactory;
+import org.sexydock.tabs.PropertyGetter;
 import org.sexydock.tabs.RecursiveListener;
 import org.sexydock.tabs.Tab;
 import org.sexydock.tabs.TabDragInfo;
@@ -126,49 +127,27 @@ import sun.swing.DefaultLookup;
 import sun.swing.SwingUtilities2;
 import sun.swing.UIAction;
 
-/**
- * {@link JhromeTabbedPaneUI} is a Google Chrome-like tabbed pane, providing animated tab layout, drag and drop capabilities, and a new tab button. All Google
- * Chrome behavior is provided by default. Tabs can be dragged around within {@code TabbedPane} and rearranged, they can be "torn away" or dragged out and
- * opened in new windows, and they can be dragged from one window to another. If all the tabs in a {@code TabbedPane} are closed or torn away, the window
- * containing that {@code TabbedPane} is disposed. When a tab is torn away, a ghosted drag image window showing the tab and its contents will appear and follow
- * the mouse cursor until the tab is dragged over another {@code TabbedPane} or dropped.<br />
- * <br />
- * 
- * Animation includes tabs expanding when added, contracting when removed, jumping around when being reordered, contracting simultaneously when there is not
- * enough room, and expanding simultaneously when there is room again and the mouse is no longer on top of the tab zone.<br />
- * <br />
- * 
- * {@code TabbedPane} is designed to allow you to customize the look and behavior as much as possible. The following interfaces help with customization:
- * <ul>
- * <li>{@link Tab} provides an interface to tab renderers/content. You can use literally any {@link Component} (or combination of {@code Component}s) in a tab
- * renderer by providing them through an {@code Tab} implementation.
- * <li>{@link ITabFactory} creates new tabs when the new tab button is clicked. By providing your own tab factory you can use any kind of tabs you like with
- * {@code TabbedPane}.</li>
- * <li>{@link ITabbedPaneDnDPolicy} controls whether tabs may be torn away or snapped back in (by default both are always allowed). By providing your own DnD
- * policy you can create arbitrarily complex behavior, preventing only certain tabs from being torn away, certain tabs from being snapped in, only at certain
- * times, etc.</li>
- * <li>{@link IFloatingTabHandler} determines what happens when a tab is torn away from this {@code TabbedPane} and is "floating."
- * {@link DefaultFloatingTabHandler} shows a ghost drag image of the tab in another window, but you may create different behavior by providing your own
- * {@link IFloatingTabHandler}.
- * <li>{@link ITabDropFailureHandler} determines what to do when a tab drop fails (i.e. it is dropped on the desktop or another application that rejects the
- * drop). The {@link DefaultTabDropFailureHandler} creates a new window for the tab, but you can do something else by providing your own
- * {@link ITabDropFailureHandler}.
- * </ul>
- * 
- * Also, {@code TabbedPane} allows you to get its new tab button and content pane so that you can modify them arbitrarily.<br />
- * <br />
- * 
- * Since the layout is animated, when you remove a tab from {@code TabbedPane} (using {@link #removeTabInternal(Tab)}), it makes it start contracting and
- * doesn't actually remove the tab renderer component until it is done contracting. However, all public methods that involve the tab list behave as if tabs are
- * removed immediately. For example, if you remove a tab, it will no longer show up in {@link #getTabs()}, even while the tab renderer component is still a
- * child of this {@code TabbedPane} and contracting. If you add the tab back before it is done contracting, it will jump to the new position and expand back to
- * full size.
- * 
- * @author andy.edwards
- */
 @SuppressWarnings( "serial" )
 public class JhromeTabbedPaneUI extends TabbedPaneUI
 {
+	public static final String	TAB_CLOSE_BUTTONS_VISIBLE	= "sexydock.tabbedPane.tabCloseButtonsVisible";
+	
+	public static final String	CONTENT_PANEL_BORDER		= "sexydock.tabbedPane.contentPanelBorder";
+	
+	public static final String	NEW_TAB_BUTTON_VISIBLE		= "sexydock.tabbedPane.newTabButtonVisible";
+	
+	public static final String	TAB_CLOSE_BUTTON_LISTENER	= "sexydock.tabbedPane.tabCloseButtonListener";
+	
+	public static final String	FLOATING_TAB_HANDLER		= "sexydock.tabbedPane.floatingTabHandler";
+	
+	public static final String	TAB_DROP_FAILURE_HANDLER	= "sexydock.tabbedPane.tabDropFailureHandler";
+	
+	public static final String	TAB_FACTORY					= "sexydock.tabbedPane.tabFactory";
+	
+	public static final String	DND_POLICY					= "sexydock.tabbedPane.dndPolicy";
+	
+	private static final String	NEW_TAB_BUTTON_UI			= "sexydock.tabbedPane.newTabButtonUI";
+	
 	public JhromeTabbedPaneUI( )
 	{
 	}
@@ -231,36 +210,35 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		double		grabX;
 	}
 	
-	private int							overlap						= 13;
+	private int							overlap					= 13;
 	
-	private double						animFactor					= 0.7;
+	private double						animFactor				= 0.7;
 	
 	private javax.swing.Timer			animTimer;
-	private final Object				animLock					= new Object( );
+	private final Object				animLock				= new Object( );
 	
 	private TabLayoutManager			layout;
 	
-	private boolean						useUniformWidth				= true;
-	private int							maxUniformWidth				= 300;
+	private boolean						useUniformWidth			= true;
+	private int							maxUniformWidth			= 300;
 	
-	private boolean						mouseOverTopZone			= true;
+	private boolean						mouseOverTopZone		= true;
 	
 	private MouseManager				mouseOverManager;
 	
-	private TabInfo						selectedTab					= null;
+	private TabInfo						selectedTab				= null;
 	
-	private Component					currentContent				= null;
+	private Component					currentContent			= null;
 	
 	/**
 	 * How many pixels the content panel overlaps the tabs. This is necessary with the Google Chrome appearance to make the selected tab and the content panel
 	 * look like a contiguous object
 	 */
-	private int							contentPanelOverlap			= 1;
-	private Border						defaultContentPanelBorder	= new JhromeContentPanelBorder( );
-	private Border						contentPanelBorder			= defaultContentPanelBorder;
-	private Rectangle					contentPanelBounds			= new Rectangle( );
+	private int							contentPanelOverlap		= 1;
+	private Border						contentPanelBorder		= null;
+	private Rectangle					contentPanelBounds		= new Rectangle( );
 	
-	private int							tabMargin					= 2;
+	private int							tabMargin				= 2;
 	
 	private JPanel						rightButtonsPanel;
 	
@@ -270,29 +248,27 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	private DragHandler					dragHandler;
 	
-	private ITabDropFailureHandler		tabDropFailureHandler		= new DefaultTabDropFailureHandler( );
+	private ITabDropFailureHandler		tabDropFailureHandler	= null;
 	
-	private IFloatingTabHandler			floatingTabHandler			= new DefaultFloatingTabHandler( );
+	private IFloatingTabHandler			floatingTabHandler		= new DefaultFloatingTabHandler( );
 	
-	private ITabCloseButtonListener		tabCloseButtonListener		= new DefaultTabCloseButtonListener( );
+	private InternalTransferableStore	transferableStore		= InternalTransferableStore.getDefaultInstance( );
 	
-	private InternalTransferableStore	transferableStore			= InternalTransferableStore.getDefaultInstance( );
+	private ITabFactory					tabFactory				= new DefaultTabFactory( );
 	
-	private ITabFactory					tabFactory					= new DefaultTabFactory( );
+	private Rectangle					topZone					= new Rectangle( );
+	private Rectangle					tabZone					= new Rectangle( );
 	
-	private Rectangle					topZone						= new Rectangle( );
-	private Rectangle					tabZone						= new Rectangle( );
+	private int							extraDropZoneSpace		= 25;
+	private Rectangle					dropZone				= new Rectangle( );
 	
-	private int							extraDropZoneSpace			= 25;
-	private Rectangle					dropZone					= new Rectangle( );
+	private ITabbedPaneDndPolicy		dndPolicy				= null;
 	
-	private ITabbedPaneDnDPolicy		dndPolicy					= null;
+	private List<ITabbedPaneListener>	tabListeners			= new ArrayList<ITabbedPaneListener>( );
 	
-	private List<ITabbedPaneListener>	tabListeners				= new ArrayList<ITabbedPaneListener>( );
+	private Handler						handler					= new Handler( );
 	
-	private Handler						handler						= new Handler( );
-	
-	private final Object				updateLock					= new Object( );
+	private final Object				updateLock				= new Object( );
 	
 	private class MouseManager extends RecursiveListener
 	{
@@ -443,15 +419,18 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 					return;
 				}
 				Tab newTab = tabFactory.createTabWithContent( );
-				tabbedPane.addTab( newTab.getTitle( ) , newTab.getContent( ) );
-				tabbedPane.setSelectedComponent( newTab.getContent( ) );
+				if( newTab != null )
+				{
+					tabbedPane.addTab( newTab.getTitle( ) , newTab.getContent( ) );
+					tabbedPane.setSelectedComponent( newTab.getContent( ) );
+				}
 			}
 		};
 		
 		newTabButton.addActionListener( newTabButtonListener );
-		updateNewTabButtonVisible( );
-		updateNewTabButtonUI( );
-		updateContentPanelBorder( );
+		newTabButton.setUI( PropertyGetter.get( ButtonUI.class , tabbedPane , NEW_TAB_BUTTON_UI , ( String ) null , new JhromeNewTabButtonUI( ) ) );
+		newTabButton.setVisible( PropertyGetter.get( Boolean.class , tabbedPane , NEW_TAB_BUTTON_VISIBLE , false ) );
+		contentPanelBorder = PropertyGetter.get( Border.class , tabbedPane , CONTENT_PANEL_BORDER , ( String ) null , new JhromeContentPanelBorder( ) );
 		
 		rightButtonsPanel = new JPanel( );
 		rightButtonsPanel.setLayout( new GridBagLayout( ) );
@@ -472,46 +451,20 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		tabbedPane.addPropertyChangeListener( handler );
 		tabbedPane.addFocusListener( handler );
 		
+		tabFactory = PropertyGetter.get( ITabFactory.class , tabbedPane , TAB_FACTORY );
+		dndPolicy = PropertyGetter.get( ITabbedPaneDndPolicy.class , tabbedPane , DND_POLICY );
+		tabDropFailureHandler = PropertyGetter.get( ITabDropFailureHandler.class , tabbedPane , TAB_DROP_FAILURE_HANDLER );
+		floatingTabHandler = PropertyGetter.get( IFloatingTabHandler.class , tabbedPane , FLOATING_TAB_HANDLER );
+		if( tabbedPane.getClientProperty( TAB_CLOSE_BUTTON_LISTENER ) == null )
+		{
+			tabbedPane.putClientProperty( TAB_CLOSE_BUTTON_LISTENER , PropertyGetter.get( ITabCloseButtonListener.class , TAB_CLOSE_BUTTON_LISTENER , new DefaultTabCloseButtonListener( ) ) );
+		}
+		if( tabbedPane.getClientProperty( TAB_CLOSE_BUTTONS_VISIBLE ) == null )
+		{
+			tabbedPane.putClientProperty( TAB_CLOSE_BUTTONS_VISIBLE , PropertyGetter.get( Boolean.class , TAB_CLOSE_BUTTONS_VISIBLE , false ) );
+		}
+		
 		installKeyboardActions( );
-	}
-	
-	private void updateNewTabButtonVisible( )
-	{
-		Object ntbvProp = tabbedPane.getClientProperty( "newTabButtonVisible" );
-		if( ntbvProp != null && ntbvProp instanceof Boolean )
-		{
-			newTabButton.setVisible( ( Boolean ) ntbvProp );
-		}
-		else
-		{
-			newTabButton.setVisible( false );
-		}
-	}
-	
-	private void updateContentPanelBorder( )
-	{
-		Object cpbProp = tabbedPane.getClientProperty( "contentPanelBorder" );
-		if( cpbProp != null && cpbProp instanceof Border )
-		{
-			contentPanelBorder = ( Border ) cpbProp;
-		}
-		else
-		{
-			contentPanelBorder = defaultContentPanelBorder;
-		}
-	}
-	
-	private void updateNewTabButtonUI( )
-	{
-		Object ntbuiProp = tabbedPane.getClientProperty( "newTabButtonUI" );
-		if( ntbuiProp != null && ntbuiProp instanceof ButtonUI )
-		{
-			newTabButton.setUI( ( ButtonUI ) ntbuiProp );
-		}
-		else
-		{
-			newTabButton.setUI( new JhromeNewTabButtonUI( ) );
-		}
 	}
 	
 	public ITabFactory getTabFactory( )
@@ -542,12 +495,12 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		this.tabDropFailureHandler = dropFailureHandler;
 	}
 	
-	public ITabbedPaneDnDPolicy getDnDPolicy( )
+	public ITabbedPaneDndPolicy getDndPolicy( )
 	{
 		return dndPolicy;
 	}
 	
-	public void setDnDPolicy( ITabbedPaneDnDPolicy dndPolicy )
+	public void setDndPolicy( ITabbedPaneDndPolicy dndPolicy )
 	{
 		this.dndPolicy = dndPolicy;
 	}
@@ -560,16 +513,6 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	public void setFloatingTabHandler( IFloatingTabHandler floatingTabHandler )
 	{
 		this.floatingTabHandler = floatingTabHandler;
-	}
-	
-	public ITabCloseButtonListener getTabCloseButtonListener( )
-	{
-		return tabCloseButtonListener;
-	}
-	
-	public void setTabCloseButtonListener( ITabCloseButtonListener tabCloseButtonListener )
-	{
-		this.tabCloseButtonListener = tabCloseButtonListener;
 	}
 	
 	/**
@@ -1755,7 +1698,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			}
 			
 			// lay out the content panel and right button panel
-			Insets contentInsets = contentPanelBorder.getBorderInsets( tabbedPane );
+			Insets contentInsets = contentPanelBorder == null ? new Insets( 0 , 0 , 0 , 0 ) : contentPanelBorder.getBorderInsets( tabbedPane );
 			
 			int contentX = contentPanelBounds.x + contentInsets.left;
 			int contentW = contentPanelBounds.width - contentInsets.left - contentInsets.right;
@@ -2056,12 +1999,12 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	private boolean isTearAwayAllowed( Tab tab )
 	{
-		return dndPolicy == null || dndPolicy.isTearAwayAllowed( tabbedPane , tab );
+		return dndPolicy != null && dndPolicy.isTearAwayAllowed( tabbedPane , tab );
 	}
 	
 	private boolean isSnapInAllowed( Tab tab )
 	{
-		return dndPolicy == null || dndPolicy.isSnapInAllowed( tabbedPane , tab );
+		return dndPolicy != null && dndPolicy.isSnapInAllowed( tabbedPane , tab );
 	}
 	
 	private void dragOut( Component dragComponent , TabDragInfo dragInfo )
@@ -2198,10 +2141,13 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		
 		AffineTransform origXform = g2.getTransform( );
 		
-		contentPanelBorder.paintBorder( tabbedPane , g2 , contentPanelBounds.x , contentPanelBounds.y , contentPanelBounds.width , contentPanelBounds.height );
+		if( contentPanelBorder != null )
+		{
+			contentPanelBorder.paintBorder( tabbedPane , g2 , contentPanelBounds.x , contentPanelBounds.y , contentPanelBounds.width , contentPanelBounds.height );
+		}
 		if( tab.getContent( ) != null )
 		{
-			Insets contentInsets = contentPanelBorder.getBorderInsets( tabbedPane );
+			Insets contentInsets = contentPanelBorder == null ? new Insets( 0 , 0 , 0 , 0 ) : contentPanelBorder.getBorderInsets( tabbedPane );
 			g2.translate( contentPanelBounds.x + contentInsets.left , contentPanelBounds.y + contentInsets.top );
 			tab.getContent( ).paint( g2 );
 		}
@@ -2267,7 +2213,10 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	@Override
 	public void paint( Graphics g , JComponent c )
 	{
-		contentPanelBorder.paintBorder( c , g , contentPanelBounds.x , contentPanelBounds.y , contentPanelBounds.width , contentPanelBounds.height );
+		if( contentPanelBorder != null )
+		{
+			contentPanelBorder.paintBorder( c , g , contentPanelBounds.x , contentPanelBounds.y , contentPanelBounds.width , contentPanelBounds.height );
+		}
 	}
 	
 	@Override
@@ -2408,22 +2357,42 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			{
 				updateTab( ( Integer ) evt.getNewValue( ) , false );
 			}
-			else if( "newTabButtonVisible".equals( evt.getPropertyName( ) ) )
+			else if( NEW_TAB_BUTTON_VISIBLE.equals( evt.getPropertyName( ) ) )
 			{
-				updateNewTabButtonVisible( );
+				newTabButton.setVisible( PropertyGetter.get( Boolean.class , tabbedPane , NEW_TAB_BUTTON_VISIBLE , ( String ) null , false ) );
 			}
-			else if( "newTabButtonUI".equals( evt.getPropertyName( ) ) )
+			else if( NEW_TAB_BUTTON_UI.equals( evt.getPropertyName( ) ) )
 			{
-				updateNewTabButtonUI( );
+				ButtonUI ui = PropertyGetter.get( ButtonUI.class , tabbedPane , NEW_TAB_BUTTON_UI , ( String ) null );
+				if( ui != null )
+				{
+					newTabButton.setUI( ui );
+				}
 			}
-			else if( "tabCloseButtonsVisible".equals( evt.getPropertyName( ) ) )
+			else if( TAB_CLOSE_BUTTONS_VISIBLE.equals( evt.getPropertyName( ) ) )
 			{
 				tabbedPane.repaint( );
 			}
-			else if( "contentPanelBorder".equals( evt.getPropertyName( ) ) )
+			else if( CONTENT_PANEL_BORDER.equals( evt.getPropertyName( ) ) )
 			{
-				updateContentPanelBorder( );
+				contentPanelBorder = PropertyGetter.get( Border.class , tabbedPane , CONTENT_PANEL_BORDER , ( String ) null );
 				tabbedPane.repaint( );
+			}
+			else if( TAB_FACTORY.equals( evt.getPropertyName( ) ) )
+			{
+				tabFactory = PropertyGetter.get( ITabFactory.class , tabbedPane , TAB_FACTORY );
+			}
+			else if( DND_POLICY.equals( evt.getPropertyName( ) ) )
+			{
+				dndPolicy = PropertyGetter.get( ITabbedPaneDndPolicy.class , tabbedPane , DND_POLICY );
+			}
+			else if( TAB_DROP_FAILURE_HANDLER.equals( evt.getPropertyName( ) ) )
+			{
+				tabDropFailureHandler = PropertyGetter.get( ITabDropFailureHandler.class , tabbedPane , TAB_DROP_FAILURE_HANDLER );
+			}
+			else if( FLOATING_TAB_HANDLER.equals( evt.getPropertyName( ) ) )
+			{
+				floatingTabHandler = PropertyGetter.get( IFloatingTabHandler.class , tabbedPane , FLOATING_TAB_HANDLER );
 			}
 		}
 		
