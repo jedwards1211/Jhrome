@@ -42,13 +42,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.plaf.basic.BasicTabbedPaneUI;
-import javax.swing.plaf.basic.BasicTableUI;
 
 import org.sexydock.SwingUtils;
 import org.sexydock.tabs.BasicTabUI;
 import org.sexydock.tabs.DefaultFloatingTabHandler;
-import org.sexydock.tabs.DefaultTabCloseButtonListener;
 import org.sexydock.tabs.DefaultTabDropFailureHandler;
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneDndPolicy;

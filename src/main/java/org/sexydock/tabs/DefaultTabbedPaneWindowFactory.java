@@ -19,9 +19,6 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
 package org.sexydock.tabs;
 
-import java.awt.event.ContainerAdapter;
-import java.awt.event.ContainerEvent;
-
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 /**
