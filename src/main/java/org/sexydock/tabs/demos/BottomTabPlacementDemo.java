@@ -19,13 +19,11 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
 package org.sexydock.tabs.demos;
 
-import java.awt.Window;
-
 import javax.swing.JTabbedPane;
 
-import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
-import org.sexydock.tabs.ITabbedPaneWindow;
+import org.sexydock.tabs.DefaultTabbedPaneWindow;
 import org.sexydock.tabs.Tab;
+import org.sexydock.tabs.TestTabFactory;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class BottomTabPlacementDemo implements ISexyTabsDemo
@@ -33,19 +31,17 @@ public class BottomTabPlacementDemo implements ISexyTabsDemo
 	@Override
 	public void start( )
 	{
-		DefaultTabbedPaneWindowFactory windowFactory = new DefaultTabbedPaneWindowFactory( );
-		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
-		Window window = tabbedPaneWindow.getWindow( );
+		DefaultTabbedPaneWindow window = new DefaultTabbedPaneWindow( getClass( ).getSimpleName( ) );
 		
-		tabbedPaneWindow.getTabbedPane( ).setTabPlacement( JTabbedPane.BOTTOM );
+		TestTabFactory tabFactory = new TestTabFactory( );
+		window.getTabbedPane( ).putClientProperty( JhromeTabbedPaneUI.TAB_FACTORY , tabFactory );
+		window.getTabbedPane( ).setTabPlacement( JTabbedPane.BOTTOM );
 		
-		JhromeTabbedPaneUI ui = ( JhromeTabbedPaneUI ) tabbedPaneWindow.getTabbedPane( ).getUI( );
-		Tab tab1 = ui.getTabFactory( ).createTabWithContent( );
-		ui.addTab( tab1 );
-		ui.setSelectedTab( tab1 );
+		Tab tab1 = tabFactory.createTabWithContent( );
+		window.getTabbedPane( ).addTab( tab1.getTitle( ) , tab1.getContent( ) );
 		
-		window.setSize( 800 , 600 );
-		window.setLocationRelativeTo( null );
-		window.setVisible( true );
+		window.getWindow( ).setSize( 800 , 600 );
+		window.getWindow( ).setLocationRelativeTo( null );
+		window.getWindow( ).setVisible( true );
 	}
 }

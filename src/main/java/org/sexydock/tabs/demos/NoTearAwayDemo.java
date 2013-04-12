@@ -19,15 +19,10 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
 package org.sexydock.tabs.demos;
 
-import java.awt.Window;
-
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
-import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
-import org.sexydock.tabs.ITabbedPaneDndPolicy;
-import org.sexydock.tabs.ITabbedPaneWindow;
+import org.sexydock.tabs.DefaultTabbedPaneDndPolicy;
+import org.sexydock.tabs.DefaultTabbedPaneWindow;
 import org.sexydock.tabs.Tab;
+import org.sexydock.tabs.TestTabFactory;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class NoTearAwayDemo implements ISexyTabsDemo
@@ -35,28 +30,15 @@ public class NoTearAwayDemo implements ISexyTabsDemo
 	@Override
 	public void start( )
 	{
-		DefaultTabbedPaneWindowFactory windowFactory = new DefaultTabbedPaneWindowFactory( );
-		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
-		Window window = tabbedPaneWindow.getWindow( );
+		DefaultTabbedPaneWindow window = new DefaultTabbedPaneWindow( getClass( ).getSimpleName( ) );
 		
-		tabbedPaneWindow.getTabbedPane( ).addTab( "Try to tear tabs away!" , new JPanel( ) );
-		tabbedPaneWindow.getTabbedPane( ).setSelectedIndex( 0 );
+		TestTabFactory tabFactory = new TestTabFactory( );
+		window.getTabbedPane( ).putClientProperty( JhromeTabbedPaneUI.TAB_FACTORY , tabFactory );
+		window.getTabbedPane( ).putClientProperty( JhromeTabbedPaneUI.DND_POLICY , new DefaultTabbedPaneDndPolicy( false , true ) );
 		
-		JhromeTabbedPaneUI ui = (JhromeTabbedPaneUI) tabbedPaneWindow.getTabbedPane( ).getUI( );
-		ui.setDndPolicy( new ITabbedPaneDndPolicy( )
-		{
-			@Override
-			public boolean isTearAwayAllowed( JTabbedPane tabbedPane , Tab tab )
-			{
-				return false;
-			}
-			
-			@Override
-			public boolean isSnapInAllowed( JTabbedPane tabbedPane , Tab tab )
-			{
-				return true;
-			}
-		} );
+		Tab tab1 = tabFactory.createTabWithContent( );
+		tab1.setTitle( "Try to tear tabs away!" );
+		window.getTabbedPane( ).addTab( tab1.getTitle( ) , tab1.getContent( ) );
 		
 		window.setSize( 800 , 600 );
 		window.setLocationRelativeTo( null );

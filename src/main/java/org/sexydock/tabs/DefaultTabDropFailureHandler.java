@@ -32,11 +32,6 @@ import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class DefaultTabDropFailureHandler implements ITabDropFailureHandler
 {
-	public DefaultTabDropFailureHandler( )
-	{
-		this( new DefaultTabbedPaneWindowFactory( ) );
-	}
-	
 	public DefaultTabDropFailureHandler( ITabbedPaneWindowFactory windowFactory )
 	{
 		this.windowFactory = windowFactory;

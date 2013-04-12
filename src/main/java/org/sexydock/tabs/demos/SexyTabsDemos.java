@@ -47,6 +47,7 @@ import org.sexydock.SwingUtils;
 import org.sexydock.tabs.BasicTabUI;
 import org.sexydock.tabs.DefaultFloatingTabHandler;
 import org.sexydock.tabs.DefaultTabDropFailureHandler;
+import org.sexydock.tabs.DefaultTabbedPaneWindow;
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
 import org.sexydock.tabs.ITabbedPaneDndPolicy;
 import org.sexydock.tabs.ITabbedPaneWindow;
@@ -75,26 +76,6 @@ public class SexyTabsDemos implements ISexyTabsDemo
 			@Override
 			public void run( )
 			{
-				UIManager.put( JhromeTabbedPaneUI.TAB_FACTORY , new TestTabFactory( ) );
-				UIManager.put( JhromeTabbedPaneUI.DND_POLICY , new ITabbedPaneDndPolicy( )
-				{
-					@Override
-					public boolean isTearAwayAllowed( JTabbedPane tabbedPane , Tab tab )
-					{
-						return true;
-					}
-					
-					@Override
-					public boolean isSnapInAllowed( JTabbedPane tabbedPane , Tab tab )
-					{
-						return true;
-					}
-				} );
-				UIManager.put( JhromeTabbedPaneUI.NEW_TAB_BUTTON_VISIBLE , true );
-				UIManager.put( JhromeTabbedPaneUI.TAB_CLOSE_BUTTONS_VISIBLE , true );
-				UIManager.put( JhromeTabbedPaneUI.FLOATING_TAB_HANDLER , new DefaultFloatingTabHandler( ) );
-				UIManager.put( JhromeTabbedPaneUI.TAB_DROP_FAILURE_HANDLER , new DefaultTabDropFailureHandler( new DefaultTabbedPaneWindowFactory( ) ) );
-				
 				final JPanel demoListPanel = new JPanel( new BorderLayout( ) );
 				demoListPanel.setOpaque( false );
 				final JList<DemoItem> demoList = new JList<DemoItem>( );
@@ -126,8 +107,7 @@ public class SexyTabsDemos implements ISexyTabsDemo
 				
 				demoList.setModel( demoListModel );
 				
-				final DefaultTabbedPaneWindowFactory windowFactory = new DefaultTabbedPaneWindowFactory( );
-				final ITabbedPaneWindow window = windowFactory.createWindow( );
+				DefaultTabbedPaneWindow window = new DefaultTabbedPaneWindow( "SexyTabs demos" );
 				window.getTabbedPane( ).putClientProperty( JhromeTabbedPaneUI.NEW_TAB_BUTTON_VISIBLE , false );
 				
 				final Tab demoSelectorTab = new Tab( "SexyTabs Demos" , demoListPanel );
@@ -140,7 +120,7 @@ public class SexyTabsDemos implements ISexyTabsDemo
 				tabbedPaneUI.setSelectedTab( demoSelectorTab );
 				
 				window.getTabbedPane( ).setMnemonicAt( 0 , KeyEvent.VK_S );
-				tabbedPaneUI.setDndPolicy( new ITabbedPaneDndPolicy( )
+				window.getTabbedPane( ).putClientProperty( JhromeTabbedPaneUI.DND_POLICY , new ITabbedPaneDndPolicy( )
 				{
 					@Override
 					public boolean isTearAwayAllowed( JTabbedPane tabbedPane , Tab tab )

@@ -41,6 +41,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import org.sexydock.SwingUtils;
+import org.sexydock.tabs.demos.SexyTabsDemos;
+import org.sexydock.tabs.event.TabbedPaneEvent;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 /**
@@ -53,29 +55,29 @@ public class BasicTabUI extends TabUI
 	public static final String	CLOSE_BUTTON_LISTENER	= "sexydock.closeButtonListener";
 	
 	public static final String	CLOSE_BUTTON_VISIBLE	= "sexydock.closeButtonVisible";
-
+	
 	public BasicTabUI( )
 	{
 		init( );
 	}
 	
-	Tab							tab;
+	Tab						tab;
 	
-	JLabel						label;
-	Component					displayedTabComponent;
-	JButton						closeButton;
+	JLabel					label;
+	Component				displayedTabComponent;
+	JButton					closeButton;
 	
-	Color						disabledForeground		= Color.GRAY;
-	Color						rolloverForeground		= new Color( 80 , 80 , 80 );
-	Color						unselectedForeground	= new Color( 80 , 80 , 80 );
-	Color						selectedForeground		= Color.BLACK;
+	Color					disabledForeground		= Color.GRAY;
+	Color					rolloverForeground		= new Color( 80 , 80 , 80 );
+	Color					unselectedForeground	= new Color( 80 , 80 , 80 );
+	Color					selectedForeground		= Color.BLACK;
 	
-	Color						disabledBackground		= new Color( 191 , 191 , 202 );
-	Color						rolloverBackground		= Color.RED;						// new Color( 231 , 231 , 239 );
-	Color						unselectedBackground	= new Color( 211 , 211 , 222 );
-	Color						selectedBackground		= new Color( 248 , 248 , 248 );
+	Color					disabledBackground		= new Color( 191 , 191 , 202 );
+	Color					rolloverBackground		= Color.RED;					// new Color( 231 , 231 , 239 );
+	Color					unselectedBackground	= new Color( 211 , 211 , 222 );
+	Color					selectedBackground		= new Color( 248 , 248 , 248 );
 	
-	PropertyChangeHandler		propertyChangeHandler	= new PropertyChangeHandler( );
+	PropertyChangeHandler	propertyChangeHandler	= new PropertyChangeHandler( );
 	
 	private void init( )
 	{
@@ -187,7 +189,12 @@ public class BasicTabUI extends TabUI
 		label.setDisplayedMnemonic( tab.getMnemonic( ) );
 		label.setDisplayedMnemonicIndex( tab.getDisplayedMnemonicIndex( ) );
 		
+		JTabbedPane tabbedPane = SwingUtils.getJTabbedPaneAncestor( tab );
+		
+		boolean enabled = tab.isEnabled( ) && ( tabbedPane == null || tabbedPane.isEnabled( ) );
+		
 		closeButton.setVisible( PropertyGetter.get( Boolean.class , tab , CLOSE_BUTTON_VISIBLE , JTabbedPane.class , JhromeTabbedPaneUI.TAB_CLOSE_BUTTONS_VISIBLE , false ) );
+		closeButton.setEnabled( enabled );
 		
 		if( tab.getTabComponent( ) != displayedTabComponent )
 		{
@@ -209,7 +216,7 @@ public class BasicTabUI extends TabUI
 			}
 		}
 		
-		if( !tab.isEnabled( ) )
+		if( !enabled )
 		{
 			label.setForeground( getDisabledForeground( ) );
 		}

@@ -20,12 +20,10 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 package org.sexydock.tabs.demos;
 
 import java.awt.Color;
-import java.awt.Window;
 
-import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
-import org.sexydock.tabs.ITabbedPaneWindow;
-import org.sexydock.tabs.ITabbedPaneWindowFactory;
+import org.sexydock.tabs.DefaultTabbedPaneWindow;
 import org.sexydock.tabs.Tab;
+import org.sexydock.tabs.TestTabFactory;
 import org.sexydock.tabs.jhrome.JhromeTabUI;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
@@ -34,18 +32,19 @@ public class ColoredTabDemo implements ISexyTabsDemo
 	@Override
 	public void start( )
 	{
-		ITabbedPaneWindowFactory windowFactory = new DefaultTabbedPaneWindowFactory( );
-		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
-		final Window window = tabbedPaneWindow.getWindow( );
+		DefaultTabbedPaneWindow window = new DefaultTabbedPaneWindow( getClass( ).getSimpleName( ) );
 		
-		JhromeTabbedPaneUI tabbedPaneUI = ( JhromeTabbedPaneUI ) tabbedPaneWindow.getTabbedPane( ).getUI( );
+		TestTabFactory tabFactory = new TestTabFactory( );
+		window.getTabbedPane( ).putClientProperty( JhromeTabbedPaneUI.TAB_FACTORY , tabFactory );
+		
+		JhromeTabbedPaneUI tabbedPaneUI = ( JhromeTabbedPaneUI ) window.getTabbedPane( ).getUI( );
 		Tab tab1 = tabbedPaneUI.getTabFactory( ).createTabWithContent( );
 		JhromeTabUI ui = new JhromeTabUI( );
 		ui.getSelectedAttributes( ).topColor = Color.RED;
 		ui.getRolloverAttributes( ).topColor = Color.BLUE;
 		tab1.setUI( ui );
 		tabbedPaneUI.addTab( 0 , tab1 , false );
-		tabbedPaneWindow.getTabbedPane( ).setSelectedIndex( 0 );
+		window.getTabbedPane( ).setSelectedIndex( 0 );
 		
 		window.setSize( 800 , 600 );
 		window.setLocationRelativeTo( null );

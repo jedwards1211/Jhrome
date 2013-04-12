@@ -20,7 +20,6 @@ Things necessary for first release:
 -create examples of default workflow
 -set up UI defaults to use Jhrome
 -investigate JhromeTabbedPaneUI extensibility
--Remove auto window & tab numbers from factories; allow those to be pre-set
 -ensure there will be no backward-compatibility problems in the future
 -Javadoc!
 -investigate DnD image issues on other versions of Java/other systems

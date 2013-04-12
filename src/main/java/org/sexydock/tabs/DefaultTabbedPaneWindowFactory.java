@@ -19,6 +19,8 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
 package org.sexydock.tabs;
 
+import javax.swing.JComponent;
+
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 /**
@@ -28,7 +30,13 @@ import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
  */
 public class DefaultTabbedPaneWindowFactory implements ITabbedPaneWindowFactory
 {
-	private static int	windowCounter	= 1;
+	public DefaultTabbedPaneWindowFactory( DefaultTabbedPaneWindow firstWindow )
+	{
+		this.firstWindow = firstWindow;
+		firstWindow.getTabbedPane( ).putClientProperty( JhromeTabbedPaneUI.TAB_DROP_FAILURE_HANDLER , new DefaultTabDropFailureHandler( this ) );
+	}
+	
+	private DefaultTabbedPaneWindow	firstWindow;
 	
 	/*
 	 * (non-Javadoc)
@@ -38,12 +46,8 @@ public class DefaultTabbedPaneWindowFactory implements ITabbedPaneWindowFactory
 	@Override
 	public ITabbedPaneWindow createWindow( )
 	{
-		final DefaultTabbedPaneWindow frame = new DefaultTabbedPaneWindow( "Jhrome! " + ( windowCounter++ ) );
-		if( frame.getTabbedPane( ).getUI( ) instanceof JhromeTabbedPaneUI )
-		{
-			JhromeTabbedPaneUI ui = ( JhromeTabbedPaneUI ) frame.getTabbedPane( ).getUI( );
-			ui.setWindowFactory( this );
-		}
+		final DefaultTabbedPaneWindow frame = new DefaultTabbedPaneWindow( firstWindow.getTitle( ) );
+		JhromeTabbedPaneUI.copySettings( firstWindow.getTabbedPane( ) , frame.getTabbedPane( ) );
 		frame.setDefaultCloseOperation( DefaultTabbedPaneWindow.DISPOSE_ON_CLOSE );
 		return frame;
 	}

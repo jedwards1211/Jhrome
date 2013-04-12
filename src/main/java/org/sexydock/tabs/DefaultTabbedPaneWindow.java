@@ -78,9 +78,12 @@ public class DefaultTabbedPaneWindow extends JFrame implements ITabbedPaneWindow
 	{
 		tabbedPane = new JTabbedPane( );
 		tabbedPane.setUI( new JhromeTabbedPaneUI( ) );
+		tabbedPane.putClientProperty( JhromeTabbedPaneUI.NEW_TAB_BUTTON_VISIBLE , true );
+		tabbedPane.putClientProperty( JhromeTabbedPaneUI.TAB_CLOSE_BUTTONS_VISIBLE , true );
+		tabbedPane.putClientProperty( JhromeTabbedPaneUI.TAB_DROP_FAILURE_HANDLER , new DefaultTabDropFailureHandler( new DefaultTabbedPaneWindowFactory( this ) ) );
+		tabbedPane.putClientProperty( JhromeTabbedPaneUI.DND_POLICY , new DefaultTabbedPaneDndPolicy( true , true ) );
+		
 		tabbedPane.setBorder( new EmptyBorder( 3 , 3 , 3 , 3 ) );
-		tabbedPane.putClientProperty( "tabCloseButtonsVisible" , true );
-		tabbedPane.putClientProperty( "newTabButtonVisible" , true );
 		getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
 		
 		tabbedPane.addContainerListener( new ContainerAdapter( )

@@ -19,12 +19,9 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 
 package org.sexydock.tabs.demos;
 
-import java.awt.Window;
-
-import javax.swing.JPanel;
-
-import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
-import org.sexydock.tabs.ITabbedPaneWindow;
+import org.sexydock.tabs.DefaultTabbedPaneWindow;
+import org.sexydock.tabs.Tab;
+import org.sexydock.tabs.TestTabFactory;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class SlowAnimationDemo implements ISexyTabsDemo
@@ -32,25 +29,17 @@ public class SlowAnimationDemo implements ISexyTabsDemo
 	@Override
 	public void start( )
 	{
-		DefaultTabbedPaneWindowFactory windowFactory = new DefaultTabbedPaneWindowFactory( )
-		{
-			@Override
-			public ITabbedPaneWindow createWindow( )
-			{
-				ITabbedPaneWindow window = super.createWindow( );
-				JhromeTabbedPaneUI ui = ( JhromeTabbedPaneUI ) window.getTabbedPane( ).getUI( );
-				ui.setAnimationFactor( 0.95f );
-				return window;
-			}
-		};
-		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
-		Window window = tabbedPaneWindow.getWindow( );
+		DefaultTabbedPaneWindow window = new DefaultTabbedPaneWindow( getClass( ).getSimpleName( ) );
 		
-		tabbedPaneWindow.getTabbedPane( ).addTab( "Tab 1" , new JPanel( ) );
-		tabbedPaneWindow.getTabbedPane( ).setSelectedIndex( 0 );
+		TestTabFactory tabFactory = new TestTabFactory( );
+		window.getTabbedPane( ).putClientProperty( JhromeTabbedPaneUI.TAB_FACTORY , tabFactory );
+		window.getTabbedPane( ).putClientProperty( JhromeTabbedPaneUI.ANIMATION_FACTOR , 0.95 );
 		
-		window.setSize( 800 , 600 );
-		window.setLocationRelativeTo( null );
-		window.setVisible( true );
+		Tab tab1 = tabFactory.createTabWithContent( );
+		window.getTabbedPane( ).addTab( tab1.getTitle( ) , tab1.getContent( ) );
+		
+		window.getWindow( ).setSize( 800 , 600 );
+		window.getWindow( ).setLocationRelativeTo( null );
+		window.getWindow( ).setVisible( true );
 	}
 }

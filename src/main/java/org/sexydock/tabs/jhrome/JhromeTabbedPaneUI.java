@@ -146,7 +146,11 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	public static final String	DND_POLICY					= "sexydock.tabbedPane.dndPolicy";
 	
-	private static final String	NEW_TAB_BUTTON_UI			= "sexydock.tabbedPane.newTabButtonUI";
+	public static final String	NEW_TAB_BUTTON_UI			= "sexydock.tabbedPane.newTabButtonUI";
+	
+	public static final String	USE_UNIFORM_WIDTH			= "sexydock.tabbedPane.useUniformWidth";
+	
+	public static final String	ANIMATION_FACTOR			= "sexydock.tabbedPane.animationFactor";
 	
 	public JhromeTabbedPaneUI( )
 	{
@@ -250,11 +254,11 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	private ITabDropFailureHandler		tabDropFailureHandler	= null;
 	
-	private IFloatingTabHandler			floatingTabHandler		= new DefaultFloatingTabHandler( );
+	private IFloatingTabHandler			floatingTabHandler		= null;
 	
 	private InternalTransferableStore	transferableStore		= InternalTransferableStore.getDefaultInstance( );
 	
-	private ITabFactory					tabFactory				= new DefaultTabFactory( );
+	private ITabFactory					tabFactory				= null;
 	
 	private Rectangle					topZone					= new Rectangle( );
 	private Rectangle					tabZone					= new Rectangle( );
@@ -304,6 +308,11 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 									{
 										updateHoldTabScale( e );
 										
+										if( !tabbedPane.isEnabled( ) )
+										{
+											return;
+										}
+										
 										Point p = SwingUtilities.convertPoint( e.getComponent( ) , e.getPoint( ) , tabbedPane );
 										Tab tab = getHoverableTabAt( p );
 										for( TabInfo info : tabs )
@@ -315,6 +324,11 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 									@Override
 									public void mousePressed( MouseEvent e )
 									{
+										if( !tabbedPane.isEnabled( ) )
+										{
+											return;
+										}
+										
 										Point p = SwingUtilities.convertPoint( e.getComponent( ) , e.getPoint( ) , tabbedPane );
 										Tab tab = getSelectableTabAt( p );
 										if( tab != null )
@@ -430,6 +444,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		newTabButton.addActionListener( newTabButtonListener );
 		newTabButton.setUI( PropertyGetter.get( ButtonUI.class , tabbedPane , NEW_TAB_BUTTON_UI , ( String ) null , new JhromeNewTabButtonUI( ) ) );
 		newTabButton.setVisible( PropertyGetter.get( Boolean.class , tabbedPane , NEW_TAB_BUTTON_VISIBLE , false ) );
+		newTabButton.setEnabled( tabbedPane.isEnabled( ) );
 		contentPanelBorder = PropertyGetter.get( Border.class , tabbedPane , CONTENT_PANEL_BORDER , ( String ) null , new JhromeContentPanelBorder( ) );
 		
 		rightButtonsPanel = new JPanel( );
@@ -451,10 +466,12 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		tabbedPane.addPropertyChangeListener( handler );
 		tabbedPane.addFocusListener( handler );
 		
-		tabFactory = PropertyGetter.get( ITabFactory.class , tabbedPane , TAB_FACTORY );
+		tabFactory = PropertyGetter.get( ITabFactory.class , tabbedPane , TAB_FACTORY , new DefaultTabFactory( ) );
 		dndPolicy = PropertyGetter.get( ITabbedPaneDndPolicy.class , tabbedPane , DND_POLICY );
 		tabDropFailureHandler = PropertyGetter.get( ITabDropFailureHandler.class , tabbedPane , TAB_DROP_FAILURE_HANDLER );
-		floatingTabHandler = PropertyGetter.get( IFloatingTabHandler.class , tabbedPane , FLOATING_TAB_HANDLER );
+		floatingTabHandler = PropertyGetter.get( IFloatingTabHandler.class , tabbedPane , FLOATING_TAB_HANDLER , new DefaultFloatingTabHandler( ) );
+		useUniformWidth = PropertyGetter.get( Boolean.class , tabbedPane , USE_UNIFORM_WIDTH , true );
+		animFactor = PropertyGetter.get( Double.class , tabbedPane , ANIMATION_FACTOR , 0.7 );
 		if( tabbedPane.getClientProperty( TAB_CLOSE_BUTTON_LISTENER ) == null )
 		{
 			tabbedPane.putClientProperty( TAB_CLOSE_BUTTON_LISTENER , PropertyGetter.get( ITabCloseButtonListener.class , TAB_CLOSE_BUTTON_LISTENER , new DefaultTabCloseButtonListener( ) ) );
@@ -1807,6 +1824,11 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		@Override
 		public void dragGestureRecognized( DragGestureEvent dge )
 		{
+			if( !tabbedPane.isEnabled( ) )
+			{
+				return;
+			}
+			
 			dragOrigin = dge.getDragOrigin( );
 			
 			Tab draggedTab = getDraggableTabAt( dragOrigin );
@@ -1999,12 +2021,12 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	private boolean isTearAwayAllowed( Tab tab )
 	{
-		return dndPolicy != null && dndPolicy.isTearAwayAllowed( tabbedPane , tab );
+		return tabbedPane.isEnabled( ) && dndPolicy != null && dndPolicy.isTearAwayAllowed( tabbedPane , tab );
 	}
 	
 	private boolean isSnapInAllowed( Tab tab )
 	{
-		return dndPolicy != null && dndPolicy.isSnapInAllowed( tabbedPane , tab );
+		return tabbedPane.isEnabled( ) && dndPolicy != null && dndPolicy.isSnapInAllowed( tabbedPane , tab );
 	}
 	
 	private void dragOut( Component dragComponent , TabDragInfo dragInfo )
@@ -2357,6 +2379,11 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			{
 				updateTab( ( Integer ) evt.getNewValue( ) , false );
 			}
+			else if( "enabled".equals( evt.getPropertyName( ) ) )
+			{
+				newTabButton.setEnabled( tabbedPane.isEnabled( ) );
+				tabbedPane.repaint( );
+			}
 			else if( NEW_TAB_BUTTON_VISIBLE.equals( evt.getPropertyName( ) ) )
 			{
 				newTabButton.setVisible( PropertyGetter.get( Boolean.class , tabbedPane , NEW_TAB_BUTTON_VISIBLE , ( String ) null , false ) );
@@ -2393,6 +2420,16 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			else if( FLOATING_TAB_HANDLER.equals( evt.getPropertyName( ) ) )
 			{
 				floatingTabHandler = PropertyGetter.get( IFloatingTabHandler.class , tabbedPane , FLOATING_TAB_HANDLER );
+			}
+			else if( ANIMATION_FACTOR.equals( evt.getPropertyName( ) ) )
+			{
+				animFactor = PropertyGetter.get( Double.class , tabbedPane , ANIMATION_FACTOR , 0.7 );
+			}
+			else if( USE_UNIFORM_WIDTH.equals( evt.getPropertyName( ) ) )
+			{
+				useUniformWidth = PropertyGetter.get( Boolean.class , tabbedPane , USE_UNIFORM_WIDTH , true );
+				tabbedPane.invalidate( );
+				tabbedPane.validate( );
 			}
 		}
 		
@@ -2731,5 +2768,22 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		{
 			e.printStackTrace( );
 		}
+	}
+	
+	public static void copySettings( JTabbedPane src , JTabbedPane dest )
+	{
+		dest.putClientProperty( TAB_FACTORY , src.getClientProperty( TAB_FACTORY ) );
+		dest.putClientProperty( TAB_CLOSE_BUTTONS_VISIBLE , src.getClientProperty( TAB_CLOSE_BUTTONS_VISIBLE ) );
+		dest.putClientProperty( NEW_TAB_BUTTON_VISIBLE , src.getClientProperty( NEW_TAB_BUTTON_VISIBLE ) );
+		dest.putClientProperty( TAB_DROP_FAILURE_HANDLER , src.getClientProperty( TAB_DROP_FAILURE_HANDLER ) );
+		dest.putClientProperty( FLOATING_TAB_HANDLER , src.getClientProperty( FLOATING_TAB_HANDLER ) );
+		dest.putClientProperty( CONTENT_PANEL_BORDER , src.getClientProperty( CONTENT_PANEL_BORDER ) );
+		dest.putClientProperty( NEW_TAB_BUTTON_UI , src.getClientProperty( NEW_TAB_BUTTON_UI ) );
+		dest.putClientProperty( DND_POLICY , src.getClientProperty( DND_POLICY ) );
+		dest.putClientProperty( TAB_CLOSE_BUTTON_LISTENER , src.getClientProperty( TAB_CLOSE_BUTTON_LISTENER ) );
+		dest.putClientProperty( USE_UNIFORM_WIDTH , src.getClientProperty( USE_UNIFORM_WIDTH ) );
+		dest.putClientProperty( ANIMATION_FACTOR , src.getClientProperty( ANIMATION_FACTOR ) );
+		dest.setTabPlacement( src.getTabPlacement( ) );
+		dest.setEnabled( src.isEnabled( ) );
 	}
 }

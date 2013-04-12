@@ -19,16 +19,15 @@
 
 package org.sexydock.tabs.demos;
 
-import java.awt.Window;
-
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
+import org.sexydock.tabs.BasicTabUI;
 import org.sexydock.tabs.DefaultTabbedPaneWindow;
 import org.sexydock.tabs.ITabbedPaneDndPolicy;
-import org.sexydock.tabs.ITabbedPaneWindow;
 import org.sexydock.tabs.Tab;
+import org.sexydock.tabs.TestTabFactory;
 import org.sexydock.tabs.event.ITabbedPaneListener;
 import org.sexydock.tabs.event.TabAddedEvent;
 import org.sexydock.tabs.event.TabMovedEvent;
@@ -43,8 +42,10 @@ public class ITabbedPaneListenerDemo implements ISexyTabsDemo
 	@Override
 	public void start( )
 	{
-		ITabbedPaneWindow tabbedPaneWindow = new DefaultTabbedPaneWindow( "ITabbedPaneListener Demo" );
-		Window window = tabbedPaneWindow.getWindow( );
+		DefaultTabbedPaneWindow window = new DefaultTabbedPaneWindow( "ITabbedPaneListener Demo" );
+		
+		TestTabFactory tabFactory = new TestTabFactory( );
+		window.getTabbedPane( ).putClientProperty( JhromeTabbedPaneUI.TAB_FACTORY , tabFactory );
 		
 		final JTextArea messageArea = new JTextArea( );
 		final JScrollPane messageScroller = new JScrollPane( messageArea );
@@ -61,12 +62,12 @@ public class ITabbedPaneListenerDemo implements ISexyTabsDemo
 				messageScroller.getVerticalScrollBar( ).setValue( messageScroller.getVerticalScrollBar( ).getMaximum( ) );
 			}
 		};
-		JhromeTabbedPaneUI ui = (JhromeTabbedPaneUI) tabbedPaneWindow.getTabbedPane( ).getUI( );
+		JhromeTabbedPaneUI ui = (JhromeTabbedPaneUI) window.getTabbedPane( ).getUI( );
 		ui.addTabbedPaneListener( listener );
-		tabbedPaneWindow.getTabbedPane( ).addTab( "Listener", messageScroller );
-		tabbedPaneWindow.getTabbedPane( ).setSelectedComponent( messageScroller );
+		window.getTabbedPane( ).addTab( "Listener", messageScroller );
+		window.getTabbedPane( ).setSelectedComponent( messageScroller );
 		final Tab listenerTab = ui.getTabAt( 0 );
-		listenerTab.putClientProperty( "closeButtonVisible", false );
+		listenerTab.putClientProperty( BasicTabUI.CLOSE_BUTTON_VISIBLE, false );
 		ui.setDndPolicy( new ITabbedPaneDndPolicy( )
 		{
 			@Override

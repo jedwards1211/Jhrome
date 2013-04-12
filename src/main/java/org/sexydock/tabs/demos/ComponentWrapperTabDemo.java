@@ -20,8 +20,8 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
 package org.sexydock.tabs.demos;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GridLayout;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -29,13 +29,14 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import org.sexydock.tabs.ComponentWrapperTab;
-import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
-import org.sexydock.tabs.ITabbedPaneWindow;
+import org.sexydock.tabs.DefaultTabbedPaneWindow;
+import org.sexydock.tabs.TestTabFactory;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class ComponentWrapperTabDemo implements ISexyTabsDemo
@@ -43,9 +44,10 @@ public class ComponentWrapperTabDemo implements ISexyTabsDemo
 	@Override
 	public void start( )
 	{
-		DefaultTabbedPaneWindowFactory windowFactory = new DefaultTabbedPaneWindowFactory( );
-		ITabbedPaneWindow tabbedPaneWindow = windowFactory.createWindow( );
-		final Window window = tabbedPaneWindow.getWindow( );
+		DefaultTabbedPaneWindow window = new DefaultTabbedPaneWindow( );
+		
+		TestTabFactory tabFactory = new TestTabFactory( );
+		window.getTabbedPane( ).putClientProperty( JhromeTabbedPaneUI.TAB_FACTORY , tabFactory );
 		
 		JButton button = new JButton( "Click Me!" );
 		button.addActionListener( new ActionListener( )
@@ -53,7 +55,7 @@ public class ComponentWrapperTabDemo implements ISexyTabsDemo
 			@Override
 			public void actionPerformed( ActionEvent e )
 			{
-				JOptionPane.showMessageDialog( window , "Pretty cool huh?" );
+				JOptionPane.showMessageDialog( SwingUtilities.getWindowAncestor( ( Component ) e.getSource( ) ) , "Pretty cool huh?" );
 			}
 		} );
 		
@@ -65,10 +67,10 @@ public class ComponentWrapperTabDemo implements ISexyTabsDemo
 		renderer.add( button );
 		renderer.add( textField );
 		
-		JhromeTabbedPaneUI tabbedPaneUI = ( JhromeTabbedPaneUI ) tabbedPaneWindow.getTabbedPane( ).getUI( );
+		JhromeTabbedPaneUI tabbedPaneUI = ( JhromeTabbedPaneUI ) window.getTabbedPane( ).getUI( );
 		ComponentWrapperTab tab1 = new ComponentWrapperTab( renderer , new JPanel( ) );
 		tabbedPaneUI.addTab( 0 , tab1 , false );
-		tabbedPaneWindow.getTabbedPane( ).setSelectedIndex( 0 );
+		window.getTabbedPane( ).setSelectedIndex( 0 );
 		
 		window.setSize( 800 , 600 );
 		window.setLocationRelativeTo( null );
