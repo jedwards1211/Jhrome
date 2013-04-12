@@ -1,27 +1,14 @@
-/*
-Copyright 2012 James Edwards
-
-This file is part of Jhrome.
-
-Jhrome is free software: you can redistribute it and/or modify
-it under the terms of the GNU Lesser General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Jhrome is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License
-along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
- */
-
 package org.sexydock.tabs.demos;
 
-import org.sexydock.tabs.DefaultTabbedPaneWindow;
-import org.sexydock.tabs.Tab;
-import org.sexydock.tabs.TestTabFactory;
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.Font;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
+
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class OutOfTheBoxDemo implements ISexyTabsDemo
@@ -29,16 +16,29 @@ public class OutOfTheBoxDemo implements ISexyTabsDemo
 	@Override
 	public void start( )
 	{
-		DefaultTabbedPaneWindow window = new DefaultTabbedPaneWindow( getClass( ).getSimpleName( ) );
+		JFrame frame = new JFrame( getClass( ).getSimpleName( ) );
 		
-		TestTabFactory tabFactory = new TestTabFactory( );
-		window.getTabbedPane( ).putClientProperty( JhromeTabbedPaneUI.TAB_FACTORY , tabFactory );
+		JTabbedPane tabbedPane = new JTabbedPane( );
+		tabbedPane.setUI( new JhromeTabbedPaneUI( ) );
 		
-		Tab tab1 = tabFactory.createTabWithContent( );
-		window.getTabbedPane( ).addTab( tab1.getTitle( ) , tab1.getContent( ) );
+		Font bigFont = new Font("Arial", Font.BOLD, 72);
+		JLabel label1 = new JLabel("Tab 1");
+		JLabel label2 = new JLabel("Tab 2");
+		label1.setFont( bigFont );
+		label2.setFont( bigFont );
+		JPanel panel1 = new JPanel(new FlowLayout());
+		JPanel panel2 = new JPanel(new FlowLayout());
+		panel1.add(label1);
+		panel2.add(label2);
+		tabbedPane.addTab( "Tab 1" , panel1 );
+		tabbedPane.addTab( "Tab 2" , panel2 );
+		tabbedPane.addTab( "Tab 3" , new JPanel( ) );
+		tabbedPane.setEnabledAt( 2 , false );
+		tabbedPane.setSelectedIndex( 0 );
 		
-		window.getWindow( ).setSize( 800 , 600 );
-		window.getWindow( ).setLocationRelativeTo( null );
-		window.getWindow( ).setVisible( true );
+		frame.getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
+		frame.setSize( 800, 600 );
+		frame.setLocationRelativeTo( null );
+		frame.setVisible( true );
 	}
 }

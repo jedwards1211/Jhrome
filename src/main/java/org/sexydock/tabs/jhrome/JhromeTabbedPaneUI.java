@@ -152,6 +152,10 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	public static final String	ANIMATION_FACTOR			= "sexydock.tabbedPane.animationFactor";
 	
+	public static final boolean	DEFAULT_USE_UNIFORM_WIDTH	= true;
+	
+	public static final double	DEFAULT_ANIMATION_FACTOR	= 0.7;
+	
 	public JhromeTabbedPaneUI( )
 	{
 	}
@@ -216,7 +220,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 	
 	private int							overlap					= 13;
 	
-	private double						animFactor				= 0.7;
+	private double						animFactor				= DEFAULT_ANIMATION_FACTOR;
 	
 	private javax.swing.Timer			animTimer;
 	private final Object				animLock				= new Object( );
@@ -317,7 +321,7 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 										Tab tab = getHoverableTabAt( p );
 										for( TabInfo info : tabs )
 										{
-											info.tab.setRollover( info.tab == tab );
+											info.tab.setRollover( info.tab.isEnabled( ) && info.tab == tab );
 										}
 									}
 									
@@ -470,8 +474,8 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 		dndPolicy = PropertyGetter.get( ITabbedPaneDndPolicy.class , tabbedPane , DND_POLICY );
 		tabDropFailureHandler = PropertyGetter.get( ITabDropFailureHandler.class , tabbedPane , TAB_DROP_FAILURE_HANDLER );
 		floatingTabHandler = PropertyGetter.get( IFloatingTabHandler.class , tabbedPane , FLOATING_TAB_HANDLER , new DefaultFloatingTabHandler( ) );
-		useUniformWidth = PropertyGetter.get( Boolean.class , tabbedPane , USE_UNIFORM_WIDTH , true );
-		animFactor = PropertyGetter.get( Double.class , tabbedPane , ANIMATION_FACTOR , 0.7 );
+		useUniformWidth = PropertyGetter.get( Boolean.class , tabbedPane , USE_UNIFORM_WIDTH , DEFAULT_USE_UNIFORM_WIDTH );
+		animFactor = PropertyGetter.get( Double.class , tabbedPane , ANIMATION_FACTOR , DEFAULT_ANIMATION_FACTOR );
 		if( tabbedPane.getClientProperty( TAB_CLOSE_BUTTON_LISTENER ) == null )
 		{
 			tabbedPane.putClientProperty( TAB_CLOSE_BUTTON_LISTENER , PropertyGetter.get( ITabCloseButtonListener.class , TAB_CLOSE_BUTTON_LISTENER , new DefaultTabCloseButtonListener( ) ) );
@@ -2423,11 +2427,11 @@ public class JhromeTabbedPaneUI extends TabbedPaneUI
 			}
 			else if( ANIMATION_FACTOR.equals( evt.getPropertyName( ) ) )
 			{
-				animFactor = PropertyGetter.get( Double.class , tabbedPane , ANIMATION_FACTOR , 0.7 );
+				animFactor = PropertyGetter.get( Double.class , tabbedPane , ANIMATION_FACTOR , DEFAULT_ANIMATION_FACTOR );
 			}
 			else if( USE_UNIFORM_WIDTH.equals( evt.getPropertyName( ) ) )
 			{
-				useUniformWidth = PropertyGetter.get( Boolean.class , tabbedPane , USE_UNIFORM_WIDTH , true );
+				useUniformWidth = PropertyGetter.get( Boolean.class , tabbedPane , USE_UNIFORM_WIDTH , DEFAULT_USE_UNIFORM_WIDTH );
 				tabbedPane.invalidate( );
 				tabbedPane.validate( );
 			}

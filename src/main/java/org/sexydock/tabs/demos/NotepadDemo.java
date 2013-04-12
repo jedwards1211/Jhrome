@@ -54,7 +54,6 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 			@Override
 			public void run( )
 			{
-				UIManager.getDefaults( ).put( "TabbedPaneUI" , JhromeTabbedPaneUI.class.getName( ) );
 				new NotepadDemo( ).start( );
 			}
 		} );
@@ -70,6 +69,7 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 		setTitle( "Notepad" );
 		
 		tabbedPane = new JTabbedPane( );
+		tabbedPane.setUI( new JhromeTabbedPaneUI( ) );
 		tabbedPane.putClientProperty( JhromeTabbedPaneUI.NEW_TAB_BUTTON_VISIBLE , true );
 		tabbedPane.putClientProperty( JhromeTabbedPaneUI.TAB_CLOSE_BUTTONS_VISIBLE , true );
 		tabbedPane.putClientProperty( JhromeTabbedPaneUI.TAB_DROP_FAILURE_HANDLER , new DefaultTabDropFailureHandler( this ) );
