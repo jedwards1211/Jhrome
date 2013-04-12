@@ -22,32 +22,77 @@ along with Jhrome.  If not, see <http://www.gnu.org/licenses/>.
      _________________
 ____/ Getting Started \____________________________________________________
 
-1. To turn on Google Chrome-style tabs for all JTabbedPanes in an existing
-   application, simply put the following code in your application startup:
+See org/sexydock/tabs/demos/GettingStarted.java.  Here's a snippet:
 
-		UIManager.getDefaults( ).put( "TabbedPaneUI" , 
-			JhromeTabbedPaneUI.class.getName( ) );
-		
-   Or, just set a JTabbedPane's UI directly:
-  		
-  		tabbedPane.setUI( new JhromeTabbedPaneUI( ) ); 
-   		
-2. To turn on the tab close buttons, set the tabCloseButtonsVisible client
-   property on a tabbedPane:
-   
-   		tabbedPane.putClientProperty( "tabCloseButtonsVisible", true );
-   		
-3. To turn on the new tab button, set the newTabButtonVisible client
-   property on a tabbedPane:
-   
-   		tabbedPane.putClientProperty( "newTabButtonVisible", true );
+// To turn on Google Chrome-style tabs for all JTabbedPanes in an existing
+// application, simply put the following code in your application startup:
+
+UIManager.getDefaults( ).put( "TabbedPaneUI" , JhromeTabbedPaneUI.class.getName( ) );
+
+final JTabbedPane tabbedPane = new JTabbedPane( );
+
+// Or, just set the tabbed pane's UI directly:
+
+tabbedPane.setUI( new JhromeTabbedPaneUI( ) );
+
+// Now the tabbed pane will look like Google Chrome, but besides letting
+// you reorder its tabs, it won't let you do anything special beyond
+// BasicTabbedPaneUI behavior.
+
+// To turn on tab close buttons, do this:
+
+tabbedPane.putClientProperty( JhromeTabbedPaneUI.TAB_CLOSE_BUTTONS_VISIBLE , true );
+
+// But how to make the window close when the user closes the last tab? Use this:
+
+tabbedPane.addContainerListener( new DefaultTabsRemovedHandler( ) );
+
+// To turn on the new tab button, do this:
+
+tabbedPane.putClientProperty( JhromeTabbedPaneUI.NEW_TAB_BUTTON_VISIBLE , true );
+
+// Not so fast! The new tab button won't work yet. You have to define how the
+// content of new tabs is created. Here's how: (see GettingStarted.java to continue)
+
+..................
+
+For an example of a basic full-featured tabbed application, see
+org/sexydock/tabs/demos/NotepadDemo.java.
 				
-For more examples, run org.sexydock.tabs.demos.SexyTabsDemos.  The program
-displays source code for various examples and allows you to launch them.
-This source code should be a good first introduction.  If you have other
-questions, check the Javadocs in org.sexydock.tabs.TabbedPane, or send me
-an e-mail.
+To see all examples, run org.sexydock.tabs.demos.SexyTabsDemos.  The program
+displays source code for the examples and allows you to launch them.
+
+If you have other questions, check the Javadocs in org.sexydock.tabs.TabbedPane, 
+or send me an e-mail.
  
+     _______________________________________
+____/ Todo / Unsupported functions / Issues \______________________________
+
+The following are known to be issues:
+
+-There may be memory leaks caused by JhromeTabbedPaneUI that prevent 
+disposed
+windows from being garbage collected/allowing the VM to shut down
+automatically when the last window is closed.
+-The ghost drag image window doesn't work on some systems (as it
+depends on AWTUtilities window transparency controls).  I need to add a
+check to automatically disable window transparency when not supported.
+
+The following JTabbedPane functions are currently known to be unsupported
+by JhromeTabbedPaneUI:
+
+-JTabbedPane.setForeground/BackgroundAt( int , Color ) (planned)
+-JTabbedPane.addTab( 0 , null ) (not planning to support null tab content)
+-keyboard navigation except for mnemonics (arrow keys etc. are not yet 
+supported)
+-left and right tab placement (planned)
+
+The following need to be done eventually:
+
+-A nice TabUI that *doesn't* look like Google Chrome
+-Detailed color customization
+-Custom tab reordering policies (to allow you to force a specific tab to
+stay at one end, etc.
      ________
 ____/ Status \_____________________________________________________________
 

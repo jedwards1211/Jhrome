@@ -86,17 +86,7 @@ public class DefaultTabbedPaneWindow extends JFrame implements ITabbedPaneWindow
 		tabbedPane.setBorder( new EmptyBorder( 3 , 3 , 3 , 3 ) );
 		getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
 		
-		tabbedPane.addContainerListener( new ContainerAdapter( )
-		{
-			@Override
-			public void componentRemoved( ContainerEvent e )
-			{
-				if( tabbedPane.getTabCount( ) == 0 )
-				{
-					dispose( );
-				}
-			}
-		} );
+		tabbedPane.addContainerListener( new DefaultTabsRemovedHandler( ) );
 	}
 	
 	/*
