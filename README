@@ -93,6 +93,15 @@ The following need to be done eventually:
 -Detailed color customization
 -Custom tab reordering policies (to allow you to force a specific tab to
 stay at one end, etc.
+
+     ___________
+____/ Compiling \__________________________________________________________
+
+The use of window transparency depends on Java SE 6 Update 10.
+
+Other than that, if you want to compile src/test, you'll need 
+fest-swing-1.2 and its dependencies.
+
      ________
 ____/ Status \_____________________________________________________________
 
