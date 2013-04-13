@@ -7,7 +7,7 @@
 	<property name="build-test" location="${build}/test" />
 	<property name="jhrome.version" value="2.0" />
 	<property name="examples" value="org/sexydock/tabs/demos" />
-	<property name="lib" location="lib" />
+	<property name="lib-test" location="lib/test" />
 	
 	<target name="init">
 		<mkdir dir="${build-main}" />	
@@ -16,7 +16,6 @@
 	
 	<target name="compile" depends="init">
 		<javac srcdir="${src}" destdir="${build-main}" />
-		<javac srcdir="${test}" classpath="${build-main};${lib}/fest-assert-1.2.jar;${lib}fest-reflect-1.2.jar;${lib}/fest-swing-1.2.jar;${lib}/fest-util-1.1.2.jar;${lib}/junit-4.5.jar;${lib}/jcip-annotations-1.0.jar" destdir="${build-test}" />
 	</target>
 	
 	<target name="copy-examples-for-jar">
@@ -34,6 +33,13 @@
 			</manifest>
 		</jar>
 		<jar jarfile="${dist}/Jhrome-sources-${jhrome.version}.jar" basedir="${src}" excludes="${examples}/"/>
+	</target>
+		
+	<target name="compile-test" depends="init">
+		<javac srcdir="${test}" classpath="${build-main};${lib-test}/fest-assert-1.2.jar;${lib-test}fest-reflect-1.2.jar;${lib-test}/fest-swing-1.2.jar;${lib-test}/fest-util-1.1.2.jar;${lib-test}/junit-4.5.jar;${lib-test}/jcip-annotations-1.0.jar" destdir="${build-test}" />
+	</target>
+			
+	<target name="test" depends="compile-test,dist">
 		<jar jarfile="${dist}/Jhrome-test-${jhrome.version}.jar" basedir="${build-test}" />
 	</target>
 	

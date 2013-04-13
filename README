@@ -100,7 +100,7 @@ ____/ Compiling \__________________________________________________________
 The use of window transparency depends on Java SE 6 Update 10.
 
 Other than that, if you want to compile src/test, you'll need 
-fest-swing-1.2 and its dependencies.
+fest-swing-1.2 and its dependencies.  I haven't Mavenized this process yet.
 
      ________
 ____/ Status \_____________________________________________________________
