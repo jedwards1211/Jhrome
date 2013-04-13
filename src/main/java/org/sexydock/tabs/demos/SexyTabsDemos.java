@@ -49,6 +49,7 @@ import org.sexydock.tabs.DefaultFloatingTabHandler;
 import org.sexydock.tabs.DefaultTabDropFailureHandler;
 import org.sexydock.tabs.DefaultTabbedPaneWindow;
 import org.sexydock.tabs.DefaultTabbedPaneWindowFactory;
+import org.sexydock.tabs.DefaultWindowsClosedHandler;
 import org.sexydock.tabs.ITabbedPaneDndPolicy;
 import org.sexydock.tabs.ITabbedPaneWindow;
 import org.sexydock.tabs.Tab;
@@ -110,6 +111,7 @@ public class SexyTabsDemos implements ISexyTabsDemo
 				demoList.setModel( demoListModel );
 				
 				DefaultTabbedPaneWindow window = new DefaultTabbedPaneWindow( "SexyTabs demos" );
+				window.addWindowListener( new DefaultWindowsClosedHandler( ) );
 				window.getTabbedPane( ).putClientProperty( JhromeTabbedPaneUI.NEW_TAB_BUTTON_VISIBLE , false );
 				
 				final Tab demoSelectorTab = new Tab( "SexyTabs Demos" , demoListPanel );

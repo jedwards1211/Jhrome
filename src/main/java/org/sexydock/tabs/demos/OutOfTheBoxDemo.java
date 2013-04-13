@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
+import org.sexydock.tabs.DefaultWindowsClosedHandler;
 import org.sexydock.tabs.jhrome.JhromeTabbedPaneUI;
 
 public class OutOfTheBoxDemo implements ISexyTabsDemo
@@ -39,6 +40,8 @@ public class OutOfTheBoxDemo implements ISexyTabsDemo
 		frame.getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
 		frame.setSize( 800, 600 );
 		frame.setLocationRelativeTo( null );
+		frame.setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
+		frame.addWindowListener( new DefaultWindowsClosedHandler( ) );
 		frame.setVisible( true );
 	}
 }

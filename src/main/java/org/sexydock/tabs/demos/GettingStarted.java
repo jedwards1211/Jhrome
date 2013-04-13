@@ -13,6 +13,7 @@ import javax.swing.UIManager;
 
 import org.sexydock.tabs.DefaultTabDropFailureHandler;
 import org.sexydock.tabs.DefaultTabsRemovedHandler;
+import org.sexydock.tabs.DefaultWindowsClosedHandler;
 import org.sexydock.tabs.ITabFactory;
 import org.sexydock.tabs.ITabbedPaneDndPolicy;
 import org.sexydock.tabs.ITabbedPaneWindow;
@@ -130,6 +131,11 @@ public class GettingStarted implements ISexyTabsDemo
 				this.tabbedPane = tabbedPane;
 				getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
 				setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
+				
+				// add a listener to exit when the last window is closed
+				// (this should happen automatically but there seem to be
+				// slight memory leaks caused by Jhrome)
+				addWindowListener( new DefaultWindowsClosedHandler( ) );
 			}
 			
 			JTabbedPane	tabbedPane;

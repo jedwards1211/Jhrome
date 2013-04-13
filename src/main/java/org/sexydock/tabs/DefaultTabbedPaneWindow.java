@@ -65,13 +65,6 @@ public class DefaultTabbedPaneWindow extends JFrame implements ITabbedPaneWindow
 		init( );
 	}
 	
-	@Override
-	public void dispose( )
-	{
-		// tabbedPane.dispose( );
-		super.dispose( );
-	}
-	
 	JTabbedPane	tabbedPane;
 	
 	private void init( )
@@ -87,6 +80,9 @@ public class DefaultTabbedPaneWindow extends JFrame implements ITabbedPaneWindow
 		getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
 		
 		tabbedPane.addContainerListener( new DefaultTabsRemovedHandler( ) );
+		
+		setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
+		addWindowListener( new DefaultWindowsClosedHandler( ) );
 	}
 	
 	/*

@@ -37,6 +37,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.sexydock.tabs.DefaultFloatingTabHandler;
 import org.sexydock.tabs.DefaultTabDropFailureHandler;
+import org.sexydock.tabs.DefaultWindowsClosedHandler;
 import org.sexydock.tabs.ITabFactory;
 import org.sexydock.tabs.ITabbedPaneDndPolicy;
 import org.sexydock.tabs.ITabbedPaneWindow;
@@ -94,6 +95,7 @@ public class NotepadDemo extends JFrame implements ISexyTabsDemo , ITabbedPaneWi
 		getContentPane( ).add( tabbedPane , BorderLayout.CENTER );
 		
 		setDefaultCloseOperation( JFrame.DISPOSE_ON_CLOSE );
+		addWindowListener( new DefaultWindowsClosedHandler( ) );
 		
 		saveAction = new SaveAction( );
 		JMenuItem openItem = new JMenuItem( new OpenAction( ) );
