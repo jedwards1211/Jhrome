@@ -1,0 +1,44 @@
+<project name="SexyDock" default="dist" basedir=".">
+	<property name="src" location="src/main/java" />
+	<property name="test" location="src/test/java" />
+	<property name="dist" value="dist" />
+	<property name="build" location="build" />
+	<property name="build-main" location="${build}/main" />
+	<property name="build-test" location="${build}/test" />
+	<property name="jhrome.version" value="2.0" />
+	<property name="examples" value="org/sexydock/tabs/demos" />
+	<property name="lib" location="lib" />
+	
+	<target name="init">
+		<mkdir dir="${build-main}" />	
+		<mkdir dir="${build-test}" />	
+	</target>
+	
+	<target name="compile" depends="init">
+		<javac srcdir="${src}" destdir="${build-main}" />
+		<javac srcdir="${test}" classpath="${build-main};${lib}/fest-assert-1.2.jar;${lib}fest-reflect-1.2.jar;${lib}/fest-swing-1.2.jar;${lib}/fest-util-1.1.2.jar;${lib}/junit-4.5.jar;${lib}/jcip-annotations-1.0.jar" destdir="${build-test}" />
+	</target>
+	
+	<target name="copy-examples-for-jar">
+		<copy todir="${build-main}">
+			<fileset dir="${src}" includes="${examples}/*.java">	
+			</fileset>
+		</copy>
+	</target>
+	
+	<target name="dist" depends="compile,copy-examples-for-jar">
+		<jar jarfile="${dist}/Jhrome-${jhrome.version}.jar" basedir="${build-main}" excludes="${examples}/" />
+		<jar jarfile="${dist}/Jhrome-examples-${jhrome.version}.jar" basedir="${build-main}">
+			<manifest>
+				<attribute name="Main-Class" value="org.sexydock.tabs.demos.SexyTabsDemos" />
+			</manifest>
+		</jar>
+		<jar jarfile="${dist}/Jhrome-sources-${jhrome.version}.jar" basedir="${src}" excludes="${examples}/"/>
+		<jar jarfile="${dist}/Jhrome-test-${jhrome.version}.jar" basedir="${build-test}" />
+	</target>
+	
+	<target name="clean">
+		<delete dir="${dist}" />
+		<delete dir="${build}" />
+	</target>
+</project>

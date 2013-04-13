@@ -1,0 +1,17 @@
+<project name="SexyDock" default="copy-examples-for-eclipse" basedir=".">
+	<property name="src" location="src/main/java" />
+	<property name="test" location="src/test/java" />
+	<property name="dist" value="dist" />
+	<property name="build" location="classes/main" />
+	<property name="build-test" location="classes/test" />
+	<property name="jhrome.version" value="2.0" />
+	<property name="examples" value="org/sexydock/tabs/demos" />
+	<property name="lib" location="lib" />
+	
+	<target name="copy-examples-for-eclipse">
+		<copy todir="bin">
+			<fileset dir="${src}" includes="${examples}/*.java">	
+			</fileset>
+		</copy>
+	</target>
+</project>
